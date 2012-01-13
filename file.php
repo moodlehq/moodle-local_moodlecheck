@@ -329,7 +329,7 @@ class local_moodlecheck_file {
     public function find_object_boundaries($obj) {
         $boundaries = array($obj->tid, $obj->tid);
         $tokens = $this->get_tokens();
-        if (isset($obj->tagpair)) {
+        if (!empty($obj->tagpair)) {
             $boundaries[1] = $obj->tagpair[1];
         } else {
             // find the next ;
@@ -673,8 +673,13 @@ class local_moodlecheck_file {
      */
     public function get_line_number($tid) {
         $tokens = $this->get_tokens();
-        return $tokens[$tid][2];
-        // TODO some tokens do not have line number, needs to be calculated!
+        if (count($tokens[$tid])>2) {
+            return $tokens[$tid][2];
+        } else if ($tid == 0) {
+            return 1;
+        } else {
+            return $this->get_line_number($tid-1) + count(split("\n", $tokens[$tid-1][1])) - 1;
+        }
     }
 }
 
