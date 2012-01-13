@@ -70,6 +70,10 @@ $string['error_categoryvalid'] = 'Category <b>{$a->category}</b> at line <b>{$a-
 
 $string['rule_classeshavecopyright'] = 'All classes have @copyright tag';
 $string['error_classeshavecopyright'] = 'Class <b>{$a->object}</b> at line <b>{$a->line}</b> does not have @copyright tag';
-
 $string['rule_filehascopyright'] = 'Files have @copyright tag';
 $string['error_filehascopyright'] = 'File-level phpdocs block does not have @copyright tag at line <b>{$a->line}</b>';
+
+$string['rule_classeshavelicense'] = 'All classes have @license tag';
+$string['error_classeshavelicense'] = 'Class <b>{$a->object}</b> at line <b>{$a->line}</b> does not have @license tag';
+$string['rule_filehaslicense'] = 'Files have @license tag';
+$string['error_filehaslicense'] = 'File-level phpdocs block does not have @license tag at line <b>{$a->line}</b>';
