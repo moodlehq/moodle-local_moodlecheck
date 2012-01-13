@@ -32,6 +32,7 @@ local_moodlecheck_registry::add_rule('constsdocumented')->set_callback('local_mo
 local_moodlecheck_registry::add_rule('definesdocumented')->set_callback('local_moodlecheck_definesdocumented');
 local_moodlecheck_registry::add_rule('noinlinephpdocs')->set_callback('local_moodlecheck_noinlinephpdocs');
 local_moodlecheck_registry::add_rule('phpdocsfistline')->set_callback('local_moodlecheck_phpdocsfistline');
+local_moodlecheck_registry::add_rule('functiondescription')->set_callback('local_moodlecheck_functiondescription');
 local_moodlecheck_registry::add_rule('functionarguments')->set_callback('local_moodlecheck_functionarguments');
 local_moodlecheck_registry::add_rule('variableshasvar')->set_callback('local_moodlecheck_variableshasvar');
 local_moodlecheck_registry::add_rule('definedoccorrect')->set_callback('local_moodlecheck_definedoccorrect');
@@ -174,6 +175,25 @@ function local_moodlecheck_phpdocsfistline(local_moodlecheck_file $file) {
             $errors[] = array(
                 'line' => $class->phpdocs->get_line_number($file), 
                 'object' => 'class '.$class->name
+            );
+        }
+    }
+    return $errors;
+}
+
+/**
+ * Makes sure that all functions have descriptions
+ *
+ * @param local_moodlecheck_file $file
+ * @return array of found errors
+ */
+function local_moodlecheck_functiondescription(local_moodlecheck_file $file) {
+    $errors = array();
+    foreach ($file->get_functions() as $function) {
+        if ($function->phpdocs !== false && !strlen($function->phpdocs->get_description())) {
+            $errors[] = array(
+                'line' => $function->phpdocs->get_line_number($file),
+                'object' => $function->name
             );
         }
     }

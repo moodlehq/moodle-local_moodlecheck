@@ -728,7 +728,7 @@ class local_moodlecheck_phpdocs {
         $this->description = '';
         $istokenline = false;
         for ($i=0; $i<count($lines); $i++) {
-            if (preg_match('|\s*\@(\w+)\W|', $lines[$i])) {
+            if (preg_match('|^\s*\@(\w+)\W|', $lines[$i])) {
                 // first line of token
                 $istokenline = true;
                 $this->tokens[] = $lines[$i];

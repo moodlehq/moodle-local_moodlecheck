@@ -51,6 +51,8 @@ $string['error_noinlinephpdocs'] = 'Found comment starting with three or more sl
 $string['error_phpdocsfistline'] = 'No one-line description found in phpdocs for <b>{$a->object}</b> at line <b>{$a->line}</b>';
 $string['rule_phpdocsfistline'] = 'File-level phpdocs block and class phpdocs should have one-line short description';
 
+$string['error_functiondescription'] = 'There is no description in phpdocs for function <b>{$a->object}</b> at line <b>{$a->line}</b>';
+$string['rule_functiondescription'] = 'Functions have descriptions in phpdocs';
 $string['error_functionarguments'] = 'Phpdocs for function <b>{$a->function}</b> at line <b>{$a->line}</b> has incomplete parameters list';
 $string['rule_functionarguments'] = 'Phpdocs for functions properly define all parameters';
 
