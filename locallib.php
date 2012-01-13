@@ -153,6 +153,10 @@ class local_moodlecheck_path {
     protected $validated = false;
     
     public function __construct($path) {
+        $path = trim($path);
+        if (substr($path,0,1) == '/') {
+            $path = substr($path,1);
+        }
         $this->path = $path;
     }
     
