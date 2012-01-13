@@ -148,16 +148,18 @@ class local_moodlecheck_registry {
  */
 class local_moodlecheck_path {
     protected $path = null;
+    protected $ignorepaths = null;
     protected $file = null;
     protected $subpaths = null;
     protected $validated = false;
     
-    public function __construct($path) {
+    public function __construct($path, $ignorepaths) {
         $path = trim($path);
         if (substr($path,0,1) == '/') {
             $path = substr($path,1);
         }
         $this->path = $path;
+        $this->ignorepaths = $ignorepaths;
     }
     
     public function get_fullpath() {
@@ -176,8 +178,8 @@ class local_moodlecheck_path {
             $this->subpaths = array();
             if ($dh = opendir($this->get_fullpath())) {
                 while (($file = readdir($dh)) !== false) {
-                    if ($file != '.' && $file != '..' && $file != '.git') {
-                        $subpath = new local_moodlecheck_path($this->path . '/'. $file);
+                    if ($file != '.' && $file != '..' && $file != '.git' && !$this->is_ignored($file)) {
+                        $subpath = new local_moodlecheck_path($this->path . '/'. $file, $this->ignorepaths);
                         $this->subpaths[] = $subpath;
                     }
                 }
@@ -187,6 +189,17 @@ class local_moodlecheck_path {
         $this->validated = true;
     }
     
+    protected function is_ignored($file) {
+        $filepath = $this->path. '/'. $file;
+        foreach ($this->ignorepaths as $ignorepath) {
+            $ignorepath = rtrim($ignorepath, '/');
+            if ($filepath == $ignorepath || substr($filepath, 0, strlen($ignorepath)+1) == $ignorepath. '/') {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public function is_file() {
         return $this->file !== null;
     }
@@ -224,7 +237,10 @@ class local_moodlecheck_form extends moodleform {
 
         $mform->addElement('textarea', 'path', get_string('path', 'local_moodlecheck'), array('rows' => 8, 'cols' => 120));
         $mform->addHelpButton('path', 'path', 'local_moodlecheck');
-        
+
+        $mform->addElement('textarea', 'ignorepath', get_string('ignorepath', 'local_moodlecheck'), array('rows' => 3, 'cols' => 120));
+        $mform->setAdvanced('ignorepath');
+
         $mform->addElement('radio', 'checkall', '', get_string('checkallrules', 'local_moodlecheck'), 'all');
         $mform->addElement('radio', 'checkall', '', get_string('checkselectedrules', 'local_moodlecheck'), 'selected');
         $mform->setDefault('checkall', 'all');

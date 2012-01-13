@@ -54,6 +54,7 @@ $form->display();
 if ($form->is_submitted() && $form->is_validated()) {
     $data = $form->get_data();
     $paths = preg_split('/\s*\n\s*/', trim($data->path), null, PREG_SPLIT_NO_EMPTY);
+    $ignorepaths = preg_split('/\s*\n\s*/', trim($data->ignorepath), null, PREG_SPLIT_NO_EMPTY);
     if (isset($data->checkall) && $data->checkall == 'selected' && isset($data->rule)) {
         foreach ($data->rule as $code => $value) {
             local_moodlecheck_registry::enable_rule($code);
@@ -62,7 +63,7 @@ if ($form->is_submitted() && $form->is_validated()) {
         local_moodlecheck_registry::enable_all_rules();
     }
     foreach ($paths as $filename) {
-        $path = new local_moodlecheck_path($filename);
+        $path = new local_moodlecheck_path($filename, $ignorepaths);
         echo $output->display_path($path);
     }
 }

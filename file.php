@@ -835,7 +835,7 @@ class local_moodlecheck_phpdocs {
      * @return string
      */
     public function get_shortdescription() {
-        $lines = preg_split('/\n/', $this->description);        
+        $lines = preg_split('/\n/', $this->description);
         if (count($lines) == 1 || (count($lines) && !strlen(trim($lines[1])))) {
             return $lines[0];
         } else {

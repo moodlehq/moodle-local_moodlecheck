@@ -24,6 +24,7 @@
 
 $string['pluginname'] = 'Moodle PHPdoc check';
 $string['path'] = 'Path(s)';
+$string['ignorepath'] = 'Subpaths to ignore';
 $string['path_help'] = 'Specify one or more files and/or directories to check as local paths from Moodle installation directory';
 $string['check'] = 'Check';
 $string['checkallrules'] = 'Check over all rules';
