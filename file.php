@@ -686,19 +686,19 @@ class local_moodlecheck_file {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_moodlecheck_phpdocs {
-    /** @var array $originaltoken stores the original token for this phpdocs */
+    /** @var array stores the original token for this phpdocs */
     protected $originaltoken = null;
-    /** @var int $originaltid stores id the original token for this phpdocs */
+    /** @var int stores id the original token for this phpdocs */
     protected $originaltid = null;
-    /** @var string $trimmedtext text of phpdocs with trimmed start/end tags
+    /** @var string text of phpdocs with trimmed start/end tags
      * as well as * in the beginning of the lines */
     protected $trimmedtext = null;
-    /** @var boolean $brokentext whether the phpdocs contains text after the tokens 
+    /** @var boolean whether the phpdocs contains text after the tokens
      * (possible in phpdocs but not recommended in Moodle) */
     protected $brokentext = false;
-    /** @var string $description the description found in phpdocs */
+    /** @var string the description found in phpdocs */
     protected $description;
-    /** @var array $tokens array of string where each string 
+    /** @var array array of string where each string
      * represents found token (may be also multiline) */
     protected $tokens;
     
@@ -849,12 +849,13 @@ class local_moodlecheck_phpdocs {
      * Each element is array(typename, variablename, variabledescription)
      *
      * @param string $tag tag name to look for. Usually param but may be var for variables
+     * @param int $splitlimit maximum number of chunks to return
      * @return array
      */
-    public function get_params($tag = 'param') {
+    public function get_params($tag = 'param', $splitlimit = 3) {
         $params = array();
         foreach ($this->get_tags($tag) as $token) {
-            $params[] = preg_split('/\s+/', trim($token), 3); // i.e. 'type $name multi-word description'
+            $params[] = preg_split('/\s+/', trim($token), $splitlimit); // i.e. 'type $name multi-word description'
         }
         return $params;
     }

@@ -191,9 +191,12 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
             $documentedarguments = $function->phpdocs->get_params();
             $match = (count($documentedarguments) == count($function->arguments));
             for ($i=0; $match && $i<count($documentedarguments); $i++) {
-                if (strlen($function->arguments[$i][0]) && $function->arguments[$i][0] != $documentedarguments[$i][0]) {
+                if (count($documentedarguments[$i]) < 2) {
+                    // must be at least type and parameter name
                     $match = false;
-                } else if (isset($documentedarguments[$i][0]) && $documentedarguments[$i][0] == 'type') {
+                } else if (strlen($function->arguments[$i][0]) && $function->arguments[$i][0] != $documentedarguments[$i][0]) {
+                    $match = false;
+                } else if ($documentedarguments[$i][0] == 'type') {
                     $match = false;
                 } else if ($function->arguments[$i][1] != $documentedarguments[$i][1]) {
                     $match = false;
@@ -223,9 +226,8 @@ function local_moodlecheck_variableshasvar(local_moodlecheck_file $file) {
     $errors = array();
     foreach ($file->get_variables() as $variable) {
         if ($variable->phpdocs !== false) {
-            $documentedvars = $variable->phpdocs->get_params('var');
-            $match = (count($documentedvars) == 1 && isset($documentedvars[0][1]) && $documentedvars[0][1] == $variable->name);
-            if (!$match) {
+            $documentedvars = $variable->phpdocs->get_params('var', 2);
+            if (!count($documentedvars) || $documentedvars[0][0] == 'type') {
                 $errors[] = array('line' => $variable->phpdocs->get_line_number($file, '@var'), 'variable' => $variable->fullname);
             }
         }
