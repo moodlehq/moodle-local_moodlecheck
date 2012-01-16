@@ -199,7 +199,7 @@ class local_moodlecheck_file {
                 if ($this->tokens[$tid][0] == T_FUNCTION) {
                     $function = new stdClass();
                     $function->tid = $tid;
-                    $function->fullname = $function->name = $this->next_nonspace_token($tid, false);
+                    $function->fullname = $function->name = $this->next_nonspace_token($tid, false, array('&'));
                     $function->phpdocs = $this->find_preceeding_phpdoc($tid);
                     $function->class = $this->is_inside_class($tid);
                     if ($function->class !== false) {
@@ -454,13 +454,14 @@ class local_moodlecheck_file {
      * Also returns false if no meaningful token found till the end of file
      *
      * @param int $tid 
-     * @param bool $returnid 
+     * @param bool $returnid
+     * @param array $alsoignore
      * @return int|false
      */
-    public function next_nonspace_token($tid, $returnid = false) {
+    public function next_nonspace_token($tid, $returnid = false, $alsoignore = array()) {
         $this->get_tokens();
         for ($i=$tid+1; $i<$this->tokenscount; $i++) {
-            if (!$this->is_whitespace_token($i)) {
+            if (!$this->is_whitespace_token($i) && !in_array($this->tokens[$i][1], $alsoignore)) {
                 if ($returnid) {
                     return $i;
                 } else {
