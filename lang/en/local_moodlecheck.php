@@ -31,6 +31,9 @@ $string['checkallrules'] = 'Check over all rules';
 $string['checkselectedrules'] = 'Check over selected rules (click "Show Advanced" button to see the list)';
 $string['error_default'] = 'Error: {$a}';
 
+$string['rule_noemptysecondline'] = 'Php open tag in the first line is not followed by empty line';
+$string['error_noemptysecondline'] = 'Php open tag in is followed by empty line at line <b>2</b>';
+
 $string['rule_filephpdocpresent'] = 'File-level phpdocs block is present';
 $string['error_filephpdocpresent'] = 'File-level phpdocs block is not found';
 

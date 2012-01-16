@@ -1,4 +1,5 @@
 <?php
+
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -24,6 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die;
 
+local_moodlecheck_registry::add_rule('noemptysecondline')->set_callback('local_moodlecheck_noemptysecondline');
 local_moodlecheck_registry::add_rule('filephpdocpresent')->set_callback('local_moodlecheck_filephpdocpresent');
 local_moodlecheck_registry::add_rule('classesdocumented')->set_callback('local_moodlecheck_classesdocumented');
 local_moodlecheck_registry::add_rule('functionsdocumented')->set_callback('local_moodlecheck_functionsdocumented');
@@ -40,6 +42,20 @@ local_moodlecheck_registry::add_rule('filehascopyright')->set_callback('local_mo
 local_moodlecheck_registry::add_rule('classeshavecopyright')->set_callback('local_moodlecheck_classeshavecopyright');
 local_moodlecheck_registry::add_rule('filehaslicense')->set_callback('local_moodlecheck_filehaslicense');
 local_moodlecheck_registry::add_rule('classeshavelicense')->set_callback('local_moodlecheck_classeshavelicense');
+
+/**
+ * Checks if the first line in the file has open tag and second line is not empty
+ *
+ * @param local_moodlecheck_file $file
+ * @return array of found errors
+ */
+function local_moodlecheck_noemptysecondline(local_moodlecheck_file $file) {
+    $tokens = &$file->get_tokens();
+    if ($tokens[0][0] == T_OPEN_TAG && !$file->is_whitespace_token(1) && $file->is_multiline_token(0) == 1) {
+        return array();
+    }
+    return array(true);
+}
 
 /**
  * Checks if file-level phpdocs block is present
