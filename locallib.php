@@ -106,32 +106,31 @@ class local_moodlecheck_rule {
 class local_moodlecheck_registry {
     protected static $rules = array();
     protected static $enabledrules = array();
-    
+
     public static function add_rule($code) {
         $rule = new local_moodlecheck_rule($code);
         self::$rules[$code] = $rule;
         return $rule;
     }
-    
+
     public static function get_registered_rules() {
         return self::$rules;
     }
-    
+
     public static function enable_rule($code, $enable = true) {
-        self::$enabledrules[$code] = $enable;
-    }
-    
-    public static function get_enabled_rules() {
-        // TODO cache?
-        $rules = array();
-        foreach (array_keys(self::$rules) as $code) {
+        if (!$enable) {
             if (isset(self::$enabledrules[$code])) {
-                $rules[$code] = self::$rules[$code];
+                unset(self::$enabledrules[$code]);
             }
+        } else {
+            self::$enabledrules[$code] = self::$rules[$code];
         }
-        return $rules;
     }
-    
+
+    public static function &get_enabled_rules() {
+        return self::$enabledrules;
+    }
+
     public static function enable_all_rules() {
         foreach (array_keys(self::$rules) as $code) {
             self::enable_rule($code);

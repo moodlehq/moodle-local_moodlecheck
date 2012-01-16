@@ -36,10 +36,14 @@ class local_moodlecheck_file {
     protected $needsvalidation = null;
     protected $errors = null;
     protected $tokens = null;
+    protected $tokenscount = 0;
     protected $classes = null;
     protected $functions = null;
     protected $filephpdocs = null;
     protected $allphpdocs = null;
+    protected $variables = null;
+    protected $defines = null;
+    protected $constants = null;
 
     /**
      * Creates an object from path to the file
@@ -50,6 +54,21 @@ class local_moodlecheck_file {
         $this->filepath = $filepath;
     }
     
+    /**
+     * Cleares all cached stuff to free memory
+     */
+    protected function clear_memory() {
+        $this->tokens = null;
+        $this->tokenscount = 0;
+        $this->classes = null;
+        $this->functions = null;
+        $this->filephpdocs = null;
+        $this->allphpdocs = null;
+        $this->variables = null;
+        $this->defines = null;
+        $this->constants = null;
+    }
+
     /**
      * Returns true if this file is inside specified directory
      *
@@ -98,6 +117,7 @@ class local_moodlecheck_file {
                 $this->errors[$code] = $ruleerrors;
             }
         }
+        $this->clear_memory();
         return $this->errors;
     }
 
@@ -109,15 +129,15 @@ class local_moodlecheck_file {
      *
      * @return array
      */
-    public function get_tokens() {
+    public function &get_tokens() {
         if ($this->tokens === null) {
             $source = file_get_contents($this->filepath);
             $this->tokens = token_get_all($source);
-
-            foreach ($this->tokens as $tid => $token) {
-               if (is_string($token)) {
+            $this->tokenscount = count($this->tokens);
+            for ($tid=0; $tid<$this->tokenscount; $tid++) {
+               if (is_string($this->tokens[$tid])) {
                    // simple 1-character token
-                   $this->tokens[$tid] = array(-1, $token);
+                   $this->tokens[$tid] = array(-1, $this->tokens[$tid]);
                }
             }
         }
@@ -135,12 +155,12 @@ class local_moodlecheck_file {
      *
      * @return array
      */
-    public function get_classes() {
+    public function &get_classes() {
         if ($this->classes === null) {
             $this->classes = array();
-            $tokens = $this->get_tokens();
-            foreach ($tokens as $tid => $token) {
-                if ($token[0] == T_CLASS) {
+            $tokens = &$this->get_tokens();
+            for ($tid=0;$tid<$this->tokenscount;$tid++) {
+                if ($this->tokens[$tid][0] == T_CLASS) {
                     $class = new stdClass();
                     $class->tid = $tid;
                     $class->name = $this->next_nonspace_token($tid);
@@ -171,12 +191,12 @@ class local_moodlecheck_file {
      *
      * @return array
      */
-    public function get_functions() {
+    public function &get_functions() {
         if ($this->functions === null) {
             $this->functions = array();
-            $tokens = $this->get_tokens();
-            foreach ($tokens as $tid => $token) {
-                if ($token[0] == T_FUNCTION) {
+            $tokens = &$this->get_tokens();
+            for ($tid=0; $tid<$this->tokenscount; $tid++) {
+                if ($this->tokens[$tid][0] == T_FUNCTION) {
                     $function = new stdClass();
                     $function->tid = $tid;
                     $function->fullname = $function->name = $this->next_nonspace_token($tid, false);
@@ -233,22 +253,25 @@ class local_moodlecheck_file {
      *
      * @return array
      */
-    public function get_variables() {
-        $variables = array();
-        foreach ($this->get_tokens() as $tid => $token) {
-            if ($token[0] == T_VARIABLE && ($class = $this->is_inside_class($tid)) && !$this->is_inside_function($tid)) {
-                $variable = new stdClass;
-                $variable->tid = $tid;
-                $variable->name = $token[1];
-                $variable->class = $class;
-                $variable->fullname = $class->name . '::' . $variable->name;
-                $variable->accessmodifiers = $this->find_access_modifiers($tid);
-                $variable->phpdocs = $this->find_preceeding_phpdoc($tid);
-                $variable->boundaries = $this->find_object_boundaries($variable);
-                $variables[] = $variable;
+    public function &get_variables() {
+        if ($this->variables === null) {
+            $this->variables = array();
+            $this->get_tokens();
+            for ($tid=0; $tid<$this->tokenscount; $tid++) {
+                if ($this->tokens[$tid][0] == T_VARIABLE && ($class = $this->is_inside_class($tid)) && !$this->is_inside_function($tid)) {
+                    $variable = new stdClass;
+                    $variable->tid = $tid;
+                    $variable->name = $this->tokens[$tid][1];
+                    $variable->class = $class;
+                    $variable->fullname = $class->name . '::' . $variable->name;
+                    $variable->accessmodifiers = $this->find_access_modifiers($tid);
+                    $variable->phpdocs = $this->find_preceeding_phpdoc($tid);
+                    $variable->boundaries = $this->find_object_boundaries($variable);
+                    $this->variables[] = $variable;
+                }
             }
         }
-        return $variables;
+        return $this->variables;
     }
     
     /**
@@ -264,23 +287,26 @@ class local_moodlecheck_file {
      *
      * @return array
      */
-    public function get_constants() {
-        $constants = array();
-        foreach ($this->get_tokens() as $tid => $token) {
-            if ($token[0] == T_CONST && !$this->is_inside_function($tid)) {
-                $variable = new stdClass;
-                $variable->tid = $tid;
-                $variable->fullname = $variable->name = $this->next_nonspace_token($tid, false);
-                $variable->class = $this->is_inside_class($tid);
-                if ($variable->class !== false) {
-                    $variable->fullname = $variable->class->name . '::' . $variable->name;
+    public function &get_constants() {
+        if ($this->constants === null) {
+            $this->constants = array();
+            $this->get_tokens();
+            for ($tid=0; $tid<$this->tokenscount; $tid++) {
+                if ($this->tokens[$tid][0] == T_CONST && !$this->is_inside_function($tid)) {
+                    $variable = new stdClass;
+                    $variable->tid = $tid;
+                    $variable->fullname = $variable->name = $this->next_nonspace_token($tid, false);
+                    $variable->class = $this->is_inside_class($tid);
+                    if ($variable->class !== false) {
+                        $variable->fullname = $variable->class->name . '::' . $variable->name;
+                    }
+                    $variable->phpdocs = $this->find_preceeding_phpdoc($tid);
+                    $variable->boundaries = $this->find_object_boundaries($variable);
+                    $this->constants[] = $variable;
                 }
-                $variable->phpdocs = $this->find_preceeding_phpdoc($tid);
-                $variable->boundaries = $this->find_object_boundaries($variable);
-                $constants[] = $variable;
             }
         }
-        return $constants;
+        return $this->constants;
     }
     
     /**
@@ -296,24 +322,27 @@ class local_moodlecheck_file {
      *
      * @return array
      */
-    public function get_defines() {
-        $defines = array();
-        foreach ($this->get_tokens() as $tid => $token) {
-            if ($token[0] == T_STRING && $token[1] == 'define' && !$this->is_inside_function($tid) && !$this->is_inside_class($tid)) {
-                $next1id = $this->next_nonspace_token($tid, true);
-                $next1 = $this->next_nonspace_token($tid, false);
-                $next2 = $this->next_nonspace_token($next1id, false);
-                $variable = new stdClass;
-                $variable->tid = $tid;
-                if ($next1 == '(' && preg_match("/^(['\"])(.*)\\1$/", $next2, $matches)) {
-                    $variable->fullname = $variable->name = $matches[2];
+    public function &get_defines() {
+        if ($this->defines === null) {
+            $this->defines = array();
+            $this->get_tokens();
+            for ($tid=0; $tid<$this->tokenscount; $tid++) {
+                if ($this->tokens[$tid][0] == T_STRING && $this->tokens[$tid][1] == 'define' && !$this->is_inside_function($tid) && !$this->is_inside_class($tid)) {
+                    $next1id = $this->next_nonspace_token($tid, true);
+                    $next1 = $this->next_nonspace_token($tid, false);
+                    $next2 = $this->next_nonspace_token($next1id, false);
+                    $variable = new stdClass;
+                    $variable->tid = $tid;
+                    if ($next1 == '(' && preg_match("/^(['\"])(.*)\\1$/", $next2, $matches)) {
+                        $variable->fullname = $variable->name = $matches[2];
+                    }
+                    $variable->phpdocs = $this->find_preceeding_phpdoc($tid);
+                    $variable->boundaries = $this->find_object_boundaries($variable);
+                    $defines[] = $variable;
                 }
-                $variable->phpdocs = $this->find_preceeding_phpdoc($tid);
-                $variable->boundaries = $this->find_object_boundaries($variable);
-                $defines[] = $variable;
             }
         }
-        return $defines;
+        return $this->defines;
     }
     
     /**
@@ -328,12 +357,12 @@ class local_moodlecheck_file {
      */    
     public function find_object_boundaries($obj) {
         $boundaries = array($obj->tid, $obj->tid);
-        $tokens = $this->get_tokens();
+        $tokens = &$this->get_tokens();
         if (!empty($obj->tagpair)) {
             $boundaries[1] = $obj->tagpair[1];
         } else {
             // find the next ;
-            for ($i=$boundaries[1]; $i<count($tokens); $i++) {
+            for ($i=$boundaries[1]; $i<$this->tokenscount; $i++) {
                 if ($tokens[$i][1] == ';') {
                     $boundaries[1] = $i;
                     break;
@@ -370,9 +399,11 @@ class local_moodlecheck_file {
      * @return stdClass|false containing class or false if this is not a member
      */
     public function is_inside_class($tid) {
-        foreach ($this->get_classes() as $class) {
-            if ($class->boundaries[0] <= $tid && $class->boundaries[1] >= $tid) {
-                return $class;
+        $classes = &$this->get_classes();
+        $classescnt = count($classes);
+        for ($clid = 0; $clid < $classescnt; $clid++) {
+            if ($classes[$clid]->boundaries[0] <= $tid && $classes[$clid]->boundaries[1] >= $tid) {
+                return $classes[$clid];
             }
         }
         return false;
@@ -385,9 +416,11 @@ class local_moodlecheck_file {
      * @return stdClass|false containing function or false if this is not inside a function
      */
     public function is_inside_function($tid) {
-        foreach ($this->get_functions() as $function) {
-            if ($function->boundaries[0] <= $tid && $function->boundaries[1] >= $tid) {
-                return $function;
+        $functions = &$this->get_functions();
+        $functionscnt = count($functions);
+        for ($fid = 0; $fid < $functionscnt; $fid++) {
+            if ($functions[$fid]->boundaries[0] <= $tid && $functions[$fid]->boundaries[1] >= $tid) {
+                return $functions[$fid];
             }
         }
         return false;
@@ -400,8 +433,8 @@ class local_moodlecheck_file {
      * @return boolean
      */
     public function is_whitespace_token($tid) {
-        $tokens = $this->get_tokens();
-        return ($tokens[$tid][0] == T_WHITESPACE && preg_match('/^\s*$/', $tokens[$tid][1]));
+        $this->get_tokens();
+        return ($this->tokens[$tid][0] == T_WHITESPACE);
     }
     
     /**
@@ -411,8 +444,8 @@ class local_moodlecheck_file {
      * @return int
      */
     public function is_multiline_token($tid) {
-        $tokens = $this->get_tokens();
-        return strlen(preg_replace('/[^\n]/', '', $tokens[$tid][1]));
+        $this->get_tokens();
+        return substr_count($this->tokens[$tid][1], "\n");
     }
     
     /**
@@ -425,13 +458,13 @@ class local_moodlecheck_file {
      * @return int|false
      */
     public function next_nonspace_token($tid, $returnid = false) {
-        $tokens = $this->get_tokens();
-        for ($i=$tid+1; $i<count($tokens); $i++) {
+        $this->get_tokens();
+        for ($i=$tid+1; $i<$this->tokenscount; $i++) {
             if (!$this->is_whitespace_token($i)) {
                 if ($returnid) {
                     return $i;
                 } else {
-                    return $tokens[$i][1];
+                    return $this->tokens[$i][1];
                 }
             }
         }
@@ -445,7 +478,7 @@ class local_moodlecheck_file {
      * @return array
      */
     public function find_access_modifiers($tid) {
-        $tokens = $this->get_tokens();
+        $tokens = &$this->get_tokens();
         $modifiers = array();
         for ($i=$tid-1;$i>=0;$i--) {
             if ($this->is_whitespace_token($i)) {
@@ -468,7 +501,7 @@ class local_moodlecheck_file {
      * @return local_moodlecheck_phpdocs|false
      */
     public function find_preceeding_phpdoc($tid) {
-        $tokens = $this->get_tokens();
+        $tokens = &$this->get_tokens();
         $modifiers = $this->find_access_modifiers($tid);
         for ($i=$tid-1;$i>=0;$i--) {
             if ($this->is_whitespace_token($i)) {
@@ -510,7 +543,26 @@ class local_moodlecheck_file {
      * @return array|false array of ids of two corresponding tokens or false if not found
      */
     public function find_tag_pair($startid, $opensymbol, $closesymbol, $breakifmeet = array()) {
-        return $this->find_tag_pair_inlist($this->get_tokens(), $startid, $opensymbol, $closesymbol, $breakifmeet);
+        $openid = false;
+        $counter = 0;
+        // also break if we find closesymbol before opensymbol
+        $breakifmeet[] = $closesymbol;
+        for ($i=$startid; $i<$this->tokenscount; $i++) {
+            if ($openid === false && in_array($this->tokens[$i][1], $breakifmeet)) {
+                return false;
+            } else if ($openid !== false && $this->tokens[$i][1] == $closesymbol) {
+                $counter--;
+                if ($counter == 0) {
+                    return array($openid, $i);
+                }
+            } else if ($this->tokens[$i][1] == $opensymbol) {
+                if ($openid === false) {
+                    $openid = $i;
+                }
+                $counter++;
+            }
+        }
+        return false;
     }
     
     /**
@@ -523,29 +575,28 @@ class local_moodlecheck_file {
      * @param array $breakifmeet array of symbols that are not allowed not preceed the $opensymbol
      * @return array|false array of ids of two corresponding tokens or false if not found
      */
-    public function find_tag_pair_inlist($tokens, $startid, $opensymbol, $closesymbol, $breakifmeet = array()) {
+    public function find_tag_pair_inlist(&$tokens, $startid, $opensymbol, $closesymbol, $breakifmeet = array()) {
         $openid = false;
+        $counter = 0;
         // also break if we find closesymbol before opensymbol
-        $breakifmeet[] = $closesymbol;            
-        for ($i=$startid; $i<count($tokens); $i++) {
-            if (in_array($tokens[$i][1], $breakifmeet) && $openid === false) {
+        $breakifmeet[] = $closesymbol;
+        $tokenscount = count($tokens);
+        for ($i=$startid; $i<$tokenscount; $i++) {
+            if ($openid === false && in_array($tokens[$i][1], $breakifmeet)) {
                 return false;
-            }
-            if ($tokens[$i][1] == $closesymbol && $openid !== false) {
-                return array($openid, $i);
-            }
-            if ($tokens[$i][1] == $opensymbol) {
+            } else if ($openid !== false && $tokens[$i][1] == $closesymbol) {
+                $counter--;
+                if ($counter == 0) {
+                    return array($openid, $i);
+                }
+            } else if ($tokens[$i][1] == $opensymbol) {
                 if ($openid === false) {
                     $openid = $i;
-                } else {
-                    $nextpair = $this->find_tag_pair($i, $opensymbol, $closesymbol);
-                    if ($nextpair !== false) {
-                        // jump to the close token
-                        $i = $nextpair[1];
-                    }
                 }
+                $counter++;
             }
         }
+        return false;
     }
     
     /**
@@ -554,10 +605,10 @@ class local_moodlecheck_file {
      * @return string|false either the contents of phpdocs or false if not found
      */
     public function find_file_phpdocs() {
-        $tokens = $this->get_tokens();
+        $tokens = &$this->get_tokens();
         if ($this->filephpdocs === null) {
             $found = false;
-            for ($tid=0; $tid<count($tokens); $tid++) {
+            for ($tid=0; $tid<$this->tokenscount; $tid++) {
                 if (in_array($tokens[$tid][0], array(T_OPEN_TAG, T_WHITESPACE, T_COMMENT))) {
                     // all allowed before the file-level phpdocs
                 } else if ($tokens[$tid][0] == T_DOC_COMMENT) {
@@ -570,21 +621,24 @@ class local_moodlecheck_file {
             }
             if ($found !== false) {
                 // Now let's check that this is not phpdocs to the next function or class or define
-                $nexttoken = $this->next_nonspace_token($tid, false);
-                if ($nexttoken === false) {
+                $nexttokenid = $this->next_nonspace_token($tid, true);
+                if ($nexttokenid === false) {
                     // EOF reached after first phpdoc
-                } else if ($this->is_whitespace_token($tid+1) && $this->is_multiline_token($tid+1) > 1) {
-                    // at least one empty line follows, it's all right
-                } else if (in_array($nexttoken[0], array(T_DOC_COMMENT, T_COMMENT, T_REQUIRE_ONCE, T_REQUIRE, T_IF, T_INCLUDE_ONCE, T_INCLUDE))) {
-                    // something non-documentable following, ok
-                } else if ($nexttoken[0] == T_STRING && $nexttoken[1] == 'defined') {
-                    // something non-documentable following
-                } else if (in_array($nexttoken[0], array(T_CLASS, T_ABSTRACT, T_INTERFACE, T_FUNCTION))) {
-                    // this is the doc comment to the following class/function
-                    $found = false;
                 } else {
-                    // TODO: change to debugging
-                    echo "************ Unknown token following the first phpdocs: id = {$nexttoken[0]}, text = '{$nexttoken[1]}' **************<br>";
+                    $nexttoken = $this->tokens[$nexttokenid];
+                    if ($this->is_whitespace_token($tid+1) && $this->is_multiline_token($tid+1) > 1) {
+                        // at least one empty line follows, it's all right
+                    } else if (in_array($nexttoken[0], array(T_DOC_COMMENT, T_COMMENT, T_REQUIRE_ONCE, T_REQUIRE, T_IF, T_INCLUDE_ONCE, T_INCLUDE))) {
+                        // something non-documentable following, ok
+                    } else if ($nexttoken[0] == T_STRING && $nexttoken[1] == 'defined') {
+                        // something non-documentable following
+                    } else if (in_array($nexttoken[0], array(T_CLASS, T_ABSTRACT, T_INTERFACE, T_FUNCTION))) {
+                        // this is the doc comment to the following class/function
+                        $found = false;
+                    } else {
+                        // TODO: change to debugging
+                        echo "************ Unknown token following the first phpdocs in {$this->filepath}: id = {$nexttoken[0]}, text = '{$nexttoken[1]}' **************<br>";
+                    }
                 }
             }
             $this->filephpdocs = $this->get_phpdocs($found);
@@ -593,28 +647,38 @@ class local_moodlecheck_file {
     }
     
     /**
-     * Returns all or one parsed phpdocs block found in file
+     * Returns all parsed phpdocs block found in file
      *
-     * @param int $tid token id of phpdocs (null if return all)
-     * @return local_moodlecheck_phpdocs|array
+     * @return array
      */
-    public function get_phpdocs($tid = null) {
+    public function &get_all_phpdocs() {
         if ($this->allphpdocs === null) {
             $this->allphpdocs = array();
-            foreach ($this->get_tokens() as $id => $token) {
-                if (($token[0] == T_DOC_COMMENT || $token[0] === T_COMMENT)) {
-                    $this->allphpdocs[$id] = new local_moodlecheck_phpdocs($token, $id);
+            $this->get_tokens();
+            for ($id=0; $id<$this->tokenscount;$id++) {
+                if (($this->tokens[$id][0] == T_DOC_COMMENT || $this->tokens[$id][0] === T_COMMENT)) {
+                    $this->allphpdocs[$id] = new local_moodlecheck_phpdocs($this->tokens[$id], $id);
                 }
             }
         }
-        if ($tid !== null) {
-            if (isset($this->allphpdocs[$tid])) {
-                return $this->allphpdocs[$tid];
-            } else {
-                return false;
-            }
+        return $this->allphpdocs;
+    }
+
+    /**
+     * Returns one parsed phpdocs block found in file
+     *
+     * @param int $tid token id of phpdocs
+     * @return local_moodlecheck_phpdocs
+     */
+    public function get_phpdocs($tid) {
+        if ($tid === false) {
+            return false;
+        }
+        $this->get_all_phpdocs();
+        if (isset($this->allphpdocs[$tid])) {
+            return $this->allphpdocs[$tid];
         } else {
-            return $this->allphpdocs;
+            return false;
         }
     }
     
@@ -672,7 +736,7 @@ class local_moodlecheck_file {
      * @param int $tid id of the token
      */
     public function get_line_number($tid) {
-        $tokens = $this->get_tokens();
+        $tokens = &$this->get_tokens();
         if (count($tokens[$tid])>2) {
             return $tokens[$tid][2];
         } else if ($tid == 0) {

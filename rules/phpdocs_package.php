@@ -69,7 +69,7 @@ function local_moodlecheck_packagespecified(local_moodlecheck_file $file) {
 function local_moodlecheck_packagevalid(local_moodlecheck_file $file) {
     $errors = array();
     $allowedpackages = local_moodlecheck_package_names($file);
-    foreach ($file->get_phpdocs() as $phpdoc) {
+    foreach ($file->get_all_phpdocs() as $phpdoc) {
         foreach ($phpdoc->get_tags('package') as $package) {
             if (!in_array($package, $allowedpackages)) {
                 $errors[] = array('line' => $phpdoc->get_line_number($file, '@package'), 'package' => $package);
@@ -88,7 +88,7 @@ function local_moodlecheck_packagevalid(local_moodlecheck_file $file) {
 function local_moodlecheck_categoryvalid(local_moodlecheck_file $file) {
     $errors = array();
     $allowedcategories = local_moodlecheck_get_categories($file);
-    foreach ($file->get_phpdocs() as $phpdoc) {
+    foreach ($file->get_all_phpdocs() as $phpdoc) {
         foreach ($phpdoc->get_tags('category') as $category) {
             if (!in_array($category, $allowedcategories)) {
                 $errors[] = array('line' => $phpdoc->get_line_number($file, '@category'), 'category' => $category);
@@ -134,7 +134,7 @@ function local_moodlecheck_package_names(local_moodlecheck_file $file) {
  *
  * @return array
  */
-function local_moodlecheck_get_plugins() {
+function &local_moodlecheck_get_plugins() {
     static $allplugins = array();
     if (empty($allplugins)) {
         $plugintypes = get_plugin_types();
@@ -158,7 +158,7 @@ function local_moodlecheck_get_plugins() {
  * 
  * @return array
  */
-function local_moodlecheck_get_categories() {
+function &local_moodlecheck_get_categories() {
     global $CFG;
     static $allcategories = array();
     if (empty($allcategories)) {

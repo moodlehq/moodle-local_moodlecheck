@@ -62,8 +62,7 @@ function local_moodlecheck_filephpdocpresent(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_classesdocumented(local_moodlecheck_file $file) {
     $errors = array();
-    $classes = $file->get_classes();
-    foreach ($classes as $class) {
+    foreach ($file->get_classes() as $class) {
         if ($class->phpdocs === false) {
             $errors[] = array('class' => $class->name, 'line' => $file->get_line_number($class->boundaries[0]));
         }
@@ -79,8 +78,7 @@ function local_moodlecheck_classesdocumented(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
     $errors = array();
-    $functions = $file->get_functions();
-    foreach ($functions as $function) {
+    foreach ($file->get_functions() as $function) {
         if ($function->phpdocs === false) {
             $errors[] = array('function' => $function->fullname, 'line' => $file->get_line_number($function->boundaries[0]));
         }
@@ -96,8 +94,7 @@ function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_variablesdocumented(local_moodlecheck_file $file) {
     $errors = array();
-    $variables = $file->get_variables();
-    foreach ($variables as $variable) {
+    foreach ($file->get_variables() as $variable) {
         if ($variable->phpdocs === false) {
             $errors[] = array('variable' => $variable->fullname, 'line' => $file->get_line_number($variable->tid));
         }
@@ -113,8 +110,7 @@ function local_moodlecheck_variablesdocumented(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_constsdocumented(local_moodlecheck_file $file) {
     $errors = array();
-    $objects = $file->get_constants();
-    foreach ($objects as $object) {
+    foreach ($file->get_constants() as $object) {
         if ($object->phpdocs === false) {
             $errors[] = array('object' => $object->fullname, 'line' => $file->get_line_number($object->tid));
         }
@@ -130,8 +126,7 @@ function local_moodlecheck_constsdocumented(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_definesdocumented(local_moodlecheck_file $file) {
     $errors = array();
-    $objects = $file->get_defines();
-    foreach ($objects as $object) {
+    foreach ($file->get_defines() as $object) {
         if ($object->phpdocs === false) {
             $errors[] = array('object' => $object->fullname, 'line' => $file->get_line_number($object->tid));
         }
@@ -147,7 +142,7 @@ function local_moodlecheck_definesdocumented(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_noinlinephpdocs(local_moodlecheck_file $file) {
     $errors = array();
-    foreach ($file->get_phpdocs() as $phpdocs) {
+    foreach ($file->get_all_phpdocs() as $phpdocs) {
         if ($phpdocs->is_inline()) {
             $errors[] = array('line' => $phpdocs->get_line_number($file));
         }
