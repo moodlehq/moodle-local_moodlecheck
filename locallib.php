@@ -38,6 +38,7 @@ class local_moodlecheck_rule {
     protected $callback;
     protected $rulestring;
     protected $errorstring;
+    protected $severity = 'error';
     
     public function __construct($code) {
         $this->code = $code;
@@ -58,6 +59,11 @@ class local_moodlecheck_rule {
         return $this;
     }
     
+    public function set_severity($severity) {
+        $this->severity = $severity;
+        return $this;
+    }
+
     public function get_name() {
         if ($this->rulestring !== null && get_string_manager()->string_exists($this->rulestring, 'local_moodlecheck')) {
             return get_string($this->rulestring, 'local_moodlecheck');

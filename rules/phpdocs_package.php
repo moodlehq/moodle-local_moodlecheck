@@ -173,8 +173,8 @@ function &local_moodlecheck_get_categories() {
             if (!$filecontent) {
                 $filecontent = file_get_contents($CFG->dirroot . '/local/moodlecheck/rules/coreapis.txt');
             }
-            preg_match_all('|<h3.*?>(.*?)</h3>|i', $filecontent, $matches);
-            foreach ($matches[1] as $match) {
+            preg_match_all('|<h([34]).*?>(.*?)</h\1>|i', $filecontent, $matches);
+            foreach ($matches[2] as $match) {
                 $allcategories[] = trim(strip_tags($match));
             }
             set_user_preference('local_moodlecheck_categoriestime', time());
