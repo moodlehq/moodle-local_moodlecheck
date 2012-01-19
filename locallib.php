@@ -74,12 +74,16 @@ class local_moodlecheck_rule {
         }
     }
     
-    public function get_error($args) {
+    public function get_error_message($args) {
         if (strlen($this->errorstring) && get_string_manager()->string_exists($this->errorstring, 'local_moodlecheck')) {
             return get_string($this->errorstring, 'local_moodlecheck', $args);
         } else if (get_string_manager()->string_exists('error_'. $this->code, 'local_moodlecheck')) {
             return get_string('error_'. $this->code, 'local_moodlecheck', $args);
         } else {
+            if (isset($args['line'])) {
+                // do not dump line number, it will be included in the final message
+                unset($args['line']);
+            }
             if (is_array($args)) {
                 $args = ': '. print_r($args, true);
             } else if ($args !== true && $args !== null) {
@@ -96,7 +100,12 @@ class local_moodlecheck_rule {
         $reterrors = $callback($file);
         $ruleerrors = array();
         foreach ($reterrors as $args) {
-            $ruleerrors[] = $this->get_error($args);
+            $ruleerrors[] = array(
+                'line' => $args['line'],
+                'severity' => $this->severity,
+                'message' => $this->get_error_message($args),
+                'source' => $this->code
+            );
         }
         return $ruleerrors;
     }
@@ -124,6 +133,10 @@ class local_moodlecheck_registry {
     }
 
     public static function enable_rule($code, $enable = true) {
+        if (!isset(self::$rules[$code])) {
+            // can not enable/disable unexisting rule
+            return;
+        }
         if (!$enable) {
             if (isset(self::$enabledrules[$code])) {
                 unset(self::$enabledrules[$code]);

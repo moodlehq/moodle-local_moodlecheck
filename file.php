@@ -114,7 +114,7 @@ class local_moodlecheck_file {
         foreach (local_moodlecheck_registry::get_enabled_rules() as $code => $rule) {
             $ruleerrors = $rule->validatefile($this);
             if (count($ruleerrors)) {
-                $this->errors[$code] = $ruleerrors;
+                $this->errors = array_merge($this->errors, $ruleerrors);
             }
         }
         $this->clear_memory();

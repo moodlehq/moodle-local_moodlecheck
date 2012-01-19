@@ -37,30 +37,27 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
      * Generates html to display one path validation results (invoked recursively)
      *
      * @param local_moodlecheck_path $path
-     * @param int $depth
+     * @param string $format display format: html, xml, text
      * @return string
      */
-    public function display_path(local_moodlecheck_path $path, $depth = 0) {
+    public function display_path(local_moodlecheck_path $path, $format = 'html') {
         $output = '';
-        //$prefix = str_repeat(' ', $depth);
-        $prefix = '';
         $path->validate();
         if ($path->is_dir()) {
-            $output .= html_writer::start_tag('li', array('class' => 'directory'));
-            $output .= html_writer::tag('span', $prefix. $path->get_path(), array('class' => 'dirname'));
-            $output .= html_writer::start_tag('ul', array('class' => 'directory'));
-            foreach ($path->get_subpaths() as $subpath) {
-                $output .= $this->display_path($subpath, $depth+1);
+            if ($format == 'html') {
+                $output .= html_writer::start_tag('li', array('class' => 'directory'));
+                $output .= html_writer::tag('span', $path->get_path(), array('class' => 'dirname'));
+                $output .= html_writer::start_tag('ul', array('class' => 'directory'));
             }
-            $output .= html_writer::end_tag('li');
-            $output .= html_writer::end_tag('ul');
+            foreach ($path->get_subpaths() as $subpath) {
+                $output .= $this->display_path($subpath, $format);
+            }
+            if ($format == 'html') {
+                $output .= html_writer::end_tag('li');
+                $output .= html_writer::end_tag('ul');
+            }
         } else if ($path->is_file() && $path->get_file()->needs_validation()) {
-            $output .= html_writer::start_tag('li', array('class' => 'file'));
-            $output .= html_writer::tag('span', $prefix. $path->get_path(), array('class' => 'filename'));
-            $output .= html_writer::start_tag('ul', array('class' => 'file'));
-            $output .= $this->display_file_validation($path->get_file(), $depth + 1);
-            $output .= html_writer::end_tag('ul');
-            $output .= html_writer::end_tag('li');
+            $output .= $this->display_file_validation($path->get_path(), $path->get_file(), $format);
         }
         return $output;
     }
@@ -68,19 +65,43 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
     /**
      * Generates html to display one file validation results
      *
+     * @param string $filename
      * @param local_moodlecheck_file $file
-     * @param int $depth
+     * @param string $format display format: html, xml, text
      * @return string
      */
-    public function display_file_validation(local_moodlecheck_file $file, $depth = 0) {
+    public function display_file_validation($filename, local_moodlecheck_file $file, $format = 'html') {
         $output = '';
-        //$prefix = str_repeat(' ', $depth);
-        $prefix = '';
         $errors = $file->validate();
-        foreach ($errors as $code => $suberrors) {
-            foreach ($suberrors as $error) {
-                $output .= html_writer::tag('li', $prefix. $error, array('class' => 'errorline'));
+        if ($format == 'html') {
+            $output .= html_writer::start_tag('li', array('class' => 'file'));
+            $output .= html_writer::tag('span', $filename, array('class' => 'filename'));
+            $output .= html_writer::start_tag('ul', array('class' => 'file'));
+        } else if ($format == 'xml') {
+            $output .= html_writer::start_tag('file', array('name' => $filename)). "\n";
+        } else if ($format == 'text') {
+            $output .= $filename. "\n";
+        }
+        foreach ($errors as $error) {
+            if (($format == 'html' || $format == 'text') && isset($error['line']) && strlen($error['line'])) {
+                $error['message'] = get_string('linenum', 'local_moodlecheck', $error['line']). $error['message'];
             }
+            if ($format == 'html') {
+                $output .= html_writer::tag('li', $error['message'], array('class' => 'errorline'));
+            } else {
+                $error['message'] = strip_tags($error['message']);
+                if ($format == 'text') {
+                    $output .= "    ". $error['message']. "\n";
+                } else if ($format == 'xml') {
+                    $output .= '  '.html_writer::empty_tag('error', $error). "\n";
+                }
+            }
+        }
+        if ($format == 'html') {
+            $output .= html_writer::end_tag('ul');
+            $output .= html_writer::end_tag('li');
+        } else if ($format == 'xml') {
+            $output .= html_writer::end_tag('file'). "\n";
         }
         return $output;
     }
