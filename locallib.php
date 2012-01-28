@@ -174,7 +174,9 @@ class local_moodlecheck_path {
     
     public function __construct($path, $ignorepaths) {
         $path = trim($path);
-        if (substr($path,0,1) == '/') {
+        // If the path is already one existing full path
+        // accept it, else assume it's a relative one
+        if (!file_exists($path) and substr($path,0,1) == '/') {
             $path = substr($path,1);
         }
         $this->path = $path;
@@ -183,6 +185,10 @@ class local_moodlecheck_path {
     
     public function get_fullpath() {
         global $CFG;
+        // It's already one full path
+        if (file_exists($this->path)) {
+            return $this->path;
+        }
         return $CFG->dirroot. '/'. $this->path;
     }
     
