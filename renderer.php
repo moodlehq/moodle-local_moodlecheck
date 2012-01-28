@@ -48,6 +48,10 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
                 $output .= html_writer::start_tag('li', array('class' => 'directory'));
                 $output .= html_writer::tag('span', $path->get_path(), array('class' => 'dirname'));
                 $output .= html_writer::start_tag('ul', array('class' => 'directory'));
+            } else if ($format == 'xml' && $path->is_rootpath()) {
+                // Insert XML preamble and root element
+                $output .= '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
+                    '<checkstyle version="1.3.2">' . PHP_EOL;
             }
             foreach ($path->get_subpaths() as $subpath) {
                 $output .= $this->display_path($subpath, $format);
@@ -55,6 +59,9 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
             if ($format == 'html') {
                 $output .= html_writer::end_tag('li');
                 $output .= html_writer::end_tag('ul');
+            } else if ($format == 'xml' && $path->is_rootpath()) {
+                // Close root element
+                $output .= '</checkstyle>';
             }
         } else if ($path->is_file() && $path->get_file()->needs_validation()) {
             $output .= $this->display_file_validation($path->get_path(), $path->get_file(), $format);
