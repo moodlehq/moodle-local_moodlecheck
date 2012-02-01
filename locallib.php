@@ -170,10 +170,13 @@ class local_moodlecheck_path {
     protected $file = null;
     protected $subpaths = null;
     protected $validated = false;
+    protected $rootpath = true;
     
     public function __construct($path, $ignorepaths) {
         $path = trim($path);
-        if (substr($path,0,1) == '/') {
+        // If the path is already one existing full path
+        // accept it, else assume it's a relative one
+        if (!file_exists($path) and substr($path,0,1) == '/') {
             $path = substr($path,1);
         }
         $this->path = $path;
@@ -182,6 +185,10 @@ class local_moodlecheck_path {
     
     public function get_fullpath() {
         global $CFG;
+        // It's already one full path
+        if (file_exists($this->path)) {
+            return $this->path;
+        }
         return $CFG->dirroot. '/'. $this->path;
     }
     
@@ -198,6 +205,7 @@ class local_moodlecheck_path {
                 while (($file = readdir($dh)) !== false) {
                     if ($file != '.' && $file != '..' && $file != '.git' && !$this->is_ignored($file)) {
                         $subpath = new local_moodlecheck_path($this->path . '/'. $file, $this->ignorepaths);
+                        $subpath->set_rootpath(false);
                         $this->subpaths[] = $subpath;
                     }
                 }
@@ -236,6 +244,14 @@ class local_moodlecheck_path {
     
     public function get_subpaths() {
         return $this->subpaths;
+    }
+
+    protected function set_rootpath($rootpath) {
+        $this->rootpath = (boolean)$rootpath;
+    }
+
+    public function is_rootpath() {
+        return $this->rootpath;
     }
 }
 
