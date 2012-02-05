@@ -253,6 +253,34 @@ class local_moodlecheck_path {
     public function is_rootpath() {
         return $this->rootpath;
     }
+
+    public static function get_components($componentsfile = null) {
+        static $components = array();
+        if (!empty($components)) {
+            return $components;
+        }
+        if (empty($componentsfile)) {
+            return array();
+        }
+        if (file_exists($componentsfile) and is_readable($componentsfile)) {
+            $fh = fopen($componentsfile, 'r');
+            while (($line = fgets($fh, 4096)) !== false) {
+                $split = explode(',', $line);
+                if (count($split) != 3) {
+                    // Wrong count of elements in the line
+                    continue;
+                }
+                if (trim($split[0]) != 'plugin' and trim($split[0]) != 'subsystem') {
+                    // Wrong type
+                    continue;
+                }
+                // Let's assume it's a correct line
+                $components[trim($split[0])][trim($split[1])] = trim($split[2]);
+            }
+            fclose($fh);
+        }
+        return $components;
+    }
 }
 
 /**
