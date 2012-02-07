@@ -134,10 +134,26 @@ class local_moodlecheck_file {
             $source = file_get_contents($this->filepath);
             $this->tokens = token_get_all($source);
             $this->tokenscount = count($this->tokens);
+            $inquotes = -1;
             for ($tid=0; $tid<$this->tokenscount; $tid++) {
                if (is_string($this->tokens[$tid])) {
                    // simple 1-character token
                    $this->tokens[$tid] = array(-1, $this->tokens[$tid]);
+               }
+               // and now, for the purpose of this project we don't need strings with variables inside to be parsed
+               // so when we find string in double quotes that is split into several tokens and combine all content in one token
+               if ($this->tokens[$tid][0] == -1 && $this->tokens[$tid][1] == '"') {
+                   if ($inquotes == -1) {
+                       $inquotes = $tid;
+                       $this->tokens[$tid][0] = T_STRING;
+                   } else {
+                       $this->tokens[$inquotes][1] .= $this->tokens[$tid][1];
+                       $this->tokens[$tid] = array(T_WHITESPACE, '');
+                       $inquotes = -1;
+                   }
+               } else if ($inquotes > -1) {
+                   $this->tokens[$inquotes][1] .= $this->tokens[$tid][1];
+                   $this->tokens[$tid] = array(T_WHITESPACE, '');
                }
             }
         }
