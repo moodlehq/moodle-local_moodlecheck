@@ -42,6 +42,10 @@ local_moodlecheck_registry::add_rule('filehascopyright')->set_callback('local_mo
 local_moodlecheck_registry::add_rule('classeshavecopyright')->set_callback('local_moodlecheck_classeshavecopyright');
 local_moodlecheck_registry::add_rule('filehaslicense')->set_callback('local_moodlecheck_filehaslicense');
 local_moodlecheck_registry::add_rule('classeshavelicense')->set_callback('local_moodlecheck_classeshavelicense');
+local_moodlecheck_registry::add_rule('phpdocsinvalidtag')->set_callback('local_moodlecheck_phpdocsinvalidtag');
+local_moodlecheck_registry::add_rule('phpdocsnotrecommendedtag')->set_callback('local_moodlecheck_phpdocsnotrecommendedtag')->set_severity('warning');;
+local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
+local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 
 /**
  * Checks if the first line in the file has open tag and second line is not empty
@@ -168,6 +172,95 @@ function local_moodlecheck_noinlinephpdocs(local_moodlecheck_file $file) {
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         if ($phpdocs->is_inline()) {
             $errors[] = array('line' => $phpdocs->get_line_number($file));
+        }
+    }
+    return $errors;
+}
+
+/**
+ * Check that all the phpdoc tags used are valid ones
+ *
+ * @param local_moodlecheck_file $file
+ * @return array of found errors
+ */
+function local_moodlecheck_phpdocsinvalidtag(local_moodlecheck_file $file) {
+    $errors = array();
+    foreach ($file->get_all_phpdocs() as $phpdocs) {
+        foreach ($phpdocs->get_tags() as $tag) {
+            $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
+            if (!in_array($tag, local_moodlecheck_phpdocs::$validtags)) {
+                $errors[] = array(
+                    'line' => $phpdocs->get_line_number($file),
+                    'tag' => '@' . $tag);
+            }
+        }
+    }
+    return $errors;
+}
+
+/**
+ * Check that all the phpdoc tags used are recommended ones
+ *
+ * @param local_moodlecheck_file $file
+ * @return array of found errors
+ */
+function local_moodlecheck_phpdocsnotrecommendedtag(local_moodlecheck_file $file) {
+    $errors = array();
+    foreach ($file->get_all_phpdocs() as $phpdocs) {
+        foreach ($phpdocs->get_tags() as $tag) {
+            $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
+            if (in_array($tag, local_moodlecheck_phpdocs::$validtags) and
+                    !in_array($tag, local_moodlecheck_phpdocs::$recommendedtags)) {
+                $errors[] = array(
+                    'line' => $phpdocs->get_line_number($file),
+                    'tag' => '@' . $tag);
+            }
+        }
+    }
+    return $errors;
+}
+
+/**
+ * Check that all the inline phpdoc tags found are valid
+ *
+ * @param local_moodlecheck_file $file
+ * @return array of found errors
+ */
+function local_moodlecheck_phpdocsinvalidinlinetag(local_moodlecheck_file $file) {
+    $errors = array();
+    foreach ($file->get_all_phpdocs() as $phpdocs) {
+        if ($inlinetags = $phpdocs->get_inline_tags(false)) {
+            foreach ($inlinetags as $inlinetag) {
+                if (!in_array($inlinetag, local_moodlecheck_phpdocs::$inlinetags)) {
+                    $errors[] = array(
+                        'line' => $phpdocs->get_line_number($file),
+                        'tag' => '@' . $inlinetag);
+                }
+            }
+        }
+    }
+    return $errors;
+}
+
+/**
+ * Check that all the valid inline tags are properly enclosed with curly brackets
+ * @param local_moodlecheck_file $file
+ * @return array of found errors
+ */
+function local_moodlecheck_phpdocsuncurlyinlinetag(local_moodlecheck_file $file) {
+    $errors = array();
+    foreach ($file->get_all_phpdocs() as $phpdocs) {
+        if ($inlinetags = $phpdocs->get_inline_tags(false)) {
+            $curlyinlinetags = $phpdocs->get_inline_tags(true);
+            // The difference will tell us which ones are nor enclosed by curly brackets
+            $diff = array_diff($inlinetags, $curlyinlinetags);
+            foreach ($diff as $inlinetag) {
+                if (in_array($inlinetag, local_moodlecheck_phpdocs::$inlinetags)) {
+                    $errors[] = array(
+                        'line' => $phpdocs->get_line_number($file),
+                        'tag' => '@' . $inlinetag);
+                }
+            }
         }
     }
     return $errors;
