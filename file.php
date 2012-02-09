@@ -772,6 +772,27 @@ class local_moodlecheck_file {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_moodlecheck_phpdocs {
+    /** @var array static property storing the list of valid,
+     * well known, phpdocs tags, always accepted.
+     * @link http://manual.phpdoc.org/HTMLSmartyConverter/HandS/ */
+    public static $validtags = array(
+        'abstract', 'access', 'author', 'category', 'copyright',
+        'deprecated', 'example', 'final', 'fileresource', 'global',
+        'ignore', 'internal', 'license', 'link', 'method',
+        'name', 'package', 'param', 'property', 'return',
+        'see', 'since', 'static', 'staticvar', 'subpackage',
+        'todo', 'tutorial', 'uses', 'var', 'version');
+    /** @var array static property storing the list of recommended
+     * phpdoc tags to use within Moodle phpdocs.
+     * @link http://docs.moodle.org/dev/Coding_style */
+    public static $recommendedtags = array(
+        'author', 'category', 'copyright', 'deprecated', 'license',
+        'link', 'package', 'param', 'return', 'see',
+        'since', 'subpackage', 'todo', 'uses', 'var');
+    /** @var array static property storing the list of phpdoc tags
+     * allowed to be used inline within Moodle phpdocs. */
+     public static $inlinetags = array(
+         'link');
     /** @var array stores the original token for this phpdocs */
     protected $originaltoken = null;
     /** @var int stores id the original token for this phpdocs */
@@ -966,5 +987,38 @@ class local_moodlecheck_phpdocs {
                 return $line0;
             }
         }
+    }
+
+    /**
+     * Returns all the inline tags found in the phpdoc
+     *
+     * This method returns all the phpdocs tags found inline,
+     * embed into the phpdocs contents. Only valid tags are
+     * considered See {@link self::$validtags}.
+     *
+     * @param bool $withcurly if true, only tags properly enclosed
+     *        with curly brackets are returned. Else all the inline tags are returned.
+     *
+     * @return array inline tags found in the phpdoc, without
+     * any cleaning and including curly braces if present
+     */
+    public function get_inline_tags($withcurly = true) {
+        $inlinetags = array();
+        // Trim the non-inline phpdocs tags
+        $text = preg_replace('|^\s*@?|m', '', $this->trimmedtext);
+        if ($withcurly) {
+            $regex = '#{@([a-z]*).*?}#';
+        } else {
+            $regex = '#@([a-z]*).*?#';
+        }
+        if (preg_match_all($regex, $text, $matches)) {
+            // Filter out invalid ones, can be ignored
+            foreach ($matches[1] as $tag) {
+                if (in_array($tag, self::$validtags)) {
+                    $inlinetags[] = $tag;
+                }
+            }
+        }
+        return $inlinetags;
     }
 }
