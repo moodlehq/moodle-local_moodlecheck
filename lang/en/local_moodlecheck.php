@@ -55,6 +55,19 @@ $string['error_noinlinephpdocs'] = 'Found comment starting with three or more sl
 $string['error_phpdocsfistline'] = 'No one-line description found in phpdocs for <b>{$a->object}</b>';
 $string['rule_phpdocsfistline'] = 'File-level phpdocs block and class phpdocs should have one-line short description';
 
+$string['error_phpdocsinvalidtag'] = 'Invalid phpdocs tag <b>{$a->tag}</b> used';
+$string['rule_phpdocsinvalidtag'] = 'Used phpdocs tags are valid';
+
+$string['error_phpdocsnotrecommendedtag'] = 'Not recommended phpdocs tag <b>{$a->tag}</b> used';
+$string['rule_phpdocsnotrecommendedtag'] = 'Used phpdocs tags are recommended';
+
+$string['error_phpdocsinvalidinlinetag'] = 'Invalid inline phpdocs tag <b>{$a->tag}</b> found';
+$string['rule_phpdocsinvalidinlinetag'] = 'Inline phpdocs tags are valid';
+
+$string['error_phpdocsuncurlyinlinetag'] = 'Inline phpdocs tag not enclosed with curly brackets <b>{$a->tag}</b> found';
+$string['rule_phpdocsuncurlyinlinetag'] = 'Inline phpdocs tags are enclosed with curly brackets';
+
+
 $string['error_functiondescription'] = 'There is no description in phpdocs for function <b>{$a->object}</b>';
 $string['rule_functiondescription'] = 'Functions have descriptions in phpdocs';
 $string['error_functionarguments'] = 'Phpdocs for function <b>{$a->function}</b> has incomplete parameters list';
