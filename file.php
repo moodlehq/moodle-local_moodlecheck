@@ -781,7 +781,7 @@ class local_moodlecheck_phpdocs {
         'ignore', 'internal', 'license', 'link', 'method',
         'name', 'package', 'param', 'property', 'return',
         'see', 'since', 'static', 'staticvar', 'subpackage',
-        'todo', 'tutorial', 'uses', 'var', 'version');
+        'throws', 'todo', 'tutorial', 'uses', 'var', 'version');
     /** @var array static property storing the list of recommended
      * phpdoc tags to use within Moodle phpdocs.
      * @link http://docs.moodle.org/dev/Coding_style */
