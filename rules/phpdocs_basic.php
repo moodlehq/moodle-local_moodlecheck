@@ -190,7 +190,7 @@ function local_moodlecheck_phpdocsinvalidtag(local_moodlecheck_file $file) {
             $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
             if (!in_array($tag, local_moodlecheck_phpdocs::$validtags)) {
                 $errors[] = array(
-                    'line' => $phpdocs->get_line_number($file),
+                    'line' => $phpdocs->get_line_number($file, '@' . $tag),
                     'tag' => '@' . $tag);
             }
         }
@@ -212,7 +212,7 @@ function local_moodlecheck_phpdocsnotrecommendedtag(local_moodlecheck_file $file
             if (in_array($tag, local_moodlecheck_phpdocs::$validtags) and
                     !in_array($tag, local_moodlecheck_phpdocs::$recommendedtags)) {
                 $errors[] = array(
-                    'line' => $phpdocs->get_line_number($file),
+                    'line' => $phpdocs->get_line_number($file, '@' . $tag),
                     'tag' => '@' . $tag);
             }
         }
@@ -233,7 +233,7 @@ function local_moodlecheck_phpdocsinvalidinlinetag(local_moodlecheck_file $file)
             foreach ($inlinetags as $inlinetag) {
                 if (!in_array($inlinetag, local_moodlecheck_phpdocs::$inlinetags)) {
                     $errors[] = array(
-                        'line' => $phpdocs->get_line_number($file),
+                        'line' => $phpdocs->get_line_number($file, '@' . $inlinetag),
                         'tag' => '@' . $inlinetag);
                 }
             }
@@ -257,7 +257,7 @@ function local_moodlecheck_phpdocsuncurlyinlinetag(local_moodlecheck_file $file)
             foreach ($diff as $inlinetag) {
                 if (in_array($inlinetag, local_moodlecheck_phpdocs::$inlinetags)) {
                     $errors[] = array(
-                        'line' => $phpdocs->get_line_number($file),
+                        'line' => $phpdocs->get_line_number($file, '@' . $inlinetag),
                         'tag' => '@' . $inlinetag);
                 }
             }
