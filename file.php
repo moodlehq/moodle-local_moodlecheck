@@ -788,7 +788,7 @@ class local_moodlecheck_phpdocs {
     public static $recommendedtags = array(
         'author', 'category', 'copyright', 'deprecated', 'license',
         'link', 'package', 'param', 'return', 'see',
-        'since', 'subpackage', 'todo', 'uses', 'var');
+        'since', 'subpackage', 'throws', 'todo', 'uses', 'var');
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */
      public static $inlinetags = array(
