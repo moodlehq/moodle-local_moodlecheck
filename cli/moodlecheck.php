@@ -30,8 +30,8 @@ require_once($CFG->dirroot. '/local/moodlecheck/locallib.php');
 
 // now get cli options
 list($options, $unrecognized) = cli_get_params(
-        array('help'=>false, 'path'=>'', 'format'=>'xml', 'exclude'=>'', 'rules'=>'all'),
-        array('h'=>'help', 'p'=>'path', 'f'=>'format', 'e'=>'exclude', 'r'=>'rules')
+        array('help'=>false, 'path'=>'', 'format'=>'xml', 'exclude'=>'', 'rules'=>'all', 'componentsfile'=>''),
+        array('h'=>'help', 'p'=>'path', 'f'=>'format', 'e'=>'exclude', 'r'=>'rules', 'c'=>'componentsfile')
     );
 
 $rules = preg_split('/\s*[\n,;]\s*/', trim($options['rules']), null, PREG_SPLIT_NO_EMPTY);
@@ -55,6 +55,7 @@ Options:
                       automatically excluded
 -r, --rules           List rules to check against. Default 'all'
 -f, --format          Output format: html, xml, text. Default 'xml'
+-c, --componentsfile  Path to one file contaning the list of valid components in format: type, name, fullpath
 
 Example:
 \$sudo -u www-data /usr/bin/php local/moodlecheck/cli/moodlecheck.php -p=local/moodlecheck
@@ -88,5 +89,6 @@ if (count($rules) && !in_array('all', $rules)) {
 }
 foreach ($paths as $filename) {
     $path = new local_moodlecheck_path($filename, $exclude);
+    local_moodlecheck_path::get_components($options['componentsfile']);
     echo $output->display_path($path, $options['format']);
 }

@@ -174,7 +174,9 @@ class local_moodlecheck_path {
     
     public function __construct($path, $ignorepaths) {
         $path = trim($path);
-        if (substr($path,0,1) == '/') {
+        // If the path is already one existing full path
+        // accept it, else assume it's a relative one
+        if (!file_exists($path) and substr($path,0,1) == '/') {
             $path = substr($path,1);
         }
         $this->path = $path;
@@ -183,6 +185,10 @@ class local_moodlecheck_path {
     
     public function get_fullpath() {
         global $CFG;
+        // It's already one full path
+        if (file_exists($this->path)) {
+            return $this->path;
+        }
         return $CFG->dirroot. '/'. $this->path;
     }
     
@@ -246,6 +252,34 @@ class local_moodlecheck_path {
 
     public function is_rootpath() {
         return $this->rootpath;
+    }
+
+    public static function get_components($componentsfile = null) {
+        static $components = array();
+        if (!empty($components)) {
+            return $components;
+        }
+        if (empty($componentsfile)) {
+            return array();
+        }
+        if (file_exists($componentsfile) and is_readable($componentsfile)) {
+            $fh = fopen($componentsfile, 'r');
+            while (($line = fgets($fh, 4096)) !== false) {
+                $split = explode(',', $line);
+                if (count($split) != 3) {
+                    // Wrong count of elements in the line
+                    continue;
+                }
+                if (trim($split[0]) != 'plugin' and trim($split[0]) != 'subsystem') {
+                    // Wrong type
+                    continue;
+                }
+                // Let's assume it's a correct line
+                $components[trim($split[0])][trim($split[1])] = trim($split[2]);
+            }
+            fclose($fh);
+        }
+        return $components;
     }
 }
 
