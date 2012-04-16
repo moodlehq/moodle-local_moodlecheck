@@ -108,21 +108,46 @@ function local_moodlecheck_categoryvalid(local_moodlecheck_file $file) {
  * @return array
  */
 function local_moodlecheck_package_names(local_moodlecheck_file $file) {
-    // Check if $file is inside any plugin directory
-    foreach (local_moodlecheck_get_plugins() as $pluginfullname => $dir) {
+    static $allplugins = array();
+    static $allsubsystems = array();
+    static $corepackages  = array();
+    // Get and cache the list of plugins
+    if (empty($allplugins)) {
+        $components = local_moodlecheck_path::get_components();
+        // First try to get the list from file components
+        if (isset($components['plugin'])) {
+            $allplugins = $components['plugin'];
+        } else {
+            $allplugins = local_moodlecheck_get_plugins();
+        }
+    }
+    // Get and cache the list of subsystems
+    if (empty($allsubsystems)) {
+        $components = local_moodlecheck_path::get_components();
+        // First try to get the list from file components
+        if (isset($components['subsystem'])) {
+            $allsubsystems = $components['subsystem'];
+        } else {
+            $allsubsystems = get_core_subsystems();
+        }
+        // Prepare the list of core packages
+        foreach ($allsubsystems as $subsystem => $dir) {
+            $corepackages[] = 'core_' . $subsystem;
+        }
+        // Add "core" if missing
+        if (!in_array('core', $corepackages)) {
+            $corepackages[] = 'core';
+        }
+    }
+
+    // Return valid plugin if the $file belongs to it
+    foreach ($allplugins as $pluginfullname => $dir) {
         if ($file->is_in_dir($dir)) {
             return array($pluginfullname);
         }
     }
 
-    // If not return list of core packages
-    static $corepackages = array();
-    if (empty($corepackages)) {
-        $coresubsystems = get_core_subsystems();
-        foreach ($coresubsystems as $key => $val) {
-            $corepackages[] = 'core_'.$key;
-        }
-    }
+    // If not return list of valid core packages
     return $corepackages;
 }
 

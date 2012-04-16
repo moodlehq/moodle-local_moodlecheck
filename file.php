@@ -543,7 +543,7 @@ class local_moodlecheck_file {
             } else {
                 // no idea what it is!
                 // TODO: change to debugging
-                echo "************ Unknown preceeding token id = {$tokens[$i][0]}, text = '{$tokens[$i][1]}' **************<br>";
+                //echo "************ Unknown preceeding token id = {$tokens[$i][0]}, text = '{$tokens[$i][1]}' **************<br>";
                 return false;
             }
         }
@@ -654,7 +654,7 @@ class local_moodlecheck_file {
                         $found = false;
                     } else {
                         // TODO: change to debugging
-                        echo "************ Unknown token following the first phpdocs in {$this->filepath}: id = {$nexttoken[0]}, text = '{$nexttoken[1]}' **************<br>";
+                        //echo "************ Unknown token following the first phpdocs in {$this->filepath}: id = {$nexttoken[0]}, text = '{$nexttoken[1]}' **************<br>";
                     }
                 }
             }
