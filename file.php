@@ -759,7 +759,7 @@ class local_moodlecheck_file {
         } else if ($tid == 0) {
             return 1;
         } else {
-            return $this->get_line_number($tid-1) + count(split("\n", $tokens[$tid-1][1])) - 1;
+            return $this->get_line_number($tid-1) + count(preg_split('/\n/', $tokens[$tid-1][1])) - 1;
         }
     }
 }
@@ -979,9 +979,9 @@ class local_moodlecheck_phpdocs {
         if ($substring === null) {
             return $line0;
         } else {
-            $chunks = split($substring, $this->originaltoken[1]);
+            $chunks = preg_split('!' . $substring . '!', $this->originaltoken[1]);
             if (count($chunks) > 1) {
-                $lines = split("\n", $chunks[0]);
+                $lines = preg_split('/\n/', $chunks[0]);
                 return $line0 + count($lines) - 1;
             } else {
                 return $line0;
