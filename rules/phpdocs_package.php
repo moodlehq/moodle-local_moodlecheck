@@ -191,7 +191,7 @@ function &local_moodlecheck_get_categories() {
         $lastsavedvalue = get_user_preferences('local_moodlecheck_categoriesvalue');
         if ($lastsavedtime > time() - 24*60*60) {
             // update only once per day
-            $allcategories = split(',', $lastsavedvalue);
+            $allcategories = explode(',', $lastsavedvalue);
         } else {
             $allcategories = array();
             $filecontent = file_get_contents("http://docs.moodle.org/dev/Core_APIs");
