@@ -216,6 +216,11 @@ class local_moodlecheck_file {
                     $function = new stdClass();
                     $function->tid = $tid;
                     $function->fullname = $function->name = $this->next_nonspace_token($tid, false, array('&'));
+
+                    // Skip anonymous functions.
+                    if ($function->name == '(') {
+                        continue;
+                    }
                     $function->phpdocs = $this->find_preceeding_phpdoc($tid);
                     $function->class = $this->is_inside_class($tid);
                     if ($function->class !== false) {
