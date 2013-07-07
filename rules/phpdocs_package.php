@@ -128,7 +128,7 @@ function local_moodlecheck_package_names(local_moodlecheck_file $file) {
         if (isset($components['subsystem'])) {
             $allsubsystems = $components['subsystem'];
         } else {
-            $allsubsystems = get_core_subsystems();
+            $allsubsystems = get_core_subsystems(true);
         }
         // Prepare the list of core packages
         foreach ($allsubsystems as $subsystem => $dir) {
