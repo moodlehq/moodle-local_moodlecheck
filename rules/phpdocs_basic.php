@@ -340,7 +340,10 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                     }
 
                     if (strlen($expectedtype) && $expectedtype !== $documentedtype) {
-                        $match = false;
+                        // It could be a type hinted array.
+                        if ($expectedtype !== 'array' || substr($documentedtype, -2) !== '[]') {
+                            $match = false;
+                        }
                     } else if ($documentedtype === 'type') {
                         $match = false;
                     } else if ($expectedparam !== $documentedparam) {
