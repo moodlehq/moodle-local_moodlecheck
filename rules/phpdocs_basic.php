@@ -325,14 +325,27 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
             $match = (count($documentedarguments) == count($function->arguments));
             for ($i=0; $match && $i<count($documentedarguments); $i++) {
                 if (count($documentedarguments[$i]) < 2) {
-                    // must be at least type and parameter name
+                    // Must be at least type and parameter name.
                     $match = false;
-                } else if (strlen($function->arguments[$i][0]) && $function->arguments[$i][0] != $documentedarguments[$i][0]) {
-                    $match = false;
-                } else if ($documentedarguments[$i][0] == 'type') {
-                    $match = false;
-                } else if ($function->arguments[$i][1] != $documentedarguments[$i][1]) {
-                    $match = false;
+                } else {
+                    $expectedtype = $function->arguments[$i][0];
+                    $expectedparam = $function->arguments[$i][1];
+                    $documentedtype = $documentedarguments[$i][0];
+                    $documentedparam = $documentedarguments[$i][1];
+
+                    if (strpos($documentedtype, '\\') !== false) {
+                        // Namespaced typehint, potentially sub-namespaced.
+                        // We need to strip namespacing as this area just isn't that smart.
+                        $documentedtype = substr($documentedtype, strrpos($documentedtype, '\\') + 1);
+                    }
+
+                    if (strlen($expectedtype) && $expectedtype !== $documentedtype) {
+                        $match = false;
+                    } else if ($documentedtype === 'type') {
+                        $match = false;
+                    } else if ($expectedparam !== $documentedparam) {
+                        $match = false;
+                    }
                 }
             }
             $documentedreturns = $function->phpdocs->get_params('return');
