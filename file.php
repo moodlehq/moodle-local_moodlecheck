@@ -781,19 +781,64 @@ class local_moodlecheck_phpdocs {
      * well known, phpdocs tags, always accepted.
      * @link http://manual.phpdoc.org/HTMLSmartyConverter/HandS/ */
     public static $validtags = array(
-        'abstract', 'access', 'author', 'category', 'copyright',
-        'deprecated', 'example', 'final', 'fileresource', 'global',
-        'ignore', 'internal', 'license', 'link', 'method',
-        'name', 'package', 'param', 'property', 'return',
-        'see', 'since', 'static', 'staticvar', 'subpackage',
-        'throws', 'todo', 'tutorial', 'uses', 'var', 'version');
+        'abstract',
+        'access',
+        'author',
+        'category',
+        'copyright',
+        'deprecated',
+        'example',
+        'final',
+        'filesource',
+        'global',
+        'ignore',
+        'internal',
+        'license',
+        'link',
+        'method',
+        'name',
+        'package',
+        'param',
+        'property',
+        'property-read',
+        'property-write',
+        'return',
+        'see',
+        'since',
+        'static',
+        'staticvar',
+        'subpackage',
+        'throws',
+        'todo',
+        'tutorial',
+        'uses',
+        'var',
+        'version'
+    );
     /** @var array static property storing the list of recommended
      * phpdoc tags to use within Moodle phpdocs.
      * @link http://docs.moodle.org/dev/Coding_style */
     public static $recommendedtags = array(
-        'author', 'category', 'copyright', 'deprecated', 'license',
-        'link', 'package', 'param', 'return', 'see',
-        'since', 'subpackage', 'throws', 'todo', 'uses', 'var');
+        'author',
+        'category',
+        'copyright',
+        'deprecated',
+        'license',
+        'link',
+        'package',
+        'param',
+        'property',
+        'property-read',
+        'property-write',
+        'return',
+        'see',
+        'since',
+        'subpackage',
+        'throws',
+        'todo',
+        'uses',
+        'var'
+    );
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */
      public static $inlinetags = array(
@@ -1012,9 +1057,9 @@ class local_moodlecheck_phpdocs {
         // Trim the non-inline phpdocs tags
         $text = preg_replace('|^\s*@?|m', '', $this->trimmedtext);
         if ($withcurly) {
-            $regex = '#{@([a-z]*).*?}#';
+            $regex = '#{@([a-z\-]*).*?}#';
         } else {
-            $regex = '#@([a-z]*).*?#';
+            $regex = '#@([a-z\-]*).*?#';
         }
         if (preg_match_all($regex, $text, $matches)) {
             // Filter out invalid ones, can be ignored
