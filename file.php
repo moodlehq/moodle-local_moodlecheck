@@ -53,7 +53,7 @@ class local_moodlecheck_file {
     public function __construct($filepath) {
         $this->filepath = $filepath;
     }
-    
+
     /**
      * Cleares all cached stuff to free memory
      */
@@ -119,6 +119,15 @@ class local_moodlecheck_file {
         }
         $this->clear_memory();
         return $this->errors;
+    }
+
+    /**
+     * Return the filepath of the file.
+     *
+     * @return string
+     */
+    public function get_filepath() {
+        return $this->filepath;
     }
 
     /**
@@ -781,9 +790,11 @@ class local_moodlecheck_phpdocs {
      * well known, phpdocs tags, always accepted.
      * @link http://manual.phpdoc.org/HTMLSmartyConverter/HandS/ */
     public static $validtags = array(
+        // Behat tags.
         'Given',
         'Then',
         'When',
+        // PHPDoc tags.
         'abstract',
         'access',
         'author',
@@ -822,9 +833,11 @@ class local_moodlecheck_phpdocs {
      * phpdoc tags to use within Moodle phpdocs.
      * @link http://docs.moodle.org/dev/Coding_style */
     public static $recommendedtags = array(
+        // Behat tags.
         'Given',
         'Then',
         'When',
+        // PHPDoc tags.
         'author',
         'category',
         'copyright',
@@ -844,6 +857,15 @@ class local_moodlecheck_phpdocs {
         'todo',
         'uses',
         'var'
+    );
+    /** @var array static property storing the list of phpdoc tags
+     * allowed to be used under certain directories. keys are tags, values are
+     * arrays of allowed paths (regexp patterns).
+     */
+    public static $pathrestrictedtags = array(
+        'Given' => array('#.*/tests/behat/.*#'),
+        'Then' => array('#.*/tests/behat/.*#'),
+        'When' => array('#.*/tests/behat/.*#')
     );
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */

@@ -44,6 +44,7 @@ local_moodlecheck_registry::add_rule('filehaslicense')->set_callback('local_mood
 local_moodlecheck_registry::add_rule('classeshavelicense')->set_callback('local_moodlecheck_classeshavelicense');
 local_moodlecheck_registry::add_rule('phpdocsinvalidtag')->set_callback('local_moodlecheck_phpdocsinvalidtag');
 local_moodlecheck_registry::add_rule('phpdocsnotrecommendedtag')->set_callback('local_moodlecheck_phpdocsnotrecommendedtag')->set_severity('warning');;
+local_moodlecheck_registry::add_rule('phpdocsinvalidpathtag')->set_callback('local_moodlecheck_phpdocsinvalidpathtag')->set_severity('warning');;
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 
@@ -214,6 +215,32 @@ function local_moodlecheck_phpdocsnotrecommendedtag(local_moodlecheck_file $file
                 $errors[] = array(
                     'line' => $phpdocs->get_line_number($file, '@' . $tag),
                     'tag' => '@' . $tag);
+            }
+        }
+    }
+    return $errors;
+}
+
+/**
+ * Check that all the path-restricted phpdoc tags used are in place
+ *
+ * @param local_moodlecheck_file $file
+ * @return array of found errors
+ */
+function local_moodlecheck_phpdocsinvalidpathtag(local_moodlecheck_file $file) {
+    $errors = array();
+    foreach ($file->get_all_phpdocs() as $phpdocs) {
+        foreach ($phpdocs->get_tags() as $tag) {
+            $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
+            if (in_array($tag, local_moodlecheck_phpdocs::$validtags) and
+                    in_array($tag, local_moodlecheck_phpdocs::$recommendedtags) and
+                    isset(local_moodlecheck_phpdocs::$pathrestrictedtags[$tag])) {
+                // Verify file path matches some of the valid paths for the tag.
+                if (!preg_filter(local_moodlecheck_phpdocs::$pathrestrictedtags[$tag], '$0', $file->get_filepath())) {
+                    $errors[] = array(
+                        'line' => $phpdocs->get_line_number($file, '@' . $tag),
+                        'tag' => '@' . $tag);
+                }
             }
         }
     }
