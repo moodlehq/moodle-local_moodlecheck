@@ -781,6 +781,9 @@ class local_moodlecheck_phpdocs {
      * well known, phpdocs tags, always accepted.
      * @link http://manual.phpdoc.org/HTMLSmartyConverter/HandS/ */
     public static $validtags = array(
+        'Given',
+        'Then',
+        'When',
         'abstract',
         'access',
         'author',
@@ -819,6 +822,9 @@ class local_moodlecheck_phpdocs {
      * phpdoc tags to use within Moodle phpdocs.
      * @link http://docs.moodle.org/dev/Coding_style */
     public static $recommendedtags = array(
+        'Given',
+        'Then',
+        'When',
         'author',
         'category',
         'copyright',
