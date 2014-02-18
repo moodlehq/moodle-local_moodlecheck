@@ -61,6 +61,9 @@ $string['rule_phpdocsinvalidtag'] = 'Used phpdocs tags are valid';
 $string['error_phpdocsnotrecommendedtag'] = 'Not recommended phpdocs tag <b>{$a->tag}</b> used';
 $string['rule_phpdocsnotrecommendedtag'] = 'Used phpdocs tags are recommended';
 
+$string['error_phpdocsinvalidpathtag'] = 'Incorrect path for phpdocs tag <b>{$a->tag}</b> detected';
+$string['rule_phpdocsinvalidpathtag'] = 'Used phpdocs tags have correct paths';
+
 $string['error_phpdocsinvalidinlinetag'] = 'Invalid inline phpdocs tag <b>{$a->tag}</b> found';
 $string['rule_phpdocsinvalidinlinetag'] = 'Inline phpdocs tags are valid';
 
