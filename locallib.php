@@ -292,28 +292,32 @@ class local_moodlecheck_path {
  */
 class local_moodlecheck_form extends moodleform {
     protected function definition() {
-        global $path;
         $mform = $this->_form;
-
-        $mform->addElement('header', '');
 
         $mform->addElement('textarea', 'path', get_string('path', 'local_moodlecheck'), array('rows' => 8, 'cols' => 120));
         $mform->addHelpButton('path', 'path', 'local_moodlecheck');
 
+        $mform->addElement('header', 'selectivecheck', get_string('options'));
+        $mform->setExpanded('selectivecheck', false);
+
         $mform->addElement('textarea', 'ignorepath', get_string('ignorepath', 'local_moodlecheck'), array('rows' => 3, 'cols' => 120));
-        $mform->setAdvanced('ignorepath');
 
         $mform->addElement('radio', 'checkall', '', get_string('checkallrules', 'local_moodlecheck'), 'all');
         $mform->addElement('radio', 'checkall', '', get_string('checkselectedrules', 'local_moodlecheck'), 'selected');
         $mform->setDefault('checkall', 'all');
-        
+
+        $group=array();
         foreach (local_moodlecheck_registry::get_registered_rules() as $code => $rule) {
-            $mform->addElement('checkbox', "rule[$code]", '', $rule->get_name());
+            $group[] =& $mform->createElement('checkbox', "rule[$code]", ' ', $rule->get_name());
+        }
+        $mform->addGroup($group, 'checkboxgroup', '', array('<br>'), false);
+        foreach (local_moodlecheck_registry::get_registered_rules() as $code => $rule) {
+            $group[] =& $mform->createElement('checkbox', "rule[$code]", ' ', $rule->get_name());
             $mform->setDefault("rule[$code]", 1);
-            $mform->setAdvanced("rule[$code]");
+            $mform->disabledIf("rule[$code]", 'checkall', 'eq', 'all');
         }
 
-        $mform->addElement('submit', 'submitbutton', get_string('check', 'local_moodlecheck'));
+        $this->add_action_buttons(false, get_string('check', 'local_moodlecheck'));
     }
 }
 

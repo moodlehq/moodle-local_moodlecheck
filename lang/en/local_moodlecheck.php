@@ -28,7 +28,7 @@ $string['ignorepath'] = 'Subpaths to ignore';
 $string['path_help'] = 'Specify one or more files and/or directories to check as local paths from Moodle installation directory';
 $string['check'] = 'Check';
 $string['checkallrules'] = 'Check over all rules';
-$string['checkselectedrules'] = 'Check over selected rules (click "Show Advanced" button to see the list)';
+$string['checkselectedrules'] = 'Check over selected rules';
 $string['error_default'] = 'Error: {$a}';
 $string['linenum']  = 'Line <b>{$a}</b>: ';
 
