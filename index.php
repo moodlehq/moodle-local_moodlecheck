@@ -41,6 +41,7 @@ if ($dh = opendir($CFG->dirroot. '/local/moodlecheck/rules')) {
 require_login();
 $context = context_system::instance();
 $PAGE->set_context($context);
+$PAGE->set_pagelayout('admin');
 $PAGE->set_heading($SITE->fullname);
 $PAGE->set_title($SITE->fullname . ': ' . get_string('pluginname', 'local_moodlecheck'));
 $PAGE->set_url(new moodle_url('/local/moodlecheck/index.php'));
