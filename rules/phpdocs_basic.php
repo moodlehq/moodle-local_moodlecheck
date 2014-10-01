@@ -105,10 +105,16 @@ function local_moodlecheck_classesdocumented(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
+
+    $isphpunitfile = preg_match('#/tests/[^/]+_test\.php$#', $file->get_filepath());
     $errors = array();
     foreach ($file->get_functions() as $function) {
         if ($function->phpdocs === false) {
-            $errors[] = array('function' => $function->fullname, 'line' => $file->get_line_number($function->boundaries[0]));
+            // Exception is made for plain phpunit test methods MDLSITE-3282.
+            $istestmethod = (strpos($function->name, 'test_') === 0);
+            if (!($isphpunitfile && $istestmethod)) {
+                $errors[] = array('function' => $function->fullname, 'line' => $file->get_line_number($function->boundaries[0]));
+            }
         }
     }
     return $errors;
