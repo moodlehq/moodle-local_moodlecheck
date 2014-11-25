@@ -794,6 +794,8 @@ class local_moodlecheck_phpdocs {
         'Given',
         'Then',
         'When',
+        // PHPUnit tags.
+        'dataProvider',
         // PHPDoc tags.
         'abstract',
         'access',
@@ -837,6 +839,8 @@ class local_moodlecheck_phpdocs {
         'Given',
         'Then',
         'When',
+        // PHPUnit tags.
+        'dataProvider',
         // PHPDoc tags.
         'author',
         'category',
@@ -865,7 +869,8 @@ class local_moodlecheck_phpdocs {
     public static $pathrestrictedtags = array(
         'Given' => array('#.*/tests/behat/.*#'),
         'Then' => array('#.*/tests/behat/.*#'),
-        'When' => array('#.*/tests/behat/.*#')
+        'When' => array('#.*/tests/behat/.*#'),
+        'dataProvider' => array('#.*/tests/.*_test.php#')
     );
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */
@@ -908,7 +913,7 @@ class local_moodlecheck_phpdocs {
         $this->description = '';
         $istokenline = false;
         for ($i=0; $i<count($lines); $i++) {
-            if (preg_match('|^\s*\@(\w+)\W|', $lines[$i])) {
+            if (preg_match('|^\s*\@(\w+)|', $lines[$i])) {
                 // first line of token
                 $istokenline = true;
                 $this->tokens[] = $lines[$i];
