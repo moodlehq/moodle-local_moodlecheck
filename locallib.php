@@ -203,7 +203,7 @@ class local_moodlecheck_path {
             $this->subpaths = array();
             if ($dh = opendir($this->get_fullpath())) {
                 while (($file = readdir($dh)) !== false) {
-                    if ($file != '.' && $file != '..' && $file != '.git' && !$this->is_ignored($file)) {
+                    if ($file != '.' && $file != '..' && $file != '.git'  && $file != '.hg' && !$this->is_ignored($file)) {
                         $subpath = new local_moodlecheck_path($this->path . '/'. $file, $this->ignorepaths);
                         $subpath->set_rootpath(false);
                         $this->subpaths[] = $subpath;
