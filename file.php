@@ -827,7 +827,28 @@ class local_moodlecheck_phpdocs {
         'tutorial',
         'uses',
         'var',
-        'version'
+        'version',
+        // PHPUnit tags.
+        'backupGlobals',
+        'backupStaticAttributes',
+        'codeCoverageIgnore',
+        'covers',
+        'coversDefaultClass',
+        'coversNothing',
+        'dataProvider',
+        'depends',
+        'expectedException',
+        'expectedExceptionCode',
+        'expectedExceptionMessage',
+        'group',
+        'large',
+        'medium',
+        'preserveGlobalState',
+        'requires',
+        'runTestsInSeparateProcesses',
+        'runInSeparateProcess',
+        'small',
+        'test'
     );
     /** @var array static property storing the list of recommended
      * phpdoc tags to use within Moodle phpdocs.
@@ -856,7 +877,15 @@ class local_moodlecheck_phpdocs {
         'throws',
         'todo',
         'uses',
-        'var'
+        'var',
+        // PHPUnit tags.
+        'dataProvider',
+        'depends',
+        'expectedException',
+        'expectedExceptionCode',
+        'expectedExceptionMessage',
+        'group',
+        'large'
     );
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used under certain directories. keys are tags, values are
@@ -865,7 +894,27 @@ class local_moodlecheck_phpdocs {
     public static $pathrestrictedtags = array(
         'Given' => array('#.*/tests/behat/.*#'),
         'Then' => array('#.*/tests/behat/.*#'),
-        'When' => array('#.*/tests/behat/.*#')
+        'When' => array('#.*/tests/behat/.*#'),
+        'backupGlobals' => array('#.*/tests/.*#'),
+        'backupStaticAttributes' => array('#.*/tests/.*#'),
+        'codeCoverageIgnore' => array('#.*/tests/.*#'),
+        'covers' => array('#.*/tests/.*#'),
+        'coversDefaultClass' => array('#.*/tests/.*#'),
+        'coversNothing' => array('#.*/tests/.*#'),
+        'dataProvider' => array('#.*/tests/.*#'),
+        'depends' => array('#.*/tests/.*#'),
+        'expectedException' => array('#.*/tests/.*#'),
+        'expectedExceptionCode' => array('#.*/tests/.*#'),
+        'expectedExceptionMessage' => array('#.*/tests/.*#'),
+        'group' => array('#.*/tests/.*#'),
+        'large' => array('#.*/tests/.*#'),
+        'medium' => array('#.*/tests/.*#'),
+        'preserveGlobalState' => array('#.*/tests/.*#'),
+        'requires' => array('#.*/tests/.*#'),
+        'runTestsInSeparateProcesses' => array('#.*/tests/.*#'),
+        'runInSeparateProcess' => array('#.*/tests/.*#'),
+        'small' => array('#.*/tests/.*#'),
+        'test' => array('#.*/tests/.*#')
     );
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */
