@@ -794,6 +794,8 @@ class local_moodlecheck_phpdocs {
         'Given',
         'Then',
         'When',
+        // PHPUnit tags.
+        'dataProvider',
         // PHPDoc tags.
         'abstract',
         'access',
