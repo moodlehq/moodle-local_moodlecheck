@@ -199,7 +199,7 @@ function &local_moodlecheck_get_categories() {
             $allcategories = explode(',', $lastsavedvalue);
         } else {
             $allcategories = array();
-            $filecontent = file_get_contents("http://docs.moodle.org/dev/Core_APIs");
+            $filecontent = @file_get_contents("http://docs.moodle.org/dev/Core_APIs");
             if (!$filecontent) {
                 $filecontent = file_get_contents($CFG->dirroot . '/local/moodlecheck/rules/coreapis.txt');
             }
