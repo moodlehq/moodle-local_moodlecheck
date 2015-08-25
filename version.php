@@ -26,3 +26,4 @@ defined('MOODLE_INTERNAL') || die;
 
 $plugin->version  = 2012011000;
 $plugin->requires = 2010112400;
+$plugin->component = 'local_moodlecheck';
