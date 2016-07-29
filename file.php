@@ -51,7 +51,7 @@ class local_moodlecheck_file {
      * @param string $filepath
      */
     public function __construct($filepath) {
-        $this->filepath = $filepath;
+        $this->filepath = str_replace(DIRECTORY_SEPARATOR, "/", $filepath);
     }
 
     /**
@@ -76,6 +76,8 @@ class local_moodlecheck_file {
      * @return bool
      */
     public function is_in_dir($dirpath) {
+        // Normalize dir path to also work with Windows style directory separators...
+        $dirpath = str_replace(DIRECTORY_SEPARATOR, "/", $dirpath);
         if (substr($dirpath, -1) != '/') {
             $dirpath .= '/';
         }
