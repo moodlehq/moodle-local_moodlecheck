@@ -185,7 +185,7 @@ class local_moodlecheck_file {
             $this->classes = array();
             $tokens = &$this->get_tokens();
             for ($tid=0;$tid<$this->tokenscount;$tid++) {
-                if ($this->tokens[$tid][0] == T_CLASS) {
+                if (($this->tokens[$tid][0] == T_CLASS) && ($this->previous_nonspace_token($tid) !== "::")) {
                     $class = new stdClass();
                     $class->tid = $tid;
                     $class->name = $this->next_nonspace_token($tid);
@@ -477,13 +477,13 @@ class local_moodlecheck_file {
         $this->get_tokens();
         return substr_count($this->tokens[$tid][1], "\n");
     }
-    
+
     /**
      * Returns the first token which is not whitespace following the token with id $tid
-     * 
+     *
      * Also returns false if no meaningful token found till the end of file
      *
-     * @param int $tid 
+     * @param int $tid
      * @param bool $returnid
      * @param array $alsoignore
      * @return int|false
@@ -501,7 +501,31 @@ class local_moodlecheck_file {
         }
         return false;
     }
-    
+
+    /**
+     * Returns the first token which is not whitespace before the token with id $tid
+     *
+     * Also returns false if no meaningful token found till the beggining of file
+     *
+     * @param int $tid
+     * @param bool $returnid
+     * @param array $alsoignore
+     * @return int|false
+     */
+    public function previous_nonspace_token($tid, $returnid = false, $alsoignore = array()) {
+        $this->get_tokens();
+        for ($i=$tid-1; $i>0; $i--) {
+            if (!$this->is_whitespace_token($i) && !in_array($this->tokens[$i][1], $alsoignore)) {
+                if ($returnid) {
+                    return $i;
+                } else {
+                    return $this->tokens[$i][1];
+                }
+            }
+        }
+        return false;
+    }
+
     /** 
      * Returns all modifers (private, public, static, ...) preceeding token with id $tid
      *
