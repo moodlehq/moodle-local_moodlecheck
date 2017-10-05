@@ -797,6 +797,7 @@ class local_moodlecheck_phpdocs {
         // PHPUnit tags.
         'dataProvider',
         'expectedException',
+        'expectedExceptionMessage',
         // PHPDoc tags.
         'abstract',
         'access',
