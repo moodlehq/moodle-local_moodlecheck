@@ -368,21 +368,30 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                     $documentedtype = $documentedarguments[$i][0];
                     $documentedparam = $documentedarguments[$i][1];
 
-                    if (strpos($documentedtype, '\\') !== false) {
-                        // Namespaced typehint, potentially sub-namespaced.
-                        // We need to strip namespacing as this area just isn't that smart.
-                        $documentedtype = substr($documentedtype, strrpos($documentedtype, '\\') + 1);
-                    }
+                    // Documented types can be a collection (| separated).
+                    foreach (explode('|', $documentedtype) as $documentedtype) {
 
-                    if (strlen($expectedtype) && $expectedtype !== $documentedtype) {
-                        // It could be a type hinted array.
-                        if ($expectedtype !== 'array' || substr($documentedtype, -2) !== '[]') {
+                        // Ignore null. They cannot match any type in function.
+                        if (trim( $documentedtype) === 'null') {
+                            continue;
+                        }
+
+                        if (strpos($documentedtype, '\\') !== false) {
+                            // Namespaced typehint, potentially sub-namespaced.
+                            // We need to strip namespacing as this area just isn't that smart.
+                            $documentedtype = substr($documentedtype, strrpos($documentedtype, '\\') + 1);
+                        }
+
+                        if (strlen($expectedtype) && $expectedtype !== $documentedtype) {
+                            // It could be a type hinted array.
+                            if ($expectedtype !== 'array' || substr($documentedtype, -2) !== '[]') {
+                                $match = false;
+                            }
+                        } else if ($documentedtype === 'type') {
+                            $match = false;
+                        } else if ($expectedparam !== $documentedparam) {
                             $match = false;
                         }
-                    } else if ($documentedtype === 'type') {
-                        $match = false;
-                    } else if ($expectedparam !== $documentedparam) {
-                        $match = false;
                     }
                 }
             }
