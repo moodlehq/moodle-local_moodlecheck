@@ -845,6 +845,10 @@ class local_moodlecheck_phpdocs {
         'When',
         // PHPUnit tags.
         'dataProvider',
+        'expectedException',
+        'expectedExceptionCode',
+        'expectedExceptionMessage',
+        'expectedExceptionMessageRegExp',
         // PHPDoc tags.
         'author',
         'category',
@@ -874,7 +878,11 @@ class local_moodlecheck_phpdocs {
         'Given' => array('#.*/tests/behat/.*#'),
         'Then' => array('#.*/tests/behat/.*#'),
         'When' => array('#.*/tests/behat/.*#'),
-        'dataProvider' => array('#.*/tests/.*_test.php#')
+        'dataProvider' => array('#.*/tests/.*_test.php#'),
+        'expectedException' => array('#.*/tests/.*_test.php#'),
+        'expectedExceptionCode' => array('#.*/tests/.*_test.php#'),
+        'expectedExceptionMessage' => array('#.*/tests/.*_test.php#'),
+        'expectedExceptionMessageRegExp' => array('#.*/tests/.*_test.php#')
     );
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */
