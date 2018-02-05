@@ -800,6 +800,7 @@ class local_moodlecheck_phpdocs {
         'expectedExceptionCode',
         'expectedExceptionMessage',
         'expectedExceptionMessageRegExp',
+        'group',
         // PHPDoc tags.
         'abstract',
         'access',
