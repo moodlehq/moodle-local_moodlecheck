@@ -28,7 +28,7 @@ require_once($CFG->dirroot. '/local/moodlecheck/file.php');
 
 /**
  * Handles one rule
- * 
+ *
  * @package    local_moodlecheck
  * @copyright  2012 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -39,26 +39,26 @@ class local_moodlecheck_rule {
     protected $rulestring;
     protected $errorstring;
     protected $severity = 'error';
-    
+
     public function __construct($code) {
         $this->code = $code;
     }
-    
+
     public function set_callback($callback) {
         $this->callback = $callback;
         return $this;
     }
-    
+
     public function set_rulestring($rulestring) {
         $this->rulestring = $rulestring;
         return $this;
     }
-    
+
     public function set_errorstring($errorstring) {
         $this->errorstring = $errorstring;
         return $this;
     }
-    
+
     public function set_severity($severity) {
         $this->severity = $severity;
         return $this;
@@ -73,7 +73,7 @@ class local_moodlecheck_rule {
             return $this->code;
         }
     }
-    
+
     public function get_error_message($args) {
         if (strlen($this->errorstring) && get_string_manager()->string_exists($this->errorstring, 'local_moodlecheck')) {
             return get_string($this->errorstring, 'local_moodlecheck', $args);
@@ -81,11 +81,11 @@ class local_moodlecheck_rule {
             return get_string('error_'. $this->code, 'local_moodlecheck', $args);
         } else {
             if (isset($args['line'])) {
-                // do not dump line number, it will be included in the final message
+                // Do not dump line number, it will be included in the final message.
                 unset($args['line']);
             }
             if (is_array($args)) {
-                $args = ': '. print_r($args, true);
+                $args = ': '. var_export($args, true);
             } else if ($args !== true && $args !== null) {
                 $args = ': '. $args;
             } else {
@@ -94,7 +94,7 @@ class local_moodlecheck_rule {
             return $this->get_name(). '. Error'. $args;
         }
     }
-    
+
     public function validatefile(local_moodlecheck_file $file) {
         $callback = $this->callback;
         $reterrors = $callback($file);
@@ -113,7 +113,7 @@ class local_moodlecheck_rule {
 
 /**
  * Rule registry
- * 
+ *
  * @package    local_moodlecheck
  * @copyright  2012 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -134,7 +134,7 @@ class local_moodlecheck_registry {
 
     public static function enable_rule($code, $enable = true) {
         if (!isset(self::$rules[$code])) {
-            // can not enable/disable unexisting rule
+            // Can not enable/disable unexisting rule.
             return;
         }
         if (!$enable) {
@@ -159,7 +159,7 @@ class local_moodlecheck_registry {
 
 /**
  * Handles one path being validated (file or directory)
- * 
+ *
  * @package    local_moodlecheck
  * @copyright  2012 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -171,30 +171,30 @@ class local_moodlecheck_path {
     protected $subpaths = null;
     protected $validated = false;
     protected $rootpath = true;
-    
+
     public function __construct($path, $ignorepaths) {
         $path = trim($path);
         // If the path is already one existing full path
-        // accept it, else assume it's a relative one
-        if (!file_exists($path) and substr($path,0,1) == '/') {
-            $path = substr($path,1);
+        // accept it, else assume it's a relative one.
+        if (!file_exists($path) and substr($path, 0, 1) == '/') {
+            $path = substr($path, 1);
         }
         $this->path = $path;
         $this->ignorepaths = $ignorepaths;
     }
-    
+
     public function get_fullpath() {
         global $CFG;
-        // It's already one full path
+        // It's already one full path.
         if (file_exists($this->path)) {
             return $this->path;
         }
         return $CFG->dirroot. '/'. $this->path;
     }
-    
+
     public function validate() {
         if ($this->validated) {
-            // prevent from second validation
+            // Prevent from second validation.
             return;
         }
         if (is_file($this->get_fullpath())) {
@@ -214,12 +214,12 @@ class local_moodlecheck_path {
         }
         $this->validated = true;
     }
-    
+
     protected function is_ignored($file) {
         $filepath = $this->path. '/'. $file;
         foreach ($this->ignorepaths as $ignorepath) {
             $ignorepath = rtrim($ignorepath, '/');
-            if ($filepath == $ignorepath || substr($filepath, 0, strlen($ignorepath)+1) == $ignorepath. '/') {
+            if ($filepath == $ignorepath || substr($filepath, 0, strlen($ignorepath) + 1) == $ignorepath . '/') {
                 return true;
             }
         }
@@ -229,19 +229,19 @@ class local_moodlecheck_path {
     public function is_file() {
         return $this->file !== null;
     }
-    
+
     public function is_dir() {
         return $this->subpaths !== null;
     }
-    
+
     public function get_path() {
         return $this->path;
     }
-    
+
     public function get_file() {
         return $this->file;
     }
-    
+
     public function get_subpaths() {
         return $this->subpaths;
     }
@@ -267,14 +267,14 @@ class local_moodlecheck_path {
             while (($line = fgets($fh, 4096)) !== false) {
                 $split = explode(',', $line);
                 if (count($split) != 3) {
-                    // Wrong count of elements in the line
+                    // Wrong count of elements in the line.
                     continue;
                 }
                 if (trim($split[0]) != 'plugin' and trim($split[0]) != 'subsystem') {
-                    // Wrong type
+                    // Wrong type.
                     continue;
                 }
-                // Let's assume it's a correct line
+                // Let's assume it's a correct line.
                 $components[trim($split[0])][trim($split[1])] = trim($split[2]);
             }
             fclose($fh);
@@ -285,7 +285,7 @@ class local_moodlecheck_path {
 
 /**
  * Form for check options
- * 
+ *
  * @package    local_moodlecheck
  * @copyright  2012 Marina Glancy
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
@@ -294,19 +294,21 @@ class local_moodlecheck_form extends moodleform {
     protected function definition() {
         $mform = $this->_form;
 
-        $mform->addElement('textarea', 'path', get_string('path', 'local_moodlecheck'), array('rows' => 8, 'cols' => 120));
+        $mform->addElement('textarea', 'path', get_string('path', 'local_moodlecheck'),
+            array('rows' => 8, 'cols' => 120));
         $mform->addHelpButton('path', 'path', 'local_moodlecheck');
 
         $mform->addElement('header', 'selectivecheck', get_string('options'));
         $mform->setExpanded('selectivecheck', false);
 
-        $mform->addElement('textarea', 'ignorepath', get_string('ignorepath', 'local_moodlecheck'), array('rows' => 3, 'cols' => 120));
+        $mform->addElement('textarea', 'ignorepath', get_string('ignorepath', 'local_moodlecheck'),
+            array('rows' => 3, 'cols' => 120));
 
         $mform->addElement('radio', 'checkall', '', get_string('checkallrules', 'local_moodlecheck'), 'all');
         $mform->addElement('radio', 'checkall', '', get_string('checkselectedrules', 'local_moodlecheck'), 'selected');
         $mform->setDefault('checkall', 'all');
 
-        $group=array();
+        $group = array();
         foreach (local_moodlecheck_registry::get_registered_rules() as $code => $rule) {
             $group[] =& $mform->createElement('checkbox', "rule[$code]", ' ', $rule->get_name());
         }
@@ -320,4 +322,3 @@ class local_moodlecheck_form extends moodleform {
         $this->add_action_buttons(false, get_string('check', 'local_moodlecheck'));
     }
 }
-

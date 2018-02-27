@@ -30,7 +30,7 @@ local_moodlecheck_registry::add_rule('categoryvalid')->set_callback('local_moodl
 
 /**
  * Checks if all functions (outside class) and classes have package
- * 
+ *
  * package tag may be inherited from file-level phpdocs
  *
  * @param local_moodlecheck_file $file
@@ -40,7 +40,7 @@ function local_moodlecheck_packagespecified(local_moodlecheck_file $file) {
     $errors = array();
     $phpdocs = $file->find_file_phpdocs();
     if ($phpdocs && count($phpdocs->get_tags('package', true))) {
-        // package is specified on file level, it is automatically inherited
+        // Package is specified on file level, it is automatically inherited.
         return array();
     }
     foreach ($file->get_classes() as $object) {
@@ -100,7 +100,7 @@ function local_moodlecheck_categoryvalid(local_moodlecheck_file $file) {
 
 /**
  * Returns package names available for the file location
- * 
+ *
  * If the file is inside plugin directory only frankenstyle name for this plugin is returned
  * Otherwise returns list of available core packages
  *
@@ -111,26 +111,26 @@ function local_moodlecheck_package_names(local_moodlecheck_file $file) {
     static $allplugins = array();
     static $allsubsystems = array();
     static $corepackages  = array();
-    // Get and cache the list of plugins
+    // Get and cache the list of plugins.
     if (empty($allplugins)) {
         $components = local_moodlecheck_path::get_components();
-        // First try to get the list from file components
+        // First try to get the list from file components.
         if (isset($components['plugin'])) {
             $allplugins = $components['plugin'];
         } else {
             $allplugins = local_moodlecheck_get_plugins();
         }
     }
-    // Get and cache the list of subsystems
+    // Get and cache the list of subsystems.
     if (empty($allsubsystems)) {
         $components = local_moodlecheck_path::get_components();
-        // First try to get the list from file components
+        // First try to get the list from file components.
         if (isset($components['subsystem'])) {
             $allsubsystems = $components['subsystem'];
         } else {
             $allsubsystems = get_core_subsystems(true);
         }
-        // Prepare the list of core packages
+        // Prepare the list of core packages.
         foreach ($allsubsystems as $subsystem => $dir) {
             // Subsytems may come with the valid component name (core_ prefixed) already.
             if (strpos($subsystem, 'core_') === 0 or $subsystem === 'core') {
@@ -139,27 +139,27 @@ function local_moodlecheck_package_names(local_moodlecheck_file $file) {
                 $corepackages[] = 'core_' . $subsystem;
             }
         }
-        // Add "core" if missing
+        // Add "core" if missing.
         if (!in_array('core', $corepackages)) {
             $corepackages[] = 'core';
         }
     }
 
-    // Return valid plugin if the $file belongs to it
+    // Return valid plugin if the $file belongs to it.
     foreach ($allplugins as $pluginfullname => $dir) {
         if ($file->is_in_dir($dir)) {
             return array($pluginfullname);
         }
     }
 
-    // If not return list of valid core packages
+    // If not return list of valid core packages.
     return $corepackages;
 }
 
 /**
  * Returns all installed plugins
- * 
- * Returns all installed plugins as an associative array 
+ *
+ * Returns all installed plugins as an associative array
  * with frankenstyle name as a key and plugin directory as a value
  *
  * @return array
@@ -185,7 +185,7 @@ function &local_moodlecheck_get_plugins() {
  * Reads the list of Core APIs from internet (or local copy) and returns the list of categories
  *
  * Also caches the list
- * 
+ *
  * @return array
  */
 function &local_moodlecheck_get_categories() {
@@ -194,8 +194,8 @@ function &local_moodlecheck_get_categories() {
     if (empty($allcategories)) {
         $lastsavedtime = get_user_preferences('local_moodlecheck_categoriestime');
         $lastsavedvalue = get_user_preferences('local_moodlecheck_categoriesvalue');
-        if ($lastsavedtime > time() - 24*60*60) {
-            // update only once per day
+        if ($lastsavedtime > time() - 24 * 60 * 60) {
+            // Update only once per day.
             $allcategories = explode(',', $lastsavedvalue);
         } else {
             $allcategories = array();
@@ -208,7 +208,7 @@ function &local_moodlecheck_get_categories() {
                 $allcategories[] = trim(strip_tags($match));
             }
             set_user_preference('local_moodlecheck_categoriestime', time());
-            set_user_preference('local_moodlecheck_categoriesvalue', join(',',$allcategories));
+            set_user_preference('local_moodlecheck_categoriesvalue', join(',', $allcategories));
         }
     }
     return $allcategories;

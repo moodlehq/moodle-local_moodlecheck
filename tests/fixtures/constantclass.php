@@ -38,7 +38,7 @@ class fixturing_classconstant extends advanced_testcase {
     /**
      * Fixture method
      */
-    function test_fixtured() {
+    public function test_fixtured() {
         $this->assertInstanceOf(\stdClass::class, $result);
     }
 }

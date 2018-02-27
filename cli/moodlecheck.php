@@ -25,13 +25,13 @@
 define('CLI_SCRIPT', true);
 
 require(dirname(dirname(dirname(dirname(__FILE__)))).'/config.php');
-require_once($CFG->libdir.'/clilib.php');      // cli only functions
+require_once($CFG->libdir.'/clilib.php');      // CLI only functions.
 require_once($CFG->dirroot. '/local/moodlecheck/locallib.php');
 
-// now get cli options
+// Now get cli options.
 list($options, $unrecognized) = cli_get_params(
-        array('help'=>false, 'path'=>'', 'format'=>'xml', 'exclude'=>'', 'rules'=>'all', 'componentsfile'=>''),
-        array('h'=>'help', 'p'=>'path', 'f'=>'format', 'e'=>'exclude', 'r'=>'rules', 'c'=>'componentsfile')
+        array('help' => false, 'path' => '', 'format' => 'xml', 'exclude' => '', 'rules' => 'all', 'componentsfile' => ''),
+        array('h' => 'help', 'p' => 'path', 'f' => 'format', 'e' => 'exclude', 'r' => 'rules', 'c' => 'componentsfile')
     );
 
 $rules = preg_split('/\s*[\n,;]\s*/', trim($options['rules']), null, PREG_SPLIT_NO_EMPTY);
@@ -42,8 +42,7 @@ if (!in_array($options['format'], array('xml', 'html', 'text'))) {
 }
 
 if ($options['help'] || !isset($options['format']) || !count($paths)) {
-    $help =
-"Perform Moodle PHP code check.
+    $help = "Perform Moodle PHP code check.
 
 This script checks all files found in the specified paths against defined rules
 
@@ -65,7 +64,7 @@ Example:
     die;
 }
 
-// Include all files from rules directory:
+// Include all files from rules directory.
 if ($dh = opendir($CFG->dirroot. '/local/moodlecheck/rules')) {
     while (($file = readdir($dh)) !== false) {
         if ($file != '.' && $file != '..') {

@@ -25,7 +25,7 @@
 require_once('../../config.php');
 require_once($CFG->dirroot. '/local/moodlecheck/locallib.php');
 
-// Include all files from rules directory:
+// Include all files from rules directory.
 if ($dh = opendir($CFG->dirroot. '/local/moodlecheck/rules')) {
     while (($file = readdir($dh)) !== false) {
         if ($file != '.' && $file != '..') {

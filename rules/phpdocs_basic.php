@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -43,8 +42,8 @@ local_moodlecheck_registry::add_rule('classeshavecopyright')->set_callback('loca
 local_moodlecheck_registry::add_rule('filehaslicense')->set_callback('local_moodlecheck_filehaslicense');
 local_moodlecheck_registry::add_rule('classeshavelicense')->set_callback('local_moodlecheck_classeshavelicense');
 local_moodlecheck_registry::add_rule('phpdocsinvalidtag')->set_callback('local_moodlecheck_phpdocsinvalidtag');
-local_moodlecheck_registry::add_rule('phpdocsnotrecommendedtag')->set_callback('local_moodlecheck_phpdocsnotrecommendedtag')->set_severity('warning');;
-local_moodlecheck_registry::add_rule('phpdocsinvalidpathtag')->set_callback('local_moodlecheck_phpdocsinvalidpathtag')->set_severity('warning');;
+local_moodlecheck_registry::add_rule('phpdocsnotrecommendedtag')->set_callback('local_moodlecheck_phpdocsnotrecommendedtag')->set_severity('warning');
+local_moodlecheck_registry::add_rule('phpdocsinvalidpathtag')->set_callback('local_moodlecheck_phpdocsinvalidpathtag')->set_severity('warning');
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 
@@ -71,12 +70,12 @@ function local_moodlecheck_noemptysecondline(local_moodlecheck_file $file) {
 function local_moodlecheck_filephpdocpresent(local_moodlecheck_file $file) {
     if ($file->find_file_phpdocs() === false) {
         $tokens = &$file->get_tokens();
-        for ($i=0;$i<30;$i++) {
+        for ($i = 0; $i < 30; $i++) {
             if (isset($tokens[$i]) && !in_array($tokens[$i][0], array(T_OPEN_TAG, T_WHITESPACE, T_COMMENT))) {
                 return array(array('line' => $file->get_line_number($i)));
             }
         }
-        // for some reason we cound not find the line number
+        // For some reason we cound not find the line number.
         return array(array('line' => ''));
     }
     return array();
@@ -287,7 +286,7 @@ function local_moodlecheck_phpdocsuncurlyinlinetag(local_moodlecheck_file $file)
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         if ($inlinetags = $phpdocs->get_inline_tags(false)) {
             $curlyinlinetags = $phpdocs->get_inline_tags(true);
-            // The difference will tell us which ones are nor enclosed by curly brackets
+            // The difference will tell us which ones are nor enclosed by curly brackets.
             $diff = array_diff($inlinetags, $curlyinlinetags);
             foreach ($diff as $inlinetag) {
                 if (in_array($inlinetag, local_moodlecheck_phpdocs::$inlinetags)) {
@@ -309,7 +308,7 @@ function local_moodlecheck_phpdocsuncurlyinlinetag(local_moodlecheck_file $file)
  */
 function local_moodlecheck_phpdocsfistline(local_moodlecheck_file $file) {
     $errors = array();
-    
+
     if (($phpdocs = $file->find_file_phpdocs()) && !$file->find_file_phpdocs()->get_shortdescription()) {
         $errors[] = array(
             'line' => $phpdocs->get_line_number($file),
@@ -319,7 +318,7 @@ function local_moodlecheck_phpdocsfistline(local_moodlecheck_file $file) {
     foreach ($file->get_classes() as $class) {
         if ($class->phpdocs && !$class->phpdocs->get_shortdescription()) {
             $errors[] = array(
-                'line' => $class->phpdocs->get_line_number($file), 
+                'line' => $class->phpdocs->get_line_number($file),
                 'object' => 'class '.$class->name
             );
         }
@@ -349,7 +348,7 @@ function local_moodlecheck_functiondescription(local_moodlecheck_file $file) {
 /**
  * Checks that all functions have proper arguments in phpdocs
  *
- * @param local_moodlecheck_file $file 
+ * @param local_moodlecheck_file $file
  * @return array of found errors
  */
 function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
@@ -358,7 +357,7 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
         if ($function->phpdocs !== false) {
             $documentedarguments = $function->phpdocs->get_params();
             $match = (count($documentedarguments) == count($function->arguments));
-            for ($i=0; $match && $i<count($documentedarguments); $i++) {
+            for ($i = 0; $match && $i < count($documentedarguments); $i++) {
                 if (count($documentedarguments[$i]) < 2) {
                     // Must be at least type and parameter name.
                     $match = false;
@@ -396,7 +395,7 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                 }
             }
             $documentedreturns = $function->phpdocs->get_params('return');
-            for ($i=0; $match && $i<count($documentedreturns); $i++) {
+            for ($i = 0; $match && $i < count($documentedreturns); $i++) {
                 if (empty($documentedreturns[$i][0]) || $documentedreturns[$i][0] == 'type') {
                     $match = false;
                 }

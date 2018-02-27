@@ -32,7 +32,7 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_moodlecheck_renderer extends plugin_renderer_base {
-    
+
     /**
      * Generates html to display one path validation results (invoked recursively)
      *
@@ -49,7 +49,7 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
                 $output .= html_writer::tag('span', $path->get_path(), array('class' => 'dirname'));
                 $output .= html_writer::start_tag('ul', array('class' => 'directory'));
             } else if ($format == 'xml' && $path->is_rootpath()) {
-                // Insert XML preamble and root element
+                // Insert XML preamble and root element.
                 $output .= '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
                     '<checkstyle version="1.3.2">' . PHP_EOL;
             }
@@ -60,7 +60,7 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
                 $output .= html_writer::end_tag('li');
                 $output .= html_writer::end_tag('ul');
             } else if ($format == 'xml' && $path->is_rootpath()) {
-                // Close root element
+                // Close root element.
                 $output .= '</checkstyle>';
             }
         } else if ($path->is_file() && $path->get_file()->needs_validation()) {
@@ -68,7 +68,7 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
         }
         return $output;
     }
-    
+
     /**
      * Generates html to display one file validation results
      *

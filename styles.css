@@ -6,7 +6,7 @@
 }
 
 .path-local-moodlecheck .dirname {
-    color: #440088;
+    color: #408;
 }
 
 .path-local-moodlecheck ul.directory,
@@ -22,7 +22,7 @@
 .path-local-moodlecheck form .fcheckbox label {
     margin-left: 1em;
 }
-.path-local-moodlecheck form .fcheckbox >span {
+.path-local-moodlecheck form .fcheckbox > span {
     margin-left: 2em;
 }
 .path-local-moodlecheck form .fradio label {
