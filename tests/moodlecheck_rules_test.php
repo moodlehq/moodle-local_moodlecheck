@@ -15,7 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * This file contains helper testcase for testing "moodle" CS Sniffs.
+ * This file contains unit tests for covering "moodle" PHPDoc rules.
  *
  * @package    local_moodlecheck
  * @subpackage phpunit
