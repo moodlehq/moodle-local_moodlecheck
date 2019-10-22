@@ -173,7 +173,7 @@ class local_moodlecheck_path {
     protected $rootpath = true;
 
     public function __construct($path, $ignorepaths) {
-        $path = trim($path);
+        $path = clean_param(trim($path), PARAM_PATH);
         // If the path is already one existing full path
         // accept it, else assume it's a relative one.
         if (!file_exists($path) and substr($path, 0, 1) == '/') {

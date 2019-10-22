@@ -65,10 +65,9 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
 
         // Let's verify we have received a xml with file top element and 2 children.
         $expect = new DOMDocument();
-        $expect->loadXML('<file name="">
-              <error line="" severity="" message="" source=""/>
-              <error line="" severity="" message="" source=""/>
-            </file>');
+        $expect->loadXML('<file name="">' .
+                str_repeat('<error line="" severity="" message="" source=""/>', 2) .
+                '</file>');
         $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
         // Also verify that contents do not include any problem with line 42 / classesdocumented. Use simple string matching here.
         $this->assertContains('line="20"', $result);
@@ -90,5 +89,67 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
 
         $this->assertNotContains('classeshavecopyright', $result);
         $this->assertNotContains('classeshavelicense', $result);
+    }
+
+    /**
+     * Verify various phpdoc tags in general directories.
+     */
+    public function test_phpdoc_tags_general() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_general.php ', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 2 children.
+        $expect = new DOMDocument();
+        $expect->loadXML('<file name="">' .
+                str_repeat('<error line="" severity="" message="" source=""/>', 8) .
+                '</file>');
+        $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
+        // Also verify various bits by content.
+        $this->assertContains('packagevalid', $result);
+        $this->assertContains('Invalid phpdocs tag @small', $result);
+        $this->assertContains('Invalid phpdocs tag @zzzing', $result);
+        $this->assertContains('Invalid phpdocs tag @inheritdoc', $result);
+        $this->assertContains('Incorrect path for phpdocs tag @covers', $result);
+        $this->assertContains('Incorrect path for phpdocs tag @dataProvider', $result);
+        $this->assertContains('Incorrect path for phpdocs tag @group', $result);
+        $this->assertNotContains('@deprecated', $result);
+        $this->assertNotContains('@codingStandardsIgnoreLine', $result);
+    }
+
+    /**
+     * Verify various phpdoc tags in tests directories.
+     */
+    public function test_phpdoc_tags_tests() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_test.php ', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 2 children.
+        $expect = new DOMDocument();
+        $expect->loadXML('<file name="">' .
+                str_repeat('<error line="" severity="" message="" source=""/>', 5) .
+                '</file>');
+        $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
+        // Also verify various bits by content.
+        $this->assertContains('packagevalid', $result);
+        $this->assertContains('Invalid phpdocs tag @small', $result);
+        $this->assertContains('Invalid phpdocs tag @zzzing', $result);
+        $this->assertContains('Invalid phpdocs tag @inheritdoc', $result);
+        $this->assertNotContains('Incorrect path for phpdocs tag @covers', $result);
+        $this->assertNotContains('Incorrect path for phpdocs tag @dataProvider', $result);
+        $this->assertNotContains('Incorrect path for phpdocs tag @group', $result);
+        $this->assertNotContains('@deprecated', $result);
+        $this->assertNotContains('@codingStandardsIgnoreLine', $result);
     }
 }

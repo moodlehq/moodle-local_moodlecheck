@@ -824,12 +824,18 @@ class local_moodlecheck_phpdocs {
         'Given',
         'Then',
         'When',
+        // PHPCS tags.
+        'codingStandardsIgnoreLine',
         // PHPUnit tags.
+        'covers',
+        'coversDefaultClass',
+        'coversNothing',
         'dataProvider',
         'expectedException',
         'expectedExceptionCode',
         'expectedExceptionMessage',
         'expectedExceptionMessageRegExp',
+        'group',
         // PHPDoc tags.
         'abstract',
         'access',
@@ -873,12 +879,18 @@ class local_moodlecheck_phpdocs {
         'Given',
         'Then',
         'When',
+        // PHPCS tags.
+        'codingStandardsIgnoreLine',
         // PHPUnit tags.
+        'covers',
+        'coversDefaultClass',
+        'coversNothing',
         'dataProvider',
         'expectedException',
         'expectedExceptionCode',
         'expectedExceptionMessage',
         'expectedExceptionMessageRegExp',
+        'group',
         // PHPDoc tags.
         'author',
         'category',
@@ -908,11 +920,15 @@ class local_moodlecheck_phpdocs {
         'Given' => array('#.*/tests/behat/.*#'),
         'Then' => array('#.*/tests/behat/.*#'),
         'When' => array('#.*/tests/behat/.*#'),
+        'covers' => array('#.*/tests/.*_test.php#'),
+        'coversDefaultClass' => array('#.*/tests/.*_test.php#'),
+        'coversNothing' => array('#.*/tests/.*_test.php#'),
         'dataProvider' => array('#.*/tests/.*_test.php#'),
         'expectedException' => array('#.*/tests/.*_test.php#'),
         'expectedExceptionCode' => array('#.*/tests/.*_test.php#'),
         'expectedExceptionMessage' => array('#.*/tests/.*_test.php#'),
-        'expectedExceptionMessageRegExp' => array('#.*/tests/.*_test.php#')
+        'expectedExceptionMessageRegExp' => array('#.*/tests/.*_test.php#'),
+        'group' => array('#.*/tests/.*_test.php#'),
     );
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */
