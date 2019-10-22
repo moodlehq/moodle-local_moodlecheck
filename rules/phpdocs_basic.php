@@ -38,9 +38,7 @@ local_moodlecheck_registry::add_rule('functionarguments')->set_callback('local_m
 local_moodlecheck_registry::add_rule('variableshasvar')->set_callback('local_moodlecheck_variableshasvar');
 local_moodlecheck_registry::add_rule('definedoccorrect')->set_callback('local_moodlecheck_definedoccorrect');
 local_moodlecheck_registry::add_rule('filehascopyright')->set_callback('local_moodlecheck_filehascopyright');
-local_moodlecheck_registry::add_rule('classeshavecopyright')->set_callback('local_moodlecheck_classeshavecopyright');
 local_moodlecheck_registry::add_rule('filehaslicense')->set_callback('local_moodlecheck_filehaslicense');
-local_moodlecheck_registry::add_rule('classeshavelicense')->set_callback('local_moodlecheck_classeshavelicense');
 local_moodlecheck_registry::add_rule('phpdocsinvalidtag')->set_callback('local_moodlecheck_phpdocsinvalidtag');
 local_moodlecheck_registry::add_rule('phpdocsnotrecommendedtag')->set_callback('local_moodlecheck_phpdocsnotrecommendedtag')->set_severity('warning');
 local_moodlecheck_registry::add_rule('phpdocsinvalidpathtag')->set_callback('local_moodlecheck_phpdocsinvalidpathtag')->set_severity('warning');
@@ -460,25 +458,6 @@ function local_moodlecheck_filehascopyright(local_moodlecheck_file $file) {
 }
 
 /**
- * Makes sure that all classes have copyright tag
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_classeshavecopyright(local_moodlecheck_file $file) {
-    $errors = array();
-    foreach ($file->get_classes() as $class) {
-        if ($class->phpdocs && !count($class->phpdocs->get_tags('copyright', true))) {
-            $errors[] = array(
-                'line' => $class->phpdocs->get_line_number($file, '@copyright'),
-                'object' => $class->name
-            );
-        }
-    }
-    return $errors;
-}
-
-/**
  * Makes sure that files have license tag
  *
  * @param local_moodlecheck_file $file
@@ -490,23 +469,4 @@ function local_moodlecheck_filehaslicense(local_moodlecheck_file $file) {
         return array(array('line' => $phpdocs->get_line_number($file, '@license')));
     }
     return array();
-}
-
-/**
- * Makes sure that all classes have license tag
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_classeshavelicense(local_moodlecheck_file $file) {
-    $errors = array();
-    foreach ($file->get_classes() as $class) {
-        if ($class->phpdocs && !count($class->phpdocs->get_tags('license', true))) {
-            $errors[] = array(
-                'line' => $class->phpdocs->get_line_number($file, '@license'),
-                'object' => $class->name
-            );
-        }
-    }
-    return $errors;
 }

@@ -77,6 +77,21 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
     }
 
     /**
+     * Assert that classes do not need to have any particular phpdocs tags.
+     */
+    public function test_classtags() {
+        global $PAGE;
+
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/classtags.php ', null);
+
+        $result = $output->display_path($path, 'xml');
+
+        $this->assertNotContains('classeshavecopyright', $result);
+        $this->assertNotContains('classeshavelicense', $result);
+    }
+
+    /**
      * Verify various phpdoc tags in general directories.
      */
     public function test_phpdoc_tags_general() {
