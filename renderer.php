@@ -33,6 +33,9 @@ defined('MOODLE_INTERNAL') || die;
  */
 class local_moodlecheck_renderer extends plugin_renderer_base {
 
+    /** @var int $errorcount */
+    protected $errorcount = 0;
+
     /**
      * Generates html to display one path validation results (invoked recursively)
      *
@@ -80,6 +83,7 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
     public function display_file_validation($filename, local_moodlecheck_file $file, $format = 'html') {
         $output = '';
         $errors = $file->validate();
+        $this->errorcount += count($errors);
         if ($format == 'html') {
             $output .= html_writer::start_tag('li', array('class' => 'file'));
             $output .= html_writer::tag('span', $filename, array('class' => 'filename'));
@@ -113,4 +117,17 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
         return $output;
     }
 
+    /**
+     * Display report summary
+     *
+     * @return string
+     */
+    public function display_summary() {
+        if ($this->errorcount > 0) {
+            return html_writer::tag('h2', get_string('notificationerror', 'local_moodlecheck', $this->errorcount),
+                ['class' => 'fail']);
+        } else {
+            return html_writer::tag('h2', get_string('notificationsuccess', 'local_moodlecheck'), ['class' => 'good']);
+        }
+    }
 }

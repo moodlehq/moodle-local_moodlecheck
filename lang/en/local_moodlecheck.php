@@ -31,6 +31,8 @@ $string['checkallrules'] = 'Check over all rules';
 $string['checkselectedrules'] = 'Check over selected rules';
 $string['error_default'] = 'Error: {$a}';
 $string['linenum']  = 'Line <b>{$a}</b>: ';
+$string['notificationerror'] = 'Found {$a} errors';
+$string['notificationsuccess'] = 'Well done!';
 $string['privacy:metadata'] = 'The Moodle PHPdoc check plugin does not store any personal data.';
 
 $string['rule_noemptysecondline'] = 'Php open tag in the first line is not followed by empty line';
