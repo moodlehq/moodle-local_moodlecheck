@@ -24,16 +24,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-global $CFG;
 
-/**
- * Unit tests for a fixture class in moodlecheck.
- *
- * @package   local_moodlecheck
- * @copyright 2019 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-return new class extends advanced_testcase {
+// Anounymous class for a fixture class in moodlecheck.
+return new class extends phpunit_coverage_info {
 
     /**
      * Fixture method
@@ -41,4 +34,4 @@ return new class extends advanced_testcase {
     public function test_fixtured() {
         $this->assertInstanceOf(\stdClass::class, $result);
     }
-}
+};
