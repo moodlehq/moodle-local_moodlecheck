@@ -189,8 +189,9 @@ class local_moodlecheck_file {
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
                 if (($this->tokens[$tid][0] == T_CLASS) && ($this->previous_nonspace_token($tid) !== "::")) {
                     // Skip anonymous classes.
-                    if (($this->previous_nonspace_token($tid) == 'new') and ($this->next_nonspace_token($tid) == 'extends')) {
-                       continue;
+                    if (($this->previous_nonspace_token($tid) == 'new') and
+                            ($this->next_nonspace_token($tid) == 'extends')) {
+                        continue;
                     }
                     $class = new stdClass();
                     $class->tid = $tid;
