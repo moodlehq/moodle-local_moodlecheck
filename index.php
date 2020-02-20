@@ -63,9 +63,19 @@ if ($form->is_submitted() && $form->is_validated()) {
     } else {
         local_moodlecheck_registry::enable_all_rules();
     }
+
+    // Store result for later output.
+    $result = [];
+
     foreach ($paths as $filename) {
         $path = new local_moodlecheck_path($filename, $ignorepaths);
-        echo $output->display_path($path);
+        $result[] = $output->display_path($path);
+    }
+
+    echo $output->display_summary();
+
+    foreach ($result as $line) {
+        echo $line;
     }
 }
 

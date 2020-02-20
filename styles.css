@@ -19,6 +19,14 @@
     margin-top: 0;
 }
 
+.path-local-moodlecheck .fail {
+    color: #600;
+}
+
+.path-local-moodlecheck .good {
+    color: #060;
+}
+
 .path-local-moodlecheck form .fcheckbox label {
     margin-left: 1em;
 }
