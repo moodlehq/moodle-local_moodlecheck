@@ -935,7 +935,9 @@ class local_moodlecheck_phpdocs {
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */
     public static $inlinetags = array(
-        'link');
+        'link',
+        'see'
+    );
     /** @var array stores the original token for this phpdocs */
     protected $originaltoken = null;
     /** @var int stores id the original token for this phpdocs */
@@ -1141,24 +1143,31 @@ class local_moodlecheck_phpdocs {
      *
      * @param bool $withcurly if true, only tags properly enclosed
      *        with curly brackets are returned. Else all the inline tags are returned.
+     * @param bool $withcontent if true, the contents after the tag are also returned.
+     *        Else, the tags are returned both as key and values (for BC).
      *
-     * @return array inline tags found in the phpdoc, without
-     * any cleaning and including curly braces if present
+     * @return array inline tags found in the phpdoc, with contents if specified.
      */
-    public function get_inline_tags($withcurly = true) {
+    public function get_inline_tags($withcurly = true, $withcontent = false) {
         $inlinetags = array();
         // Trim the non-inline phpdocs tags.
         $text = preg_replace('|^\s*@?|m', '', $this->trimmedtext);
         if ($withcurly) {
-            $regex = '#{@([a-z\-]*).*?}#';
+            $regex = '#{@([a-z\-]*)(.*?)[}\n]#';
         } else {
-            $regex = '#@([a-z\-]*).*?#';
+            $regex = '#@([a-z\-]*)(.*?)[}\n]#';
         }
         if (preg_match_all($regex, $text, $matches)) {
             // Filter out invalid ones, can be ignored.
-            foreach ($matches[1] as $tag) {
+            foreach ($matches[1] as $key => $tag) {
                 if (in_array($tag, self::$validtags)) {
-                    $inlinetags[] = $tag;
+                    if ($withcontent && isset($matches[2][$key])) {
+                        // Let's add the content.
+                        $inlinetags[] = $tag . ' ' . trim($matches[2][$key]);
+                    } else {
+                        // Just the tag, without content.
+                        $inlinetags[] = $tag;
+                    }
                 }
             }
         }
