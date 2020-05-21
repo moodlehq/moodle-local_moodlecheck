@@ -152,4 +152,35 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $this->assertNotContains('@deprecated', $result);
         $this->assertNotContains('@codingStandardsIgnoreLine', $result);
     }
+
+    /**
+     * Verify various phpdoc tags can be used inline.
+     */
+    public function test_phpdoc_tags_inline() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_inline.php ', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 2 children.
+        $expect = new DOMDocument();
+        $expect->loadXML('<file name="">' .
+                str_repeat('<error line="" severity="" message="" source=""/>', 7) .
+                '</file>');
+        $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
+        // Also verify various bits by content.
+        $this->assertContains('packagevalid', $result);
+        $this->assertContains('Invalid inline phpdocs tag @param found', $result);
+        $this->assertContains('Invalid inline phpdocs tag @throws found', $result);
+        $this->assertContains('Inline phpdocs tag {@link tags have to be 1 url} with incorrect', $result);
+        $this->assertContains('Inline phpdocs tag {@see must be 1 word only} with incorrect', $result);
+        $this->assertContains('Inline phpdocs tag not enclosed with curly brackets @see found', $result);
+        $this->assertNotContains('{@link https://moodle.org}', $result);
+        $this->assertNotContains('{@see has_capability}', $result);
+        $this->assertNotContains('{@see see \so-me\com-plex\th_ing::come()->baby()}', $result);
+    }
 }
