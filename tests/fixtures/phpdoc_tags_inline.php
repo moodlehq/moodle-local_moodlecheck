@@ -57,7 +57,7 @@ class fixturing_inline {
      *
      * To know more, visit {@link https://moodle.org} for Moodle info.
      * To know more, take a look to {@see has_capability} about permissions.
-     * And verify that crazy {@see \so-me\com-plex\th_ing::come()->baby()} are ok too.
+     * And verify that crazy {@see \so-me\com-plex\th_ing::$come->baby()} are ok too.
      */
     public function correct_inline_tags() {
         echo "done!";
@@ -70,6 +70,7 @@ class fixturing_inline {
      * Neither {@throws exception} can.
      * Ideally all {@link tags have to be 1 url}.
      * And all {@see must be 1 word only}
+     * And {@see $this->tagrules['url']} is not a proper structural element.
      * Also they aren't valid without using @see curly brackets
      */
     public function all_invalid_tags() {

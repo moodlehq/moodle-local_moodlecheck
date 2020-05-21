@@ -169,7 +169,7 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         // Let's verify we have received a xml with file top element and 2 children.
         $expect = new DOMDocument();
         $expect->loadXML('<file name="">' .
-                str_repeat('<error line="" severity="" message="" source=""/>', 7) .
+                str_repeat('<error line="" severity="" message="" source=""/>', 8) .
                 '</file>');
         $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
         // Also verify various bits by content.
@@ -178,9 +178,11 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $this->assertContains('Invalid inline phpdocs tag @throws found', $result);
         $this->assertContains('Inline phpdocs tag {@link tags have to be 1 url} with incorrect', $result);
         $this->assertContains('Inline phpdocs tag {@see must be 1 word only} with incorrect', $result);
+        $this->assertContains('Inline phpdocs tag {@see $this-&gt;tagrules[&#039;url&#039;]} with incorrect', $result);
         $this->assertContains('Inline phpdocs tag not enclosed with curly brackets @see found', $result);
+        $this->assertContains('It must match {@link valid URL} or {@see valid FQSEN}', $result);
         $this->assertNotContains('{@link https://moodle.org}', $result);
         $this->assertNotContains('{@see has_capability}', $result);
-        $this->assertNotContains('{@see see \so-me\com-plex\th_ing::come()->baby()}', $result);
+        $this->assertNotContains('baby}', $result);
     }
 }

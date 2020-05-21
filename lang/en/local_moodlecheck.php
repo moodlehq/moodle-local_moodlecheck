@@ -73,7 +73,7 @@ $string['rule_phpdocsinvalidinlinetag'] = 'Inline phpdocs tags are valid';
 $string['error_phpdocsuncurlyinlinetag'] = 'Inline phpdocs tag not enclosed with curly brackets <b>{$a->tag}</b> found';
 $string['rule_phpdocsuncurlyinlinetag'] = 'Inline phpdocs tags are enclosed with curly brackets';
 
-$string['error_phpdoccontentsinlinetag'] = 'Inline phpdocs tag <b>{$a->tag}</b> with incorrect contents found. It must match {@link valid URL} or {@see valid FDQN}';
+$string['error_phpdoccontentsinlinetag'] = 'Inline phpdocs tag <b>{$a->tag}</b> with incorrect contents found. It must match {@link valid URL} or {@see valid FQSEN}';
 $string['rule_phpdoccontentsinlinetag'] = 'Inline phpdocs tags have correct contents';
 
 $string['error_functiondescription'] = 'There is no description in phpdocs for function <b>{$a->object}</b>';

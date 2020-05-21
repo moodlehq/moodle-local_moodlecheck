@@ -328,8 +328,8 @@ function local_moodlecheck_phpdoccontentsinlinetag(local_moodlecheck_file $file)
                                     'tag' => '{@' . $curlyinlinetag . '}');
                             }
                             break;
-                        case 'see': // Must be 1-word (with some chars allowed).
-                            if (str_word_count($content, 0, '\()-_:>') !== 1) {
+                        case 'see': // Must be 1-word (with some chars allowed - FQSEN only.
+                            if (str_word_count($content, 0, '\()-_:>$') !== 1) {
                                 $errors[] = array(
                                     'line' => $phpdocs->get_line_number($file, ' {@' . $curlyinlinetag),
                                     'tag' => '{@' . $curlyinlinetag . '}');
