@@ -205,7 +205,7 @@ function &local_moodlecheck_get_categories() {
             }
             preg_match_all('|<span class="mw-headline".*>.*API\s*\((.*)\)\s*</span>|i', $filecontent, $matches);
             foreach ($matches[1] as $match) {
-                $allcategories[] = trim(strip_tags($match));
+                $allcategories[] = trim(strip_tags(strtolower($match)));
             }
             set_user_preference('local_moodlecheck_categoriestime', time());
             set_user_preference('local_moodlecheck_categoriesvalue', join(',', $allcategories));

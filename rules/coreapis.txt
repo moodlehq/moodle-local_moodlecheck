@@ -1,118 +1,88 @@
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="en" dir="ltr" class="client-nojs">
 <head>
-<meta charset="UTF-8" />
+<meta charset="UTF-8"/>
 <title>Core APIs - MoodleDocs</title>
-<meta name="generator" content="MediaWiki 1.17.0" />
-<link rel="alternate" type="application/x-wiki" title="Edit" href="/dev/index.php?title=Core_APIs&amp;action=edit" />
-<link rel="edit" title="Edit" href="/dev/index.php?title=Core_APIs&amp;action=edit" />
-<link rel="shortcut icon" href="/favicon.ico" />
-<link rel="search" type="application/opensearchdescription+xml" href="/dev/opensearch_desc.php" title="MoodleDocs 20 (Development)" />
-<link rel="EditURI" type="application/rsd+xml" href="http://docs.moodle.org/dev/api.php?action=rsd" />
-<link title="Creative Commons" type="application/rdf+xml" href="/dev/index.php?title=Core_APIs&amp;action=creativecommons" rel="meta" />
-<link rel="copyright" href="http://docs.moodle.org/en/License" />
-<link rel="alternate" type="application/atom+xml" title="MoodleDocs Atom feed" href="/dev/index.php?title=Special:RecentChanges&amp;feed=atom" />
-<link rel="stylesheet" href="/dev/load.php?debug=false&amp;lang=en&amp;modules=mediawiki.legacy.commonPrint%2Cshared&amp;only=styles&amp;skin=moodledocsnew&amp;*" />
-<link rel="stylesheet" href="/dev/skins/monobook/main.css?301" media="screen" />
-<link rel="stylesheet" href="/dev/skins/moodledocsnew/moodledocsnew.css?301" media="screen" />
-<link rel="stylesheet" href="/dev/skins/moodledocsnew/menu/menu.css?301" media="screen" />
-<link rel="stylesheet" href="/dev/skins/moodledocsnew/menu/menuprint.css?301" media="print" />
-<link rel="stylesheet" href="/dev/skins/moodledocsnew/customisation.20.css?301" />
-<!--[if lt IE 5.5000]><link rel="stylesheet" href="/dev/skins/monobook/IE50Fixes.css?301" media="screen" /><![endif]-->
-<!--[if IE 5.5000]><link rel="stylesheet" href="/dev/skins/monobook/IE55Fixes.css?301" media="screen" /><![endif]-->
-<!--[if IE 6]><link rel="stylesheet" href="/dev/skins/monobook/IE60Fixes.css?301" media="screen" /><![endif]-->
-<!--[if IE 7]><link rel="stylesheet" href="/dev/skins/monobook/IE70Fixes.css?301" media="screen" /><![endif]-->
-<!--[if IE 7]><link rel="stylesheet" href="/dev/skins/moodledocsnew/fixes.IE70.css?301" media="screen" /><![endif]-->
-<!--[if IE 6]><link rel="stylesheet" href="/dev/skins/moodledocsnew/fixes.IE60.css?301" media="screen" /><![endif]-->
-<!--[if IE 5.5000]><link rel="stylesheet" href="/dev/skins/moodledocsnew/fixes.IE55.css?301" media="screen" /><![endif]--><meta name="ResourceLoaderDynamicStyles" content="" />
+<script>document.documentElement.className = document.documentElement.className.replace( /(^|\s)client-nojs(\s|$)/, "$1client-js$2" );</script>
+<script>(window.RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgCanonicalNamespace":"","wgCanonicalSpecialPageName":false,"wgNamespaceNumber":0,"wgPageName":"Core_APIs","wgTitle":"Core APIs","wgCurRevisionId":57550,"wgRevisionId":57550,"wgArticleId":3684,"wgIsArticle":true,"wgIsRedirect":false,"wgAction":"view","wgUserName":null,"wgUserGroups":["*"],"wgCategories":[],"wgBreakFrames":false,"wgPageContentLanguage":"en","wgPageContentModel":"wikitext","wgSeparatorTransformTable":["",""],"wgDigitTransformTable":["",""],"wgDefaultDateFormat":"dmy","wgMonthNames":["","January","February","March","April","May","June","July","August","September","October","November","December"],"wgMonthNamesShort":["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"],"wgRelevantPageName":"Core_APIs","wgRelevantArticleId":3684,"wgRequestId":"e5f06a461fb3cb0920e78bbb","wgIsProbablyEditable":false,"wgRestrictionEdit":[],"wgRestrictionMove":[],"wgWikiEditorEnabledModules":{"toolbar":true,"dialogs":false,"preview":false,"publish":false}});mw.loader.implement("user.options",function($,jQuery,require,module){mw.user.options.set({"variant":"en"});});mw.loader.implement("user.tokens",function ( $, jQuery, require, module ) {
+mw.user.tokens.set({"editToken":"+\\","patrolToken":"+\\","watchToken":"+\\","csrfToken":"+\\"});/*@nomin*/;
+
+});mw.loader.load(["mediawiki.page.startup"]);});</script>
+<link rel="stylesheet" href="/dev/load.php?debug=false&amp;lang=en&amp;modules=mediawiki.legacy.commonPrint%2Cshared%7Cmediawiki.sectionAnchor&amp;only=styles&amp;skin=moodledocs"/>
+<link rel="stylesheet" href="/dev/skins/moodledocs/devdocs.css?305" media="screen"/><link rel="stylesheet" href="/dev/skins/moodledocs/sitebar/sitebar-dev.css?305" media="screen"/><link rel="stylesheet" href="/dev/skins/moodledocs/bootstrap-responsive.min.css?305"/><link rel="stylesheet" href="//fonts.googleapis.com/css?family=Open+Sans:400,300&amp;amp;subset=latin,cyrillic-ext,greek-ext,greek,vietnamese,latin-ext,cyrillic"/>
+<meta name="ResourceLoaderDynamicStyles" content=""/>
+<script async="" src="/dev/load.php?debug=false&amp;lang=en&amp;modules=startup&amp;only=scripts&amp;skin=moodledocs"></script>
+<meta name="generator" content="MediaWiki 1.27.4"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="shortcut icon" href="/favicon-dev.ico"/>
+<link rel="search" type="application/opensearchdescription+xml" href="/dev/opensearch_desc.php" title="MoodleDocs dev (Development)"/>
+<link rel="EditURI" type="application/rsd+xml" href="https://docs.moodle.org/dev/api.php?action=rsd"/>
+<link rel="copyright" href="https://docs.moodle.org/dev/License"/>
+<link rel="alternate" type="application/atom+xml" title="MoodleDocs Atom feed" href="/dev/index.php?title=Special:RecentChanges&amp;feed=atom"/>
 </head>
-<body class="mediawiki ltr ns-0 ns-subject page-Core_APIs skin-moodledocsnew">
+<body class="mediawiki ltr sitedir-ltr ns-0 ns-subject page-Core_APIs rootpage-Core_APIs skin-moodledocs action-view">
+<div id="moodlesitestopnavbar">
+    <div class="navbar-container">
+        <a class="sitelogo" href="https://moodle.org/">
+            <img alt="Moodle.org" width="96" height="25" src="/dev/skins/moodledocs/sitebar/pix/logo.png" />
+        </a>
+        <ul>
+            <li class="home">
+            <a href="https://moodle.org"><span>Home</span><span class="placeholder"></span></a>
+            </li>
+            <li class="documentation">
+            <a href="https://docs.moodle.org"><span>Documentation</span><span class="placeholder"></span></a>
+            </li>
+            <li class="download">
+            <a href="https://download.moodle.org"><span>Downloads</span><span class="placeholder"></span></a>
+            </li>
+            <li class="demo">
+            <a href="https://moodle.org/demo"><span>Demo</span><span class="placeholder"></span></a>
+            </li>
+            <li class="tracker">
+            <a href="https://tracker.moodle.org"><span>Tracker</span><span class="placeholder"></span></a>
+            </li>
+            <li class="development">
+            <a href="https://docs.moodle.org/dev/Main_Page"><span>Development</span><span class="placeholder"></span></a>
+            </li>
+            <li class="translation">
+            <a href="https://lang.moodle.org"><span>Translation</span><span class="placeholder"></span></a>
+            </li>
+            <li class="moodlenet">
+            <a href="https://moodle.net"><span>Moodle.net</span><span class="placeholder"></span></a>
+            </li>
+            <li class="search">
+            <a href="https://moodle.org/public/search/"><span>Search</span><span class="placeholder"></span></a>
+            </li>
+        </ul>
+    </div>
+    <div style="clear:both"></div>
+</div>
 <div id="page">
 <!-- header start -->
-<div id="moodlelogo"><a href="http://moodle.org/"><img class='logo' src='/dev/skins/moodledocsnew/images/moodle-logo.gif'\ alt='moodlelogo' title='moodle.org' /></a></div>
+<div id="moodlelogo"></div>
 <!-- header end -->
 
 
-<!-- menu start -->
-<div id="moodlemenu" class="clearfix"><ul id="Menu1" class="MM">
-  <li class="first"><a title="An overview about Moodle" href="http://moodle.org/about/">About</a>
-    <ul>
-      <li><a href="http://docs.moodle.org/en/About_Moodle">What is Moodle?</a></li>
-      <li><a href="http://moodle.org/stats/">Statistics</a></li>
-      <li><a href="http://demo.moodle.org/">Demonstration site</a></li>
-    </ul>
-  </li>
-  <li><a title="An overview of current Moodle news" href="http://moodle.org/news/">News</a>
-    <ul>
-      <li><a title="Official news about Moodle" href="http://moodle.org/news/">Recent news</a></li>
-      <li><a title="Important information about security issues" href="http://moodle.org/security/">Security news</a></li>
-      <li><a title="Aggregated blogs from Moodle developers" href="http://planet.moodle.org/">Planet Moodle</a></li>
-      <li><a title="Moodle-related publications from the world" href="http://moodle.org/mod/data/view.php?d=19">Moodle Buzz</a></li>
-      <li><a title="Moodle-related events in the future" href="http://moodle.org/calendar/view.php">Calendar</a></li>
-    </ul>
-  </li>
-  <li><a title="An overview of Moodle support options" href="http://moodle.org/support/">Support</a>
-    <ul>
-      <li class="docs"><a href="http://docs.moodle.org/?lang=en_utf8">Documentation</a></li>
-      <li><a href="http://moodle.org/forums/">Forums</a></li>
-      <li><a href="http://moodle.org/mod/data/view.php?id=7246">Books and manuals</a></li>
-      <li><a href="http://moodle.org/support/commercial/">Commercial services</a></li>
-    </ul>
-  </li>
-  <li><a title="An overview of the Moodle community" href="http://moodle.org/community/">Community</a>
-    <ul>
-      <li><a href="http://moodle.org/forums/">Forums</a></li>
-      <li><a href="http://moodle.org/events/">Events</a></li>
-      <li><a href="http://moodle.org/sites/">Registered sites</a></li>
-      <li><a href="http://moodle.org/network/">Connected sites</a></li>
-      <li><a href="http://moodle.org/mod/data/view.php?id=7232">Moodle Jobs</a></li>
-      <li><a href="http://moodle.org/userpics/">Recent participants</a></li>
-      <li><a href="http://moodle.org/donations/">Donations</a></li>
-      <li><a href="http://www.cafepress.com/moodle/">Moodle Shop</a></li>
-    </ul>
-  </li>
-  <li><a title="An overview of Moodle development" href="http://moodle.org/development/">Development</a>
-    <ul>
-      <li><a href="http://moodle.org/mod/cvsadmin/view.php?cid=1">Developers</a></li>
-      <li><a href="http://docs.moodle.org/en/Development">Developer documentation</a></li>
-      <li class="tracker"><a href="http://tracker.moodle.org/">Moodle Tracker</a></li>
-      <li class="cvs"><a href="http://cvs.moodle.org/moodle/">Open source code</a></li>
-    </ul>
-  </li>
-  <li><a title="An overview of Moodle downloads" href="http://moodle.org/downloads/">Downloads</a>
-    <ul>
-      <li><a href="http://download.moodle.org/">Standard Moodle packages</a></li>
-      <li><a href="http://download.moodle.org/macosx/">Moodle for Mac OS X</a></li>
-      <li><a href="http://download.moodle.org/windows/">Moodle for Windows</a></li>
-      <li><a href="http://moodle.org/plugins/">Modules and plugins</a></li>
-      <li><a href="http://moodle.org/mod/data/view.php?id=6552">Themes</a></li>
-      <li><a href="http://download.moodle.org/lang16/">Language packs</a></li>
-    </ul>
-  </li>
-<li><a title="See all the moodle.org courses you are enrolled in" href="http://moodle.org/forums/my/">My courses</a></li></ul>                   
-<form id="global-search" method="get" action="http://moodle.org/public/search"><div><input type="hidden" name="cx" value="017878793330196534763:-0qxztjngoy" /><input type="hidden" name="cof" value="FORID:9" /><input type="hidden" name="ie" value="UTF-8" /><input class="input-text" type="text" name="q" size="15" maxlength="255"/><input class="input-submit" type="submit" name="sa" value="Search moodle.org"/></div></form></div>
-<!-- menu end -->
-
-
 <!-- navbar start -->
-<div id="moodlenavbar" class="navbar clearfix" dir="LTR"><div class="breadcrumb"><h2 class="accesshide">You are here</h2></div></div>
+<div id="moodlenavbar" class="navbar clearfix" dir="LTR"><div class="breadcrumb"><h2 class="accesshide">You are here</h2><ul><li class="first"><a href="/dev/">Main Page</a></li><li>&nbsp;&#x25BA; Core APIs</li></ul></div></div>
 <!-- navbar end -->
 
-<div id="globalWrapper">
-<div id="column-content"><div id="content">
-    <a id="top"></a>
-    
-    <h1 id="firstHeading" class="firstHeading">Core APIs</h1>
-    <div id="bodyContent">
-        <div id="siteSub">From MoodleDocs</div>
-        <div id="contentSub"></div>
-        <div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>
-        <!-- start content -->
-<p>Moodle has a number of core APIs that provide tools for Moodle scripts.
-</p><p>They are implemented in different ways, but they are essential when writing Moodle plugins.
+<div id="globalWrapper" class="container-fluid">
+<div id="column-content" >
+<div id="content">
+	<a id="top"></a>
+
+	<h1 id="firstHeading" class="firstHeading">Core APIs</h1>
+	<div id="bodyContent">
+		<div id="contentSub"></div>
+		<div id="jump-to-nav">Jump to: <a href="#column-one">navigation</a>, <a href="#searchInput">search</a></div>
+		<!-- start content -->
+<div id="mw-content-text" lang="en" dir="ltr" class="mw-content-ltr"><p>Moodle has a number of core APIs that provide tools for Moodle scripts.
+</p><p>They are essential when writing <a href="/dev/Plugins" title="Plugins" class="mw-redirect">Moodle plugins</a>.
 </p><p><br />
 </p>
-<table id="toc" class="toc"><tr><td><div id="toctitle"><h2>Contents</h2></div>
+<div id="toc" class="toc"><div id="toctitle"><h2>Contents</h2></div>
 <ul>
 <li class="toclevel-1 tocsection-1"><a href="#Most-used_General_APIs"><span class="tocnumber">1</span> <span class="toctext">Most-used General APIs</span></a>
 <ul>
@@ -126,281 +96,322 @@
 <li class="toclevel-2 tocsection-9"><a href="#Output_API_.28output.29"><span class="tocnumber">1.8</span> <span class="toctext">Output API (output)</span></a></li>
 <li class="toclevel-2 tocsection-10"><a href="#String_API_.28string.29"><span class="tocnumber">1.9</span> <span class="toctext">String API (string)</span></a></li>
 <li class="toclevel-2 tocsection-11"><a href="#Upgrade_API_.28upgrade.29"><span class="tocnumber">1.10</span> <span class="toctext">Upgrade API (upgrade)</span></a></li>
+<li class="toclevel-2 tocsection-12"><a href="#Moodlelib_API_.28core.29"><span class="tocnumber">1.11</span> <span class="toctext">Moodlelib API (core)</span></a></li>
 </ul>
 </li>
-<li class="toclevel-1 tocsection-12"><a href="#Other_General_APIs"><span class="tocnumber">2</span> <span class="toctext">Other General APIs</span></a>
+<li class="toclevel-1 tocsection-13"><a href="#Other_General_APIs"><span class="tocnumber">2</span> <span class="toctext">Other General APIs</span></a>
 <ul>
-<li class="toclevel-2 tocsection-13"><a href="#Backup_API_.28backup.29"><span class="tocnumber">2.1</span> <span class="toctext">Backup API (backup)</span></a></li>
-<li class="toclevel-2 tocsection-14"><a href="#Calendar_API_.28calendar.29"><span class="tocnumber">2.2</span> <span class="toctext">Calendar API (calendar)</span></a></li>
-<li class="toclevel-2 tocsection-15"><a href="#Comment_API_.28comment.29"><span class="tocnumber">2.3</span> <span class="toctext">Comment API (comment)</span></a></li>
-<li class="toclevel-2 tocsection-16"><a href="#Data_definition_API_.28ddl.29"><span class="tocnumber">2.4</span> <span class="toctext">Data definition API (ddl)</span></a></li>
-<li class="toclevel-2 tocsection-17"><a href="#Events_API_.28event.29"><span class="tocnumber">2.5</span> <span class="toctext">Events API (event)</span></a></li>
-<li class="toclevel-2 tocsection-18"><a href="#External_functions_API_.28external.29"><span class="tocnumber">2.6</span> <span class="toctext">External functions API (external)</span></a></li>
-<li class="toclevel-2 tocsection-19"><a href="#Message_API_.28message.29"><span class="tocnumber">2.7</span> <span class="toctext">Message API (message)</span></a></li>
-<li class="toclevel-2 tocsection-20"><a href="#Preference_API_.28preference.29"><span class="tocnumber">2.8</span> <span class="toctext">Preference API (preference)</span></a></li>
-<li class="toclevel-2 tocsection-21"><a href="#Portfolio_API_.28portfolio.29"><span class="tocnumber">2.9</span> <span class="toctext">Portfolio API (portfolio)</span></a></li>
-<li class="toclevel-2 tocsection-22"><a href="#Rating_API_.28rating.29"><span class="tocnumber">2.10</span> <span class="toctext">Rating API (rating)</span></a></li>
-<li class="toclevel-2 tocsection-23"><a href="#RSS_API_.28rss.29"><span class="tocnumber">2.11</span> <span class="toctext">RSS API (rss)</span></a></li>
-<li class="toclevel-2 tocsection-24"><a href="#Tag_API_.28tag.29"><span class="tocnumber">2.12</span> <span class="toctext">Tag API (tag)</span></a></li>
-<li class="toclevel-2 tocsection-25"><a href="#Time_API_.28time.29"><span class="tocnumber">2.13</span> <span class="toctext">Time API (time)</span></a></li>
-<li class="toclevel-2 tocsection-26"><a href="#Unit_test_API_.28test.29"><span class="tocnumber">2.14</span> <span class="toctext">Unit test API (test)</span></a></li>
-<li class="toclevel-2 tocsection-27"><a href="#Web_services_API_.28webservice.29"><span class="tocnumber">2.15</span> <span class="toctext">Web services API (webservice)</span></a></li>
+<li class="toclevel-2 tocsection-14"><a href="#Admin_settings_.28admin.29"><span class="tocnumber">2.1</span> <span class="toctext">Admin settings (admin)</span></a></li>
+<li class="toclevel-2 tocsection-15"><a href="#Analytics_API_.28analytics.29"><span class="tocnumber">2.2</span> <span class="toctext">Analytics API (analytics)</span></a></li>
+<li class="toclevel-2 tocsection-16"><a href="#Availability_.28availability.29"><span class="tocnumber">2.3</span> <span class="toctext">Availability (availability)</span></a></li>
+<li class="toclevel-2 tocsection-17"><a href="#Backup_API_.28backup.29"><span class="tocnumber">2.4</span> <span class="toctext">Backup API (backup)</span></a></li>
+<li class="toclevel-2 tocsection-18"><a href="#Cache_API_.28cache.29"><span class="tocnumber">2.5</span> <span class="toctext">Cache API (cache)</span></a></li>
+<li class="toclevel-2 tocsection-19"><a href="#Calendar_API_.28calendar.29"><span class="tocnumber">2.6</span> <span class="toctext">Calendar API (calendar)</span></a></li>
+<li class="toclevel-2 tocsection-20"><a href="#Check_API_.28check.29"><span class="tocnumber">2.7</span> <span class="toctext">Check API (check)</span></a></li>
+<li class="toclevel-2 tocsection-21"><a href="#Comment_API_.28comment.29"><span class="tocnumber">2.8</span> <span class="toctext">Comment API (comment)</span></a></li>
+<li class="toclevel-2 tocsection-22"><a href="#Competency_API_.28competency.29"><span class="tocnumber">2.9</span> <span class="toctext">Competency API (competency)</span></a></li>
+<li class="toclevel-2 tocsection-23"><a href="#Data_definition_API_.28ddl.29"><span class="tocnumber">2.10</span> <span class="toctext">Data definition API (ddl)</span></a></li>
+<li class="toclevel-2 tocsection-24"><a href="#Editor_API"><span class="tocnumber">2.11</span> <span class="toctext">Editor API</span></a></li>
+<li class="toclevel-2 tocsection-25"><a href="#Enrolment_API_.28enrol.29"><span class="tocnumber">2.12</span> <span class="toctext">Enrolment API (enrol)</span></a></li>
+<li class="toclevel-2 tocsection-26"><a href="#Events_API_.28event.29"><span class="tocnumber">2.13</span> <span class="toctext">Events API (event)</span></a></li>
+<li class="toclevel-2 tocsection-27"><a href="#Experience_API_.28xAPI.29"><span class="tocnumber">2.14</span> <span class="toctext">Experience API (xAPI)</span></a></li>
+<li class="toclevel-2 tocsection-28"><a href="#External_functions_API_.28external.29"><span class="tocnumber">2.15</span> <span class="toctext">External functions API (external)</span></a></li>
+<li class="toclevel-2 tocsection-29"><a href="#Favourites_API"><span class="tocnumber">2.16</span> <span class="toctext">Favourites API</span></a></li>
+<li class="toclevel-2 tocsection-30"><a href="#Lock_API_.28lock.29"><span class="tocnumber">2.17</span> <span class="toctext">Lock API (lock)</span></a></li>
+<li class="toclevel-2 tocsection-31"><a href="#Message_API_.28message.29"><span class="tocnumber">2.18</span> <span class="toctext">Message API (message)</span></a></li>
+<li class="toclevel-2 tocsection-32"><a href="#Media_API_.28media.29"><span class="tocnumber">2.19</span> <span class="toctext">Media API (media)</span></a></li>
+<li class="toclevel-2 tocsection-33"><a href="#My_profile_API"><span class="tocnumber">2.20</span> <span class="toctext">My profile API</span></a></li>
+<li class="toclevel-2 tocsection-34"><a href="#OAuth_2_API_.28oauth2.29"><span class="tocnumber">2.21</span> <span class="toctext">OAuth 2 API (oauth2)</span></a></li>
+<li class="toclevel-2 tocsection-35"><a href="#Preference_API_.28preference.29"><span class="tocnumber">2.22</span> <span class="toctext">Preference API (preference)</span></a></li>
+<li class="toclevel-2 tocsection-36"><a href="#Portfolio_API_.28portfolio.29"><span class="tocnumber">2.23</span> <span class="toctext">Portfolio API (portfolio)</span></a></li>
+<li class="toclevel-2 tocsection-37"><a href="#Privacy_API_.28privacy.29"><span class="tocnumber">2.24</span> <span class="toctext">Privacy API (privacy)</span></a></li>
+<li class="toclevel-2 tocsection-38"><a href="#Rating_API_.28rating.29"><span class="tocnumber">2.25</span> <span class="toctext">Rating API (rating)</span></a></li>
+<li class="toclevel-2 tocsection-39"><a href="#RSS_API_.28rss.29"><span class="tocnumber">2.26</span> <span class="toctext">RSS API (rss)</span></a></li>
+<li class="toclevel-2 tocsection-40"><a href="#Search_API_.28search.29"><span class="tocnumber">2.27</span> <span class="toctext">Search API (search)</span></a></li>
+<li class="toclevel-2 tocsection-41"><a href="#Tag_API_.28tag.29"><span class="tocnumber">2.28</span> <span class="toctext">Tag API (tag)</span></a></li>
+<li class="toclevel-2 tocsection-42"><a href="#Task_API_.28task.29"><span class="tocnumber">2.29</span> <span class="toctext">Task API (task)</span></a></li>
+<li class="toclevel-2 tocsection-43"><a href="#Time_API_.28time.29"><span class="tocnumber">2.30</span> <span class="toctext">Time API (time)</span></a></li>
+<li class="toclevel-2 tocsection-44"><a href="#Testing_API_.28test.29"><span class="tocnumber">2.31</span> <span class="toctext">Testing API (test)</span></a></li>
+<li class="toclevel-2 tocsection-45"><a href="#User-related_APIs_.28user.29"><span class="tocnumber">2.32</span> <span class="toctext">User-related APIs (user)</span></a></li>
+<li class="toclevel-2 tocsection-46"><a href="#Web_services_API_.28webservice.29"><span class="tocnumber">2.33</span> <span class="toctext">Web services API (webservice)</span></a></li>
+<li class="toclevel-2 tocsection-47"><a href="#Badges_API_.28OpenBadges.29"><span class="tocnumber">2.34</span> <span class="toctext">Badges API (OpenBadges)</span></a></li>
+<li class="toclevel-2 tocsection-48"><a href="#Custom_fields_API"><span class="tocnumber">2.35</span> <span class="toctext">Custom fields API</span></a></li>
 </ul>
 </li>
-<li class="toclevel-1 tocsection-28"><a href="#Activity_module_APIs"><span class="tocnumber">3</span> <span class="toctext">Activity module APIs</span></a>
+<li class="toclevel-1 tocsection-49"><a href="#Activity_module_APIs"><span class="tocnumber">3</span> <span class="toctext">Activity module APIs</span></a>
 <ul>
-<li class="toclevel-2 tocsection-29"><a href="#Activity_completion_API_.28activity_completion.29"><span class="tocnumber">3.1</span> <span class="toctext">Activity completion API (activity_completion)</span></a></li>
-<li class="toclevel-2 tocsection-30"><a href="#Advanced_grading_API_.28grading.29"><span class="tocnumber">3.2</span> <span class="toctext">Advanced grading API (grading)</span></a></li>
-<li class="toclevel-2 tocsection-31"><a href="#Conditional_activities_API_.28conditional.29"><span class="tocnumber">3.3</span> <span class="toctext">Conditional activities API (conditional)</span></a></li>
-<li class="toclevel-2 tocsection-32"><a href="#Groups_API_.28group.29"><span class="tocnumber">3.4</span> <span class="toctext">Groups API (group)</span></a></li>
-<li class="toclevel-2 tocsection-33"><a href="#Gradebook_API_.28grade.29"><span class="tocnumber">3.5</span> <span class="toctext">Gradebook API (grade)</span></a></li>
-<li class="toclevel-2 tocsection-34"><a href="#Plagiarism_API_.28plagiarism.29"><span class="tocnumber">3.6</span> <span class="toctext">Plagiarism API (plagiarism)</span></a></li>
-<li class="toclevel-2 tocsection-35"><a href="#Question_API"><span class="tocnumber">3.7</span> <span class="toctext">Question API</span></a></li>
+<li class="toclevel-2 tocsection-50"><a href="#Activity_completion_API_.28completion.29"><span class="tocnumber">3.1</span> <span class="toctext">Activity completion API (completion)</span></a></li>
+<li class="toclevel-2 tocsection-51"><a href="#Advanced_grading_API_.28grading.29"><span class="tocnumber">3.2</span> <span class="toctext">Advanced grading API (grading)</span></a></li>
+<li class="toclevel-2 tocsection-52"><a href="#Conditional_activities_API_.28condition.29_-_deprecated_in_2.7"><span class="tocnumber">3.3</span> <span class="toctext">Conditional activities API (condition) - deprecated in 2.7</span></a></li>
+<li class="toclevel-2 tocsection-53"><a href="#Groups_API_.28group.29"><span class="tocnumber">3.4</span> <span class="toctext">Groups API (group)</span></a></li>
+<li class="toclevel-2 tocsection-54"><a href="#Gradebook_API_.28grade.29"><span class="tocnumber">3.5</span> <span class="toctext">Gradebook API (grade)</span></a></li>
+<li class="toclevel-2 tocsection-55"><a href="#Plagiarism_API_.28plagiarism.29"><span class="tocnumber">3.6</span> <span class="toctext">Plagiarism API (plagiarism)</span></a></li>
+<li class="toclevel-2 tocsection-56"><a href="#Question_API_.28question.29"><span class="tocnumber">3.7</span> <span class="toctext">Question API (question)</span></a></li>
 </ul>
 </li>
-<li class="toclevel-1 tocsection-36"><a href="#See_also"><span class="tocnumber">4</span> <span class="toctext">See also</span></a></li>
+<li class="toclevel-1 tocsection-57"><a href="#See_also"><span class="tocnumber">4</span> <span class="toctext">See also</span></a></li>
 </ul>
-</td></tr></table>
-<h2><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=1" title="Edit section: Most-used General APIs">edit</a>]</span> <span class="mw-headline" id="Most-used_General_APIs">Most-used General APIs</span></h2>
-<p>These APIs are very critical and will be used by nearly every Moodle plugin.
+</div>
+
+<h2><span class="mw-headline" id="Most-used_General_APIs">Most-used General APIs</span></h2>
+<p>These APIs are critical and will be used by nearly every Moodle plugin.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=2" title="Edit section: Access API (access)">edit</a>]</span> <span class="mw-headline" id="Access_API_.28access.29"> Access API (access) </span></h3>
-<p>The <a href="/dev/Access_API" title="Access API">Access API</a> gives you functions so you can determine what the current user is allow to do, and it allows modules to extend Moodle with new capabilities.
+<h3><span class="mw-headline" id="Access_API_.28access.29">Access API (access)</span></h3>
+<p>The <a href="/dev/Access_API" title="Access API">Access API</a> gives you functions so you can determine what the current user is allowed to do, and it allows modules to extend Moodle with new capabilities.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=3" title="Edit section: Data manipulation API (dml)">edit</a>]</span> <span class="mw-headline" id="Data_manipulation_API_.28dml.29"> Data manipulation API (dml) </span></h3>
+<h3><span class="mw-headline" id="Data_manipulation_API_.28dml.29">Data manipulation API (dml)</span></h3>
 <p>The <a href="/dev/Data_manipulation_API" title="Data manipulation API">Data manipulation API</a> allows you to read/write to databases in a consistent and safe way.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=4" title="Edit section: File API (files)">edit</a>]</span> <span class="mw-headline" id="File_API_.28files.29"> File API (files) </span></h3>
+<h3><span class="mw-headline" id="File_API_.28files.29">File API (files)</span></h3>
 <p>The <a href="/dev/File_API" title="File API">File API</a> controls the storage of files in connection to various plugins.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=5" title="Edit section: Form API (form)">edit</a>]</span> <span class="mw-headline" id="Form_API_.28form.29"> Form API (form) </span></h3>
+<h3><span class="mw-headline" id="Form_API_.28form.29">Form API (form)</span></h3>
 <p>The <a href="/dev/Form_API" title="Form API">Form API</a> defines and handles user data via web forms.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=6" title="Edit section: Logging API (log)">edit</a>]</span> <span class="mw-headline" id="Logging_API_.28log.29"> Logging API (log) </span></h3>
-<p>The <a href="/dev/Logging_API" title="Logging API">Logging API</a> allows you to add new entries to the Moodle log and define how they get displayed in reports.
+<h3><span class="mw-headline" id="Logging_API_.28log.29">Logging API (log)</span></h3>
+<p>The <a href="/dev/Events_API" title="Events API">Events API</a> allows you to log events in Moodle, while <a href="/dev/Logging_2" title="Logging 2">Logging 2</a> describes how logs are stored and retrieved.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=7" title="Edit section: Navigation API (navigation)">edit</a>]</span> <span class="mw-headline" id="Navigation_API_.28navigation.29"> Navigation API (navigation) </span></h3>
+<h3><span class="mw-headline" id="Navigation_API_.28navigation.29">Navigation API (navigation)</span></h3>
 <p>The <a href="/dev/Navigation_API" title="Navigation API">Navigation API</a> allows you to manipulate the navigation tree to add and remove items as you wish.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=8" title="Edit section: Page API (page)">edit</a>]</span> <span class="mw-headline" id="Page_API_.28page.29"> Page API (page) </span></h3>
+<h3><span class="mw-headline" id="Page_API_.28page.29">Page API (page)</span></h3>
 <p>The <a href="/dev/Page_API" title="Page API">Page API</a> is used to set up the current page, add JavaScript, and configure how things will be displayed to the user.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=9" title="Edit section: Output API (output)">edit</a>]</span> <span class="mw-headline" id="Output_API_.28output.29"> Output API (output) </span></h3>
+<h3><span class="mw-headline" id="Output_API_.28output.29">Output API (output)</span></h3>
 <p>The <a href="/dev/Output_API" title="Output API">Output API</a> is used to render the HTML for all parts of the page.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=10" title="Edit section: String API (string)">edit</a>]</span> <span class="mw-headline" id="String_API_.28string.29"> String API (string) </span></h3>
+<h3><span class="mw-headline" id="String_API_.28string.29">String API (string)</span></h3>
 <p>The <a href="/dev/String_API" title="String API">String API</a> is how you get language text strings to use in the user interface.   It handles any language translations that might be available.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=11" title="Edit section: Upgrade API (upgrade)">edit</a>]</span> <span class="mw-headline" id="Upgrade_API_.28upgrade.29"> Upgrade API (upgrade) </span></h3>
-<p>The <a href="/dev/Upgrade_API" title="Upgrade API">Upgrade API</a> is how your module installs and upgrades itself, by keeping track of it's own version.
-</p><p><br />
+<h3><span class="mw-headline" id="Upgrade_API_.28upgrade.29">Upgrade API (upgrade)</span></h3>
+<p>The <a href="/dev/Upgrade_API" title="Upgrade API">Upgrade API</a> is how your module installs and upgrades itself, by keeping track of its own version.
 </p>
-<h2><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=12" title="Edit section: Other General APIs">edit</a>]</span> <span class="mw-headline" id="Other_General_APIs">Other General APIs</span></h2>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=13" title="Edit section: Backup API (backup)">edit</a>]</span> <span class="mw-headline" id="Backup_API_.28backup.29"> Backup API (backup) </span></h3>
+<h3><span class="mw-headline" id="Moodlelib_API_.28core.29">Moodlelib API (core)</span></h3>
+<p>The <a href="/dev/index.php?title=Moodlelib_API&amp;action=edit&amp;redlink=1" class="new" title="Moodlelib API (page does not exist)">Moodlelib API</a> is the central library file of miscellaneous general-purpose Moodle functions. Functions can over the handling of request parameters, configs, user preferences, time, login, mnet, plugins, strings and others. There are plenty of defined constants too.
+</p>
+<h2><span class="mw-headline" id="Other_General_APIs">Other General APIs</span></h2>
+<h3><span class="mw-headline" id="Admin_settings_.28admin.29">Admin settings (admin)</span></h3>
+<p>The <a href="/dev/Admin_settings" title="Admin settings">Admin settings</a> API deals with providing configuration options for each plugin and Moodle core.
+</p>
+<h3><span class="mw-headline" id="Analytics_API_.28analytics.29">Analytics API (analytics)</span></h3>
+<p>The <a href="/dev/Analytics_API" title="Analytics API">Analytics API</a> allow you to create prediction models and generate insights.
+</p>
+<h3><span class="mw-headline" id="Availability_.28availability.29">Availability (availability)</span></h3>
+<p>The <a href="/dev/Availability_API" title="Availability API">Availability API</a> controls access to activities and sections.
+</p>
+<h3><span class="mw-headline" id="Backup_API_.28backup.29">Backup API (backup)</span></h3>
 <p>The <a href="/dev/Backup_API" title="Backup API">Backup API</a> defines exactly how to convert course data into XML for backup purposes, and the <a href="/dev/Restore_API" title="Restore API">Restore API</a> describes how to convert it back the other way.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=14" title="Edit section: Calendar API (calendar)">edit</a>]</span> <span class="mw-headline" id="Calendar_API_.28calendar.29"> Calendar API (calendar) </span></h3>
+<h3><span class="mw-headline" id="Cache_API_.28cache.29">Cache API (cache)</span></h3>
+<p>The <a href="/dev/The_Moodle_Universal_Cache_(MUC)" title="The Moodle Universal Cache (MUC)">The Moodle Universal Cache (MUC)</a> is the structure for storing cache data within Moodle. <a href="/dev/Cache_API" title="Cache API">Cache_API</a> explains some of what is needed to use a cache in your code.
+</p>
+<h3><span class="mw-headline" id="Calendar_API_.28calendar.29">Calendar API (calendar)</span></h3>
 <p>The <a href="/dev/Calendar_API" title="Calendar API">Calendar API</a> allows you to add and modify events in the calendar for user, groups, courses, or the whole site.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=15" title="Edit section: Comment API (comment)">edit</a>]</span> <span class="mw-headline" id="Comment_API_.28comment.29"> Comment API (comment) </span></h3>
+<h3><span class="mw-headline" id="Check_API_.28check.29">Check API (check)</span></h3>
+<p>WIP The <a href="/dev/Check_API" title="Check API">Check API</a> allows you to add security, performance or health checks to your site.
+</p>
+<h3><span class="mw-headline" id="Comment_API_.28comment.29">Comment API (comment)</span></h3>
 <p>The <a href="/dev/Comment_API" title="Comment API">Comment API</a> allows you to save and retrieve user comments, so that you can easily add commenting to any of your code.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=16" title="Edit section: Data definition API (ddl)">edit</a>]</span> <span class="mw-headline" id="Data_definition_API_.28ddl.29"> Data definition API (ddl) </span></h3>
+<h3><span class="mw-headline" id="Competency_API_.28competency.29">Competency API (competency)</span></h3>
+<p>The <a href="/dev/Competency_API" title="Competency API">Competency API</a> allows you to list and add evidence of competencies to learning plans, learning plan templates, frameworks, courses and activities.
+</p>
+<h3><span class="mw-headline" id="Data_definition_API_.28ddl.29">Data definition API (ddl)</span></h3>
 <p>The <a href="/dev/Data_definition_API" title="Data definition API">Data definition API</a> is what you use to create, change and delete tables and fields in the database during upgrades.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=17" title="Edit section: Events API (event)">edit</a>]</span> <span class="mw-headline" id="Events_API_.28event.29"> Events API (event) </span></h3>
-<p>The <a href="/dev/Events_API" title="Events API">Events API</a> allows to define "events" with payload data to be fired whenever you like, and it also allows you to define handlers to react to these events when they happen.  This is the recommended form of inter-plugin communication.
+<h3><span class="mw-headline" id="Editor_API">Editor API</span></h3>
+<p>The <a href="/dev/Editor_API" title="Editor API">Editor API</a> is used to control HTML text editors.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=18" title="Edit section: External functions API (external)">edit</a>]</span> <span class="mw-headline" id="External_functions_API_.28external.29"> External functions API (external) </span></h3>
+<h3><span class="mw-headline" id="Enrolment_API_.28enrol.29">Enrolment API (enrol)</span></h3>
+<p>The <a href="/dev/Enrolment_API" title="Enrolment API">Enrolment API</a> deals with course participants.
+</p>
+<h3><span class="mw-headline" id="Events_API_.28event.29">Events API (event)</span></h3>
+<p>The <a href="/dev/Events_API" title="Events API">Events API</a> allows to define "events" with payload data to be fired whenever you like, and it also allows you to define handlers to react to these events when they happen.  This is the recommended form of inter-plugin communication. This also forms the basis for logging in Moodle.
+</p>
+<h3><span class="mw-headline" id="Experience_API_.28xAPI.29">Experience API (xAPI)</span></h3>
+<p>The Experience API (xAPI) is an e-learning standard that allows learning content and learning systems to speak to each other. The <a href="/dev/Experience_API_(xAPI)" title="Experience API (xAPI)">Experience API (xAPI)</a>
+allows any plugin to generate and handle xAPI standard statements.
+</p>
+<h3><span class="mw-headline" id="External_functions_API_.28external.29">External functions API (external)</span></h3>
 <p>The <a href="/dev/External_functions_API" title="External functions API">External functions API</a> allows you to create fully parametrised methods that can be accessed by external programs (such as <a href="/dev/Web_services" title="Web services">Web services</a>).
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=19" title="Edit section: Message API (message)">edit</a>]</span> <span class="mw-headline" id="Message_API_.28message.29"> Message API (message) </span></h3>
+<h3><span class="mw-headline" id="Favourites_API">Favourites API</span></h3>
+<p>The <a href="/dev/Favourites_API" title="Favourites API">Favourites API</a> allows you to mark items as favourites for a user and manage these favourites. This is often referred to as 'Starred'.
+</p>
+<h3><span class="mw-headline" id="Lock_API_.28lock.29">Lock API (lock)</span></h3>
+<p>The <a href="/dev/Lock_API" title="Lock API">Lock API</a> lets you synchronise processing between multiple requests, even for separate nodes in a cluster.
+</p>
+<h3><span class="mw-headline" id="Message_API_.28message.29">Message API (message)</span></h3>
 <p>The <a href="/dev/Message_API" title="Message API">Message API</a> lets you post messages to users.  They decide how they want to receive them.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=20" title="Edit section: Preference API (preference)">edit</a>]</span> <span class="mw-headline" id="Preference_API_.28preference.29"> Preference API (preference) </span></h3>
+<h3><span class="mw-headline" id="Media_API_.28media.29">Media API (media)</span></h3>
+<p>The <a href="/dev/Media_players#Using_media_players" title="Media players">Media</a> API can be used to embed media items such as audio, video, and Flash.
+</p>
+<h3><span class="mw-headline" id="My_profile_API">My profile API</span></h3>
+<p>The <a href="/dev/My_profile_API" title="My profile API">My profile API</a> is used to add things to the profile page.
+</p>
+<h3><span class="mw-headline" id="OAuth_2_API_.28oauth2.29">OAuth 2 API (oauth2)</span></h3>
+<p>The <a href="/dev/OAuth_2_API" title="OAuth 2 API">OAuth 2 API</a> is used to provide a common place to configure and manage external systems using OAuth 2.
+</p>
+<h3><span class="mw-headline" id="Preference_API_.28preference.29">Preference API (preference)</span></h3>
 <p>The <a href="/dev/Preference_API" title="Preference API">Preference API</a> is a simple way to store and retrieve preferences for individual users.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=21" title="Edit section: Portfolio API (portfolio)">edit</a>]</span> <span class="mw-headline" id="Portfolio_API_.28portfolio.29"> Portfolio API (portfolio) </span></h3>
+<h3><span class="mw-headline" id="Portfolio_API_.28portfolio.29">Portfolio API (portfolio)</span></h3>
 <p>The <a href="/dev/Portfolio_API" title="Portfolio API">Portfolio API</a> allows you to add portfolio interfaces on your pages and allows users to package up data to send to their portfolios.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=22" title="Edit section: Rating API (rating)">edit</a>]</span> <span class="mw-headline" id="Rating_API_.28rating.29"> Rating API (rating) </span></h3>
-<p>The <a href="/dev/Rating_API" title="Rating API">Rating API</a> lets you create AJAX rating interfaces so that users can rate items in your plugin.  In an activity module, you may choose to aggregate these to form grades.
+<h3><span class="mw-headline" id="Privacy_API_.28privacy.29">Privacy API (privacy)</span></h3>
+<p>The <a href="/dev/Privacy_API" title="Privacy API">Privacy API</a> allows you to describe the personal data that you store, and provides the means for that data to be discovered, exported, and deleted on a per-user basis.
+This allows compliance with regulation such as the General Data Protection Regulation (GDPR) in Europe.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=23" title="Edit section: RSS API (rss)">edit</a>]</span> <span class="mw-headline" id="RSS_API_.28rss.29"> RSS API (rss) </span></h3>
-<p>The <a href="/dev/RSS_API" title="RSS API">RSS API</a> allows you to create secure RSS feeds of data in your module. 
+<h3><span class="mw-headline" id="Rating_API_.28rating.29">Rating API (rating)</span></h3>
+<p>The <a href="/dev/Rating_API" title="Rating API">Rating API</a> lets you create AJAX rating interfaces so that users can rate items in your plugin.  In an activity module, you may choose to aggregate ratings to form grades.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=24" title="Edit section: Tag API (tag)">edit</a>]</span> <span class="mw-headline" id="Tag_API_.28tag.29"> Tag API (tag) </span></h3>
+<h3><span class="mw-headline" id="RSS_API_.28rss.29">RSS API (rss)</span></h3>
+<p>The <a href="/dev/RSS_API" title="RSS API">RSS API</a> allows you to create secure RSS feeds of data in your module.
+</p>
+<h3><span class="mw-headline" id="Search_API_.28search.29">Search API (search)</span></h3>
+<p>The <a href="/dev/Search_API" title="Search API">Search API</a> allows you to index contents in a search engine and query the search engine for results.
+</p>
+<h3><span class="mw-headline" id="Tag_API_.28tag.29">Tag API (tag)</span></h3>
 <p>The <a href="/dev/Tag_API" title="Tag API">Tag API</a> allows you to store tags (and a tag cloud) to items in your module.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=25" title="Edit section: Time API (time)">edit</a>]</span> <span class="mw-headline" id="Time_API_.28time.29"> Time API (time) </span></h3>
+<h3><span class="mw-headline" id="Task_API_.28task.29">Task API (task)</span></h3>
+<p>The <a href="/dev/Task_API" title="Task API">Task API</a> lets you run jobs in the background. Either once off, or on a regular schedule.
+</p>
+<h3><span class="mw-headline" id="Time_API_.28time.29">Time API (time)</span></h3>
 <p>The <a href="/dev/Time_API" title="Time API">Time API</a> takes care of translating and displaying times between users in the site.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=26" title="Edit section: Unit test API (test)">edit</a>]</span> <span class="mw-headline" id="Unit_test_API_.28test.29"> Unit test API (test) </span></h3>
-<p>The <a href="/dev/Unit_test_API" title="Unit test API">Unit test API</a> is based on Simpletest (shortly we are switching to PHP unit).  Ideally all new code should have unit tests written FIRST.
+<h3><span class="mw-headline" id="Testing_API_.28test.29">Testing API (test)</span></h3>
+<p>The testing API contains the Unit test API (<a href="/dev/PHPUnit" title="PHPUnit">PHPUnit</a>) and Acceptance test API (<a href="/dev/Acceptance_testing" title="Acceptance testing">Acceptance testing</a>). Ideally all new code should have unit tests written FIRST.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=27" title="Edit section: Web services API (webservice)">edit</a>]</span> <span class="mw-headline" id="Web_services_API_.28webservice.29"> Web services API (webservice) </span></h3>
+<h3><span class="mw-headline" id="User-related_APIs_.28user.29">User-related APIs (user)</span></h3>
+<p>This is a rather informal grouping of miscellaneous <a href="/dev/User-related_APIs" title="User-related APIs">User-related APIs</a> relating to sorting and searching lists of users.
+</p>
+<h3><span class="mw-headline" id="Web_services_API_.28webservice.29">Web services API (webservice)</span></h3>
 <p>The <a href="/dev/Web_services_API" title="Web services API">Web services API</a> allows you to expose particular functions (usually external functions) as web services.
-</p><p><br />
 </p>
-<h2><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=28" title="Edit section: Activity module APIs">edit</a>]</span> <span class="mw-headline" id="Activity_module_APIs"> Activity module APIs </span></h2>
+<h3><span class="mw-headline" id="Badges_API_.28OpenBadges.29">Badges API (OpenBadges)</span></h3>
+<p>The <a rel="nofollow" class="external text" href="https://docs.moodle.org/dev/OpenBadges_User_Documentation">Badges</a> user documentation (is a temp page until we compile a proper page with all the classes and APIs that allows you to manage particular badges and OpenBadges Backpack).
+</p>
+<h3><span class="mw-headline" id="Custom_fields_API">Custom fields API</span></h3>
+<p>The <a href="/dev/Custom_fields_API" title="Custom fields API">Custom fields API</a> allows you to configure and add custom fields for different entities
+</p>
+<h2><span class="mw-headline" id="Activity_module_APIs">Activity module APIs</span></h2>
 <p>Activity modules are the most important plugin in Moodle.  There are several core APIs that service only Activity modules.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=29" title="Edit section: Activity completion API (activity completion)">edit</a>]</span> <span class="mw-headline" id="Activity_completion_API_.28activity_completion.29"> Activity completion API (activity_completion) </span></h3>
+<h3><span class="mw-headline" id="Activity_completion_API_.28completion.29">Activity completion API (completion)</span></h3>
 <p>The <a href="/dev/Activity_completion_API" title="Activity completion API">Activity completion API</a> is to indicate to the system how activities are completed.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=30" title="Edit section: Advanced grading API (grading)">edit</a>]</span> <span class="mw-headline" id="Advanced_grading_API_.28grading.29"> Advanced grading API (grading) </span></h3>
+<h3><span class="mw-headline" id="Advanced_grading_API_.28grading.29">Advanced grading API (grading)</span></h3>
 <p>The <a href="/dev/Advanced_grading_API" title="Advanced grading API">Advanced grading API</a> allows you to add more advanced grading interfaces (such as rubrics) that can produce simple grades for the gradebook.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=31" title="Edit section: Conditional activities API (conditional)">edit</a>]</span> <span class="mw-headline" id="Conditional_activities_API_.28conditional.29"> Conditional activities API (conditional) </span></h3>
-<p>The <a href="/dev/Conditional_activities_API" title="Conditional activities API">Conditional activities API</a> is so you can tell the system how to show or hide the activity automatically. 
+<h3><span class="mw-headline" id="Conditional_activities_API_.28condition.29_-_deprecated_in_2.7">Conditional activities API (condition) - deprecated in 2.7</span></h3>
+<p>The deprecated <a href="/dev/Conditional_activities_API" title="Conditional activities API">Conditional activities API</a> used to provide conditional access to modules and sections in Moodle 2.6 and below. It has been replaced by the <a href="/dev/Availability_API" title="Availability API">Availability API</a>.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=32" title="Edit section: Groups API (group)">edit</a>]</span> <span class="mw-headline" id="Groups_API_.28group.29"> Groups API (group) </span></h3>
+<h3><span class="mw-headline" id="Groups_API_.28group.29">Groups API (group)</span></h3>
 <p>The <a href="/dev/Groups_API" title="Groups API">Groups API</a> allows you to check the current activity group mode and set the current group.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=33" title="Edit section: Gradebook API (grade)">edit</a>]</span> <span class="mw-headline" id="Gradebook_API_.28grade.29"> Gradebook API (grade) </span></h3>
+<h3><span class="mw-headline" id="Gradebook_API_.28grade.29">Gradebook API (grade)</span></h3>
 <p>The <a href="/dev/Gradebook_API" title="Gradebook API">Gradebook API</a> allows you to read and write from the gradebook.  It also allows you to provide an interface for detailed grading information.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=34" title="Edit section: Plagiarism API (plagiarism)">edit</a>]</span> <span class="mw-headline" id="Plagiarism_API_.28plagiarism.29"> Plagiarism API (plagiarism) </span></h3>
+<h3><span class="mw-headline" id="Plagiarism_API_.28plagiarism.29">Plagiarism API (plagiarism)</span></h3>
 <p>The <a href="/dev/Plagiarism_API" title="Plagiarism API">Plagiarism API</a> allows your activity module to send files and data to external services to have them checked for plagiarism.
 </p>
-<h3><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=35" title="Edit section: Question API">edit</a>]</span> <span class="mw-headline" id="Question_API"> Question API </span></h3>
-<p>The question API, which can be divided into the Question bank API and the Question engine API, can be used by activities that want to use questions from the question bank in activities.
-</p><p>At the moment, the Quiz module is the only example of a standard module that does this. (People have been saying wince Moodle 1.6 that the lesson module should be converted to use the question bank!) Also, the documentation is currently in a bit of a mess, but see:
+<h3><span class="mw-headline" id="Question_API_.28question.29">Question API (question)</span></h3>
+<p>The <a href="/dev/Question_API" title="Question API">Question API</a> (which can be divided into the Question bank API and the Question engine API), can be used by activities that want to use questions from the question bank.
 </p>
-<ul><li> <a href="/dev/Question_Engine_2" title="Question Engine 2">Question Engine 2</a>, in particular <a href="/dev/Using_the_question_engine_from_module" title="Using the question engine from module">Using the question engine from module</a>. That is reasonably up-to-date.
-</li><li> <a href="/dev/Question_engine" title="Question engine">Question engine</a> is the old documentation that applies to Moodle 1.9 and before. The information there about the question bank half of the question system is still relevant.
-</li></ul>
-<h2><span class="editsection">[<a href="/dev/index.php?title=Core_APIs&amp;action=edit&amp;section=36" title="Edit section: See also">edit</a>]</span> <span class="mw-headline" id="See_also"> See also </span></h2>
-<ul><li> <a href="/dev/Plugins" title="Plugins">Plugins</a> - plugin types also have their own APIs
-</li></ul>
+<h2><span class="mw-headline" id="See_also">See also</span></h2>
+<ul><li> <a href="/dev/Plugins" title="Plugins" class="mw-redirect">Plugins</a> - plugin types also have their own APIs</li>
+<li> <a href="/dev/Callbacks" title="Callbacks">Callbacks</a> - list of all callbacks in Moodle</li>
+<li> <a href="/dev/Coding_style" title="Coding style">Coding style</a> - general information about writing PHP code for Moodle</li></ul>
 
 <!-- 
 NewPP limit report
-Preprocessor node count: 143/1000000
-Post-expand include size: 0/2097152 bytes
+Cached time: 20200528184113
+Cache expiry: 86400
+Dynamic content: false
+CPU time usage: 0.012 seconds
+Real time usage: 0.011 seconds
+Preprocessor visited node count: 227/1000000
+Preprocessor generated node count: 232/1000000
+Post‐expand include size: 0/2097152 bytes
 Template argument size: 0/2097152 bytes
+Highest expansion depth: 2/40
 Expensive parser function count: 0/100
 -->
 
-<!-- Saved in parser cache with key docs_development:pcache:idhash:3684-0!*!0!!en!* and timestamp 20120201010741 -->
-<div class="printfooter">
-Retrieved from "<a href="http://docs.moodle.org/dev/Core_APIs">http://docs.moodle.org/dev/Core_APIs</a>"</div>
-        <div id='catlinks' class='catlinks catlinks-allhidden'></div>       <!-- end content -->
-                <div class="visualClear"></div>
-    </div>
+<!-- 
+Transclusion expansion time report (%,ms,calls,template)
+100.00%    0.000      1 - -total
+-->
+
+<!-- Saved in parser cache with key docs_development:pcache:idhash:3684-0!*!0!!en!*!* and timestamp 20200528184113 and revision id 57550
+ -->
+</div><div class="printfooter">
+Retrieved from "<a dir="ltr" href="https://docs.moodle.org/dev/index.php?title=Core_APIs&amp;oldid=57550">https://docs.moodle.org/dev/index.php?title=Core_APIs&amp;oldid=57550</a>"</div>
+		<div id="catlinks" class="catlinks catlinks-allhidden" data-mw="interface"></div>		<!-- end content -->
+				<div class="visualClear"></div>
+	</div>
 </div></div>
-<div id="column-one">
-    <div id="p-cactions" class="portlet">
-        <h5>Views</h5>
-        <div class="pBody">
-            <ul>
-                 <li id="ca-nstab-main" class="selected"><span class="tab"><a href="/dev/Core_APIs" title="View the content page [c]" accesskey="c">Page</a></span></li>
-                 <li id="ca-talk"><span class="tab"><a href="/dev/Talk:Core_APIs" title="Discussion about the content page [t]" accesskey="t">Discussion</a></span></li>
-                 <li id="ca-edit"><span class="tab"><a href="/dev/index.php?title=Core_APIs&amp;action=edit" title="You can edit this page. Please use the preview button before saving [e]" accesskey="e">Edit</a></span></li>
-                 <li id="ca-history"><span class="tab"><a href="/dev/index.php?title=Core_APIs&amp;action=history" title="Past revisions of this page [h]" accesskey="h">History</a></span></li>
-                 <li id="ca-delete"><span class="tab"><a href="/dev/index.php?title=Core_APIs&amp;action=delete" title="Delete this page [d]" accesskey="d">Delete</a></span></li>
-                 <li id="ca-move"><span class="tab"><a href="/dev/Special:MovePage/Core_APIs" title="Move this page [m]" accesskey="m">Move</a></span></li>
-                 <li id="ca-protect"><span class="tab"><a href="/dev/index.php?title=Core_APIs&amp;action=protect" title="Protect this page [=]" accesskey="=">Protect</a></span></li>
-                 <li id="ca-unwatch"><span class="tab"><a href="/dev/index.php?title=Core_APIs&amp;action=unwatch" title="Remove this page from your watchlist [w]" accesskey="w">Unwatch</a></span></li>
-            </ul>
-        </div>
-    </div>
-    <div class="portlet" id="p-personal">
-        <h5>Personal tools</h5>
-        <div class="pBody">
-            <ul>
-                <li id="pt-userpage"><a href="/dev/User:Eloy_Lafuente_(stronk7)" title="Your user page [.]" accesskey=".">Eloy Lafuente (stronk7)</a></li>
-                <li id="pt-mytalk"><a href="/dev/User_talk:Eloy_Lafuente_(stronk7)" title="Your talk page [n]" accesskey="n">My talk</a></li>
-                <li id="pt-preferences"><a href="/dev/Special:Preferences" title="Your preferences">My preferences</a></li>
-                <li id="pt-watchlist"><a href="/dev/Special:Watchlist" title="A list of pages you are monitoring for changes [l]" accesskey="l">My watchlist</a></li>
-                <li id="pt-mycontris"><a href="/dev/Special:Contributions/Stronk7" title="A list of your contributions [y]" accesskey="y">My contributions</a></li>
-                <li id="pt-logout"><a href="/dev/index.php?title=Special:UserLogout&amp;returnto=Core_APIs" title="Log out">Log out</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="portlet" id="p-logo">
-        <a style="background-image: url(/prodwiki/skins/moodledocs/images/version.dev.png);" href="/dev/Main_Page" title="Visit the main page"></a>
-    </div>
-    <script type="text/javascript"> if (window.isMSIE55) fixalpha(); </script>
-    <div class='generated-sidebar portlet' id='p-navigation'>
-        <h5>Navigation</h5>
-        <div class='pBody'>
-            <ul>
-                <li id="n-mainpage-description"><a href="/dev/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
-                <li id="n-recentchanges"><a href="/dev/Special:RecentChanges" title="A list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
-            </ul>
-        </div>
-    </div>
-    <div class="portlet" id="p-tb">
-        <h5>Toolbox</h5>
-        <div class="pBody">
-            <ul>
-                <li id="t-whatlinkshere"><a href="/dev/Special:WhatLinksHere/Core_APIs" title="A list of all wiki pages that link here [j]" accesskey="j">What links here</a></li>
-                <li id="t-recentchangeslinked"><a href="/dev/Special:RecentChangesLinked/Core_APIs" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
-<li id="t-upload"><a href="/dev/Special:Upload" title="Upload files [u]" accesskey="u">Upload file</a></li>
+<div id="column-one" class="row-fluid" >
+	<div id="p-cactions" class="portlet">
+				<h5>Views</h5>
+		<div class="pBody">
+			<ul><li id="ca-nstab-main" class="selected"><a href="/dev/Core_APIs" title="View the content page [c]" accesskey="c">Page</a></li><li id="ca-talk"><a href="/dev/Talk:Core_APIs" title="Discussion about the content page [t]" accesskey="t">Discussion</a></li><li id="ca-viewsource"><a href="/dev/index.php?title=Core_APIs&amp;action=edit" title="This page is protected.&#10;You can view its source [e]" accesskey="e">View source</a></li><li id="ca-history"><a href="/dev/index.php?title=Core_APIs&amp;action=history" title="Past revisions of this page [h]" accesskey="h">History</a></li></ul>		</div>
+	</div>
+	<div class="portlet" id="p-personal">
+		<h5>Personal tools</h5>
+		<div class="pBody">
+			<ul><li><a href="/dev/index.php?title=Special:UserLogin&amp;returnto=Core+APIs">Log in</a></li></ul>		</div>
+	</div>
+	<div class='portlet bottom-portlet span6' id='p-navigation'>
+		<h5>Navigation</h5>
+		<div class='pBody'>
+				<ul>
+							<li id="n-mainpage-description"><a href="/dev/Main_Page" title="Visit the main page [z]" accesskey="z">Main page</a></li>
+							<li id="n-recentchanges"><a href="/dev/Special:RecentChanges" title="A list of recent changes in the wiki [r]" accesskey="r">Recent changes</a></li>
+							<li id="n-Moodle-Docs-3.9"><a href="https://docs.moodle.org/39/en">Moodle Docs 3.9</a></li>
+							<li id="n-Docs-overview"><a href="https://docs.moodle.org/overview/">Docs overview</a></li>
+						</ul>
+				</div>
+	</div>
+	<div class='portlet bottom-portlet span6' id='p-tb'>
+		<h5>Tools</h5>
+		<div class='pBody'>
+				<ul>
+				<li id="t-whatlinkshere"><a href="/dev/Special:WhatLinksHere/Core_APIs" title="A list of all wiki pages that link here [j]" accesskey="j">What links here</a></li>
+				<li id="t-recentchangeslinked"><a href="/dev/Special:RecentChangesLinked/Core_APIs" title="Recent changes in pages linked from this page [k]" accesskey="k">Related changes</a></li>
 <li id="t-specialpages"><a href="/dev/Special:SpecialPages" title="A list of all special pages [q]" accesskey="q">Special pages</a></li>
-                <li id="t-print"><a href="/dev/index.php?title=Core_APIs&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>             <li id="t-permalink"><a href="/dev/index.php?title=Core_APIs&amp;oldid=32005" title="Permanent link to this revision of the page">Permanent link</a></li>           </ul>
-        </div>
-    </div>
-    <div class='generated-sidebar portlet' id='p-User_docs_.28English.29'>
-        <h5>User docs (English)</h5>
-        <div class='pBody'>
-            <ul>
-                <li id="n-Moodle-Docs-2.2"><a href="http://docs.moodle.org/22/en">Moodle Docs 2.2</a></li>
-                <li id="n-Moodle-Docs-2.1"><a href="http://docs.moodle.org/21/en">Moodle Docs 2.1</a></li>
-            </ul>
-        </div>
-    </div>
-    <div id="p-search" class="portlet">
-        <h5><label for="searchInput">Search</label></h5>
-        <div id="searchBody" class="pBody">
-            <form action="/dev/index.php" id="searchform">
-                <input type='hidden' name="title" value="Special:Search"/>
-                <input id="searchInput" title="Search MoodleDocs" accesskey="f" type="search" name="search" />
-                <input type='submit' name="go" class="searchButton" id="searchGoButton" value="Go" title="Go to a page with this exact name if exists" />&#160;
-                <input type='submit' name="fulltext" class="searchButton" id="mw-searchButton" value="Search" title="Search the pages for this text" />
-            </form>
-        </div>
-    </div>
+				<li id="t-print"><a href="/dev/index.php?title=Core_APIs&amp;printable=yes" rel="alternate" title="Printable version of this page [p]" accesskey="p">Printable version</a></li>				<li id="t-permalink"><a href="/dev/index.php?title=Core_APIs&amp;oldid=57550" title="Permanent link to this revision of the page">Permanent link</a></li>			</ul>
+		</div>
+	</div>
+<div id="p-search" role="search">
+	<h3><label for="searchInput">Search</label></h3>
+	<form action="/dev/index.php" id="searchform">
+		<div id="simpleSearch">
+						<input name="search" placeholder="Search" title="Search MoodleDocs [f]" accesskey="f" id="searchInput"/>						<button type="submit" name="button" title="Search the pages for this text" id="searchButton"><img src="/dev/skins/moodledocs/images/search-ltr.png?305" alt="Search" width="12" height="13"/></button>						<input type='hidden' name="title" value="Special:Search"/>
+		</div>
+	</form>
+</div>
 </div><!-- end of the left (by default at least) column -->
 <div class="visualClear"></div>
 <div id="footer">
-    <div id="f-poweredbyico">
-        <a href="http://www.mediawiki.org/"><img src="/dev/skins/common/images/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" width="88" height="31" /></a>
-    </div>
-    <ul id="f-list">
-        <li id="lastmod"> This page was last modified on 30 January 2012, at 18:21.</li>
-        <li id="copyright">Content is available under <a href="http://docs.moodle.org/en/License" class="external ">GNU Public License</a>.</li>
-        <li id="privacy"><a href="/dev/MoodleDocs:Privacy_policy" title="MoodleDocs:Privacy policy">Privacy policy</a></li>
-        <li id="about"><a href="/dev/MoodleDocs:About" title="MoodleDocs:About">About MoodleDocs</a></li>
-        <li id="disclaimer"><a href="/dev/MoodleDocs:General_disclaimer" title="MoodleDocs:General disclaimer">Disclaimers</a></li>
-    </ul>
+	<div id="f-poweredbyico">
+		<a href="//www.mediawiki.org/"><img src="/dev/resources/assets/poweredby_mediawiki_88x31.png" alt="Powered by MediaWiki" srcset="/dev/resources/assets/poweredby_mediawiki_132x47.png 1.5x, /dev/resources/assets/poweredby_mediawiki_176x62.png 2x" width="88" height="31"/></a>
+	</div>
+	<ul id="f-list">
+		<li id="lastmod"> This page was last modified on 28 May 2020, at 15:24.</li>
+		<li id="copyright">Content is available under <a class="external" rel="nofollow" href="https://docs.moodle.org/dev/License">GNU General Public License</a> unless otherwise noted.</li>
+		<li id="privacy"><a href="/dev/MoodleDocs:Privacy_policy" title="MoodleDocs:Privacy policy">Privacy</a></li>
+		<li id="about"><a href="/dev/MoodleDocs:About" title="MoodleDocs:About">About the Dev docs</a></li>
+		<li id="disclaimer"><a href="/dev/MoodleDocs:General_disclaimer" title="MoodleDocs:General disclaimer">Disclaimers</a></li>
+	</ul>
 </div>
 </div>
-
-<script src="/dev/load.php?debug=false&amp;lang=en&amp;modules=startup&amp;only=scripts&amp;skin=moodledocsnew&amp;*"></script>
-<script>if ( window.mediaWiki ) {
-    mediaWiki.config.set({"wgCanonicalNamespace": "", "wgCanonicalSpecialPageName": false, "wgNamespaceNumber": 0, "wgPageName": "Core_APIs", "wgTitle": "Core APIs", "wgAction": "view", "wgArticleId": 3684, "wgIsArticle": true, "wgUserName": "Stronk7", "wgUserGroups": ["bureaucrat", "sysop", "*", "user", "autoconfirmed"], "wgCurRevisionId": 32005, "wgCategories": [], "wgBreakFrames": false, "wgRestrictionEdit": [], "wgRestrictionMove": []});
-}
-</script>
-<script>if ( window.mediaWiki ) {
-    mediaWiki.loader.load(["mediawiki.util", "mediawiki.legacy.wikibits", "mediawiki.legacy.ajax", "mediawiki.legacy.ajaxwatch"]);
-    mediaWiki.loader.go();
-}
-</script>
-
-<script>
-var moodleconfig = {'menuimagepath':'/dev/skins/moodledocsnew/menu/sm/'}
-</script>
-<script src="/dev/skins/moodledocsnew/menu/sm/c_config.js?301"></script>
-<script src="/dev/skins/moodledocsnew/menu/sm/c_smartmenus.js?301"></script>
-<script>if ( window.mediaWiki ) {
-    mediaWiki.user.options.set({"ccmeonemails":0,"cols":80,"contextchars":50,"contextlines":5,"date":"default","diffonly":0,"disablemail":0,"disablesuggest":0,"editfont":"default","editondblclick":0,"editsection":1,"editsectiononrightclick":0,"enotifminoredits":"1","enotifrevealaddr":0,"enotifusertalkpages":1,"enotifwatchlistpages":"1","extendwatchlist":0,"externaldiff":0,"externaleditor":0,"fancysig":0,"forceeditsummary":0,"gender":"unknown","hideminor":0,"hidepatrolled":0,"highlightbroken":1,"imagesize":2,"justify":0,"math":1,"minordefault":0,"newpageshidepatrolled":0,"nocache":0,"noconvertlink":0,"norollbackdiff":0,"numberheadings":0,"previewonfirst":0,"previewontop":1,"quickbar":1,"rcdays":7,"rclimit":50,"rememberpassword":"1","rows":25,"searchlimit":20,"showhiddencats":0,"showjumplinks":1,"shownumberswatching":1,"showtoc":1,"showtoolbar":1,"skin":"moodledocsnew","stubthreshold":0,"thumbsize":2,"underline":2,"uselivepreview":0,"usenewrc":0,"watchcreations":0,"watchdefault":0,
-    "watchdeletion":0,"watchlistdays":3,"watchlisthideanons":0,"watchlisthidebots":0,"watchlisthideliu":0,"watchlisthideminor":0,"watchlisthideown":0,"watchlisthidepatrolled":0,"watchmoves":0,"wllimit":250,"variant":"en","language":"en","searchNs0":true,"searchNs1":"1","searchNs2":false,"searchNs3":false,"searchNs4":false,"searchNs5":false,"searchNs6":false,"searchNs7":false,"searchNs8":false,"searchNs9":false,"searchNs10":false,"searchNs11":false,"searchNs12":false,"searchNs13":false,"searchNs14":false,"searchNs15":false,"searcheverything":"1","timecorrection":"Offset|0","watchlisttoken":"8cff7a3ad1a099744da6c5a7a5778c56f84346cc"});;mediaWiki.loader.state({"user.options":"ready"});
-}
-</script><!-- Served in 0.107 secs. -->
+<script>(window.RLQ=window.RLQ||[]).push(function(){mw.loader.state({"user":"ready","user.groups":"ready"});mw.loader.load(["mediawiki.toc","mediawiki.action.view.postEdit","site","mediawiki.user","mediawiki.hidpi","mediawiki.page.ready","mediawiki.searchSuggest","custom.editortoolbar","ext.moderation.notify","ext.moderation.notify.desktop","skins.moodledocs.bootstrap"]);});</script><script>(window.RLQ=window.RLQ||[]).push(function(){mw.config.set({"wgBackendResponseTime":69});});</script>
 <!-- final footer start -->
-<div id="moodlesitelink"><a href="http://moodle.org/"><img class="logo" src="/dev/skins/moodledocsnew/images/moodle-logo-footer.gif" alt="moodlelogo" title="Return to Moodle.org" /></a></div>
+<div id="moodlesitelink"></div>
 <!-- final footer end -->
 
 </div><!-- #page -->
