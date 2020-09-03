@@ -838,6 +838,7 @@ class local_moodlecheck_phpdocs {
         'expectedExceptionMessage',
         'expectedExceptionMessageRegExp',
         'group',
+        'depends',
         // PHPDoc tags.
         'abstract',
         'access',
@@ -893,6 +894,7 @@ class local_moodlecheck_phpdocs {
         'expectedExceptionMessage',
         'expectedExceptionMessageRegExp',
         'group',
+        'depends',
         // PHPDoc tags.
         'author',
         'category',
@@ -931,6 +933,7 @@ class local_moodlecheck_phpdocs {
         'expectedExceptionMessage' => array('#.*/tests/.*_test.php#'),
         'expectedExceptionMessageRegExp' => array('#.*/tests/.*_test.php#'),
         'group' => array('#.*/tests/.*_test.php#'),
+        'depends' => array('#.*/tests/.*_test.php#'),
     );
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */
