@@ -185,4 +185,26 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $this->assertNotContains('{@see has_capability}', $result);
         $this->assertNotContains('baby}', $result);
     }
+
+    /**
+     * Test that {@see local_moodlecheck_get_categories()} returns the correct list of allowed categories.
+     */
+    public function test_local_moodlecheck_get_categories() {
+
+        set_user_preference('local_moodlecheck_categoriestime', 0);
+        set_user_preference('local_moodlecheck_categoriesvalue', '');
+
+        $allowed = local_moodlecheck_get_categories();
+
+        $expected = ['access', 'dml', 'files', 'form', 'log', 'navigation', 'page', 'output', 'string', 'upgrade',
+            'core', 'admin', 'analytics', 'availability', 'backup', 'cache', 'calendar', 'check', 'comment',
+            'competency', 'ddl', 'enrol', 'event', 'xapi', 'external', 'lock', 'message', 'media', 'oauth2',
+            'preference', 'portfolio', 'privacy', 'rating', 'rss', 'search', 'tag', 'task', 'time', 'test',
+            'webservice', 'badges', 'completion', 'grading', 'group', 'grade', 'plagiarism', 'question',
+        ];
+
+        foreach ($expected as $category) {
+            $this->assertContains($category, $allowed);
+        }
+    }
 }

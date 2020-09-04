@@ -199,11 +199,11 @@ function &local_moodlecheck_get_categories() {
             $allcategories = explode(',', $lastsavedvalue);
         } else {
             $allcategories = array();
-            $filecontent = @file_get_contents("http://docs.moodle.org/dev/Core_APIs");
+            $filecontent = @file_get_contents("https://docs.moodle.org/dev/Core_APIs");
             if (!$filecontent) {
                 $filecontent = file_get_contents($CFG->dirroot . '/local/moodlecheck/rules/coreapis.txt');
             }
-            preg_match_all('|<span class="mw-headline".*>.*API\s*\((.*)\)\s*</span>|i', $filecontent, $matches);
+            preg_match_all('|<span\s*.*\s*class="mw-headline".*>.*API\s*\((.*)\)\s*</span>|i', $filecontent, $matches);
             foreach ($matches[1] as $match) {
                 $allcategories[] = trim(strip_tags(strtolower($match)));
             }
