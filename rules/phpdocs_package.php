@@ -184,11 +184,11 @@ function &local_moodlecheck_get_plugins() {
 /**
  * Reads the list of Core APIs from internet (or local copy) and returns the list of categories
  *
- * Also caches the list
+ * @param bool $forceoffline Disable fetching from the live docs site, useful for testing.
  *
  * @return array
  */
-function &local_moodlecheck_get_categories() {
+function &local_moodlecheck_get_categories($forceoffline = false) {
     global $CFG;
     static $allcategories = array();
     if (empty($allcategories)) {
@@ -199,8 +199,11 @@ function &local_moodlecheck_get_categories() {
             $allcategories = explode(',', $lastsavedvalue);
         } else {
             $allcategories = array();
-            $filecontent = @file_get_contents("https://docs.moodle.org/dev/Core_APIs");
-            if (!$filecontent) {
+            $filecontent = false;
+            if (!$forceoffline) {
+                $filecontent = @file_get_contents("https://docs.moodle.org/dev/Core_APIs");
+            }
+            if (empty($filecontent)) {
                 $filecontent = file_get_contents($CFG->dirroot . '/local/moodlecheck/rules/coreapis.txt');
             }
             preg_match_all('|<span\s*.*\s*class="mw-headline".*>.*API\s*\((.*)\)\s*</span>|i', $filecontent, $matches);

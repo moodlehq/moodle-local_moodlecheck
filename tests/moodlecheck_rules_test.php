@@ -206,5 +206,12 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         foreach ($expected as $category) {
             $this->assertContains($category, $allowed);
         }
+
+        // Also check that the locally cached copy is still up to date.
+        $allowed = local_moodlecheck_get_categories(true);
+
+        foreach ($expected as $category) {
+            $this->assertContains($category, $allowed);
+        }
     }
 }
