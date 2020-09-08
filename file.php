@@ -187,10 +187,14 @@ class local_moodlecheck_file {
             $this->classes = array();
             $tokens = &$this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
-                if (($this->tokens[$tid][0] == T_CLASS) && ($this->previous_nonspace_token($tid) !== "::")) {
-                    // Skip anonymous classes.
-                    if (($this->previous_nonspace_token($tid) == 'new') and
-                            ($this->next_nonspace_token($tid) == 'extends')) {
+                if ($this->tokens[$tid][0] == T_CLASS) {
+                    if ($this->previous_nonspace_token($tid) === "::") {
+                        // Skip use of the ::class special constant.
+                        continue;
+                    }
+
+                    if ($this->previous_nonspace_token($tid) == 'new' && $this->next_nonspace_token($tid) == 'extends') {
+                        // Skip anonymous classes.
                         continue;
                     }
                     $class = new stdClass();
