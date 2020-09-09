@@ -214,8 +214,24 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
     public function anonymous_class_provider(): array {
         $rootpath  = 'local/moodlecheck/tests/fixtures/anonymous';
         return [
+            'return new class {' => [
+                "{$rootpath}/anonymous.php",
+                false,
+            ],
             'return new class extends parentclass {' => [
                 "{$rootpath}/extends.php",
+                false,
+            ],
+            'return new class implements someinterface {' => [
+                "{$rootpath}/implements.php",
+                false,
+            ],
+            'return new class extends parentclass implements someinterface {' => [
+                "{$rootpath}/extendsandimplements.php",
+                false,
+            ],
+            '$value = new class {' => [
+                "{$rootpath}/assigned.php",
                 false,
             ],
             'class someclass extends parentclass {' => [

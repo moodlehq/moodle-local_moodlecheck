@@ -193,9 +193,23 @@ class local_moodlecheck_file {
                         continue;
                     }
 
-                    if ($this->previous_nonspace_token($tid) == 'new' && $this->next_nonspace_token($tid) == 'extends') {
-                        // Skip anonymous classes.
-                        continue;
+                    if ($this->previous_nonspace_token($tid) == 'new') {
+                        // This looks to be an anonymous class.
+
+                        if ($this->next_nonspace_token($tid) == '{') {
+                            // An anonymous class in the format `new class {`.
+                            continue;
+                        }
+
+                        if ($this->next_nonspace_token($tid) == 'extends') {
+                            // An anonymous class in the format `new class extends otherclasses {`.
+                            continue;
+                        }
+
+                        if ($this->next_nonspace_token($tid) == 'implements') {
+                            // An anonymous class in the format `new class implements someinterface {`.
+                            continue;
+                        }
                     }
                     $class = new stdClass();
                     $class->tid = $tid;
