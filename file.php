@@ -187,7 +187,30 @@ class local_moodlecheck_file {
             $this->classes = array();
             $tokens = &$this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
-                if (($this->tokens[$tid][0] == T_CLASS) && ($this->previous_nonspace_token($tid) !== "::")) {
+                if ($this->tokens[$tid][0] == T_CLASS) {
+                    if ($this->previous_nonspace_token($tid) === "::") {
+                        // Skip use of the ::class special constant.
+                        continue;
+                    }
+
+                    if ($this->previous_nonspace_token($tid) == 'new') {
+                        // This looks to be an anonymous class.
+
+                        if ($this->next_nonspace_token($tid) == '{') {
+                            // An anonymous class in the format `new class {`.
+                            continue;
+                        }
+
+                        if ($this->next_nonspace_token($tid) == 'extends') {
+                            // An anonymous class in the format `new class extends otherclasses {`.
+                            continue;
+                        }
+
+                        if ($this->next_nonspace_token($tid) == 'implements') {
+                            // An anonymous class in the format `new class implements someinterface {`.
+                            continue;
+                        }
+                    }
                     $class = new stdClass();
                     $class->tid = $tid;
                     $class->name = $this->next_nonspace_token($tid);

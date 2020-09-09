@@ -26,7 +26,6 @@
 
 defined('MOODLE_INTERNAL') || die(); // Remove this to use me out from Moodle.
 
-
 class local_moodlecheck_rules_testcase extends advanced_testcase {
 
     public function setUp() {
@@ -213,5 +212,61 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         foreach ($expected as $category) {
             $this->assertContains($category, $allowed);
         }
+    }
+
+    /**
+     * Verify that anonymous classes do not require phpdoc class blocks.
+     *
+     * @dataProvider anonymous_class_provider
+     * @param   string $path
+     * @param   bool $expectclassesdocumentedfail Whether the
+     */
+    public function test_phpdoc_anonymous_class_docblock(string $path, bool $expectclassesdocumentedfail) {
+        global $PAGE;
+
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $checkpath = new local_moodlecheck_path($path, null);
+        $result = $output->display_path($checkpath, 'xml');
+
+        if ($expectclassesdocumentedfail) {
+            $this->assertContains('classesdocumented', $result);
+        } else {
+            $this->assertNotContains('classesdocumented', $result);
+        }
+    }
+
+    /**
+     * Data provider for anonymous classes tests.
+     *
+     * @return  array
+     */
+    public function anonymous_class_provider(): array {
+        $rootpath  = 'local/moodlecheck/tests/fixtures/anonymous';
+        return [
+            'return new class {' => [
+                "{$rootpath}/anonymous.php",
+                false,
+            ],
+            'return new class extends parentclass {' => [
+                "{$rootpath}/extends.php",
+                false,
+            ],
+            'return new class implements someinterface {' => [
+                "{$rootpath}/implements.php",
+                false,
+            ],
+            'return new class extends parentclass implements someinterface {' => [
+                "{$rootpath}/extendsandimplements.php",
+                false,
+            ],
+            '$value = new class {' => [
+                "{$rootpath}/assigned.php",
+                false,
+            ],
+            'class someclass extends parentclass {' => [
+                "{$rootpath}/named.php",
+                true,
+            ],
+        ];
     }
 }
