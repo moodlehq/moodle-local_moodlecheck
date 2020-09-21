@@ -1,3 +1,11 @@
+Moodle PHPdoc Checker
+=====================
+
+[![Build Status](https://travis-ci.com/moodlehq/moodle-local_moodlecheck.svg?branch=master)](https://travis-ci.com/moodlehq/moodle-local_moodlecheck)
+
+Installation:
+-------------
+
 Install the source into the local/moodlecheck directory in your moodle
 
 Log in as admin and select:
@@ -7,7 +15,7 @@ Settings
     Development
       Moodle PHPdoc check
 
-enter paths to check and select rules to use.
+Enter paths to check and select rules to use.
 
 Customization:
 --------------
