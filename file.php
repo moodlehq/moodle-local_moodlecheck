@@ -1150,7 +1150,7 @@ class local_moodlecheck_phpdocs {
         if ($substring === null) {
             return $line0;
         } else {
-            $chunks = preg_split('!' . $substring . '!', $this->originaltoken[1]);
+            $chunks = preg_split('!' . preg_quote($substring, '!') . '!', $this->originaltoken[1]);
             if (count($chunks) > 1) {
                 $lines = preg_split('/\n/', $chunks[0]);
                 return $line0 + count($lines) - 1;
