@@ -182,7 +182,7 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $this->assertStringContainsString('It must match {@link valid URL} or {@see valid FQSEN}', $result);
         $this->assertStringNotContainsString('{@link https://moodle.org}', $result);
         $this->assertStringNotContainsString('{@see has_capability}', $result);
-        $this->assertStringNotContainsString('baby}', $result);
+        $this->assertStringNotContainsString('ba8by}', $result);
     }
 
     /**

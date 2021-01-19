@@ -57,7 +57,7 @@ class fixturing_inline {
      *
      * To know more, visit {@link https://moodle.org} for Moodle info.
      * To know more, take a look to {@see has_capability} about permissions.
-     * And verify that crazy {@see \so-me\com-plex\th_ing::$come->baby()} are ok too.
+     * And verify that crazy {@see \so-me\com-plex\th_ing::$come->ba8by()} are ok too.
      */
     public function correct_inline_tags() {
         echo "done!";
