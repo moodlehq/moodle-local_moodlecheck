@@ -28,7 +28,7 @@ defined('MOODLE_INTERNAL') || die(); // Remove this to use me out from Moodle.
 
 class local_moodlecheck_rules_testcase extends advanced_testcase {
 
-    public function setUp() {
+    public function setUp(): void {
         global $CFG;
         parent::setUp();
         // Add the moodlecheck machinery.
@@ -69,10 +69,10 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
                 '</file>');
         $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
         // Also verify that contents do not include any problem with line 42 / classesdocumented. Use simple string matching here.
-        $this->assertContains('line="20"', $result);
-        $this->assertContains('packagevalid', $result);
-        $this->assertNotContains('line="42"', $result);
-        $this->assertNotContains('classesdocumented', $result);
+        $this->assertStringContainsString('line="20"', $result);
+        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertStringNotContainsString('line="42"', $result);
+        $this->assertStringNotContainsString('classesdocumented', $result);
     }
 
     /**
@@ -86,8 +86,8 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
 
         $result = $output->display_path($path, 'xml');
 
-        $this->assertNotContains('classeshavecopyright', $result);
-        $this->assertNotContains('classeshavelicense', $result);
+        $this->assertStringNotContainsString('classeshavecopyright', $result);
+        $this->assertStringNotContainsString('classeshavelicense', $result);
     }
 
     /**
@@ -110,15 +110,15 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
                 '</file>');
         $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
         // Also verify various bits by content.
-        $this->assertContains('packagevalid', $result);
-        $this->assertContains('Invalid phpdocs tag @small', $result);
-        $this->assertContains('Invalid phpdocs tag @zzzing', $result);
-        $this->assertContains('Invalid phpdocs tag @inheritdoc', $result);
-        $this->assertContains('Incorrect path for phpdocs tag @covers', $result);
-        $this->assertContains('Incorrect path for phpdocs tag @dataProvider', $result);
-        $this->assertContains('Incorrect path for phpdocs tag @group', $result);
-        $this->assertNotContains('@deprecated', $result);
-        $this->assertNotContains('@codingStandardsIgnoreLine', $result);
+        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertStringContainsString('Invalid phpdocs tag @small', $result);
+        $this->assertStringContainsString('Invalid phpdocs tag @zzzing', $result);
+        $this->assertStringContainsString('Invalid phpdocs tag @inheritdoc', $result);
+        $this->assertStringContainsString('Incorrect path for phpdocs tag @covers', $result);
+        $this->assertStringContainsString('Incorrect path for phpdocs tag @dataProvider', $result);
+        $this->assertStringContainsString('Incorrect path for phpdocs tag @group', $result);
+        $this->assertStringNotContainsString('@deprecated', $result);
+        $this->assertStringNotContainsString('@codingStandardsIgnoreLine', $result);
     }
 
     /**
@@ -141,15 +141,15 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
                 '</file>');
         $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
         // Also verify various bits by content.
-        $this->assertContains('packagevalid', $result);
-        $this->assertContains('Invalid phpdocs tag @small', $result);
-        $this->assertContains('Invalid phpdocs tag @zzzing', $result);
-        $this->assertContains('Invalid phpdocs tag @inheritdoc', $result);
-        $this->assertNotContains('Incorrect path for phpdocs tag @covers', $result);
-        $this->assertNotContains('Incorrect path for phpdocs tag @dataProvider', $result);
-        $this->assertNotContains('Incorrect path for phpdocs tag @group', $result);
-        $this->assertNotContains('@deprecated', $result);
-        $this->assertNotContains('@codingStandardsIgnoreLine', $result);
+        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertStringContainsString('Invalid phpdocs tag @small', $result);
+        $this->assertStringContainsString('Invalid phpdocs tag @zzzing', $result);
+        $this->assertStringContainsString('Invalid phpdocs tag @inheritdoc', $result);
+        $this->assertStringNotContainsString('Incorrect path for phpdocs tag @covers', $result);
+        $this->assertStringNotContainsString('Incorrect path for phpdocs tag @dataProvider', $result);
+        $this->assertStringNotContainsString('Incorrect path for phpdocs tag @group', $result);
+        $this->assertStringNotContainsString('@deprecated', $result);
+        $this->assertStringNotContainsString('@codingStandardsIgnoreLine', $result);
     }
 
     /**
@@ -172,17 +172,17 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
                 '</file>');
         $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
         // Also verify various bits by content.
-        $this->assertContains('packagevalid', $result);
-        $this->assertContains('Invalid inline phpdocs tag @param found', $result);
-        $this->assertContains('Invalid inline phpdocs tag @throws found', $result);
-        $this->assertContains('Inline phpdocs tag {@link tags have to be 1 url} with incorrect', $result);
-        $this->assertContains('Inline phpdocs tag {@see must be 1 word only} with incorrect', $result);
-        $this->assertContains('Inline phpdocs tag {@see $this-&gt;tagrules[&#039;url&#039;]} with incorrect', $result);
-        $this->assertContains('Inline phpdocs tag not enclosed with curly brackets @see found', $result);
-        $this->assertContains('It must match {@link valid URL} or {@see valid FQSEN}', $result);
-        $this->assertNotContains('{@link https://moodle.org}', $result);
-        $this->assertNotContains('{@see has_capability}', $result);
-        $this->assertNotContains('baby}', $result);
+        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertStringContainsString('Invalid inline phpdocs tag @param found', $result);
+        $this->assertStringContainsString('Invalid inline phpdocs tag @throws found', $result);
+        $this->assertStringContainsString('Inline phpdocs tag {@link tags have to be 1 url} with incorrect', $result);
+        $this->assertStringContainsString('Inline phpdocs tag {@see must be 1 word only} with incorrect', $result);
+        $this->assertStringContainsString('Inline phpdocs tag {@see $this-&gt;tagrules[&#039;url&#039;]} with incorrect', $result);
+        $this->assertStringContainsString('Inline phpdocs tag not enclosed with curly brackets @see found', $result);
+        $this->assertStringContainsString('It must match {@link valid URL} or {@see valid FQSEN}', $result);
+        $this->assertStringNotContainsString('{@link https://moodle.org}', $result);
+        $this->assertStringNotContainsString('{@see has_capability}', $result);
+        $this->assertStringNotContainsString('ba8by}', $result);
     }
 
     /**
@@ -229,9 +229,9 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $result = $output->display_path($checkpath, 'xml');
 
         if ($expectclassesdocumentedfail) {
-            $this->assertContains('classesdocumented', $result);
+            $this->assertStringContainsString('classesdocumented', $result);
         } else {
-            $this->assertNotContains('classesdocumented', $result);
+            $this->assertStringNotContainsString('classesdocumented', $result);
         }
     }
 
