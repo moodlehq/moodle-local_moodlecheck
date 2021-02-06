@@ -68,6 +68,13 @@ before_install:
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
   - export PATH="$(cd ci/bin; pwd):$(cd ci/vendor/bin; pwd):$PATH"
+  - >
+    if [ -n "$DOCKER_USER" ] && [ -n "$DOCKER_TOKEN" ]; then
+        echo "$DOCKER_TOKEN" | docker login -u "$DOCKER_USER" --password-stdin
+        echo "Using authenticated connection (no pull limits)"
+    else
+        echo "Using unauthenticated docker (pull limits may apply). Setup DOCKER_USER and DOCKER_TOKEN if needed."
+    fi
 
 install:
   - moodle-plugin-ci install
@@ -76,7 +83,7 @@ script:
   - moodle-plugin-ci phplint
   - moodle-plugin-ci phpcpd
   - moodle-plugin-ci phpmd
-  - moodle-plugin-ci codechecker
+  - moodle-plugin-ci codechecker --max-warnings 0
   - moodle-plugin-ci validate
   - moodle-plugin-ci savepoints
   - moodle-plugin-ci mustache
