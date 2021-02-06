@@ -24,7 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-local_moodlecheck_registry::add_rule('noemptysecondline')->set_callback('local_moodlecheck_noemptysecondline')->set_severity('warning');
+local_moodlecheck_registry::add_rule('noemptysecondline')->set_callback('local_moodlecheck_noemptysecondline')
+    ->set_severity('warning');
 local_moodlecheck_registry::add_rule('filephpdocpresent')->set_callback('local_moodlecheck_filephpdocpresent');
 local_moodlecheck_registry::add_rule('classesdocumented')->set_callback('local_moodlecheck_classesdocumented');
 local_moodlecheck_registry::add_rule('functionsdocumented')->set_callback('local_moodlecheck_functionsdocumented');
@@ -40,8 +41,10 @@ local_moodlecheck_registry::add_rule('definedoccorrect')->set_callback('local_mo
 local_moodlecheck_registry::add_rule('filehascopyright')->set_callback('local_moodlecheck_filehascopyright');
 local_moodlecheck_registry::add_rule('filehaslicense')->set_callback('local_moodlecheck_filehaslicense');
 local_moodlecheck_registry::add_rule('phpdocsinvalidtag')->set_callback('local_moodlecheck_phpdocsinvalidtag');
-local_moodlecheck_registry::add_rule('phpdocsnotrecommendedtag')->set_callback('local_moodlecheck_phpdocsnotrecommendedtag')->set_severity('warning');
-local_moodlecheck_registry::add_rule('phpdocsinvalidpathtag')->set_callback('local_moodlecheck_phpdocsinvalidpathtag')->set_severity('warning');
+local_moodlecheck_registry::add_rule('phpdocsnotrecommendedtag')->set_callback('local_moodlecheck_phpdocsnotrecommendedtag')
+    ->set_severity('warning');
+local_moodlecheck_registry::add_rule('phpdocsinvalidpathtag')->set_callback('local_moodlecheck_phpdocsinvalidpathtag')
+    ->set_severity('warning');
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('local_moodlecheck_phpdoccontentsinlinetag');
@@ -444,7 +447,9 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                 }
             }
             if (!$match) {
-                $errors[] = array('line' => $function->phpdocs->get_line_number($file, '@param'), 'function' => $function->fullname);
+                $errors[] = array(
+                    'line' => $function->phpdocs->get_line_number($file, '@param'),
+                    'function' => $function->fullname);
             }
         }
     }
@@ -463,7 +468,9 @@ function local_moodlecheck_variableshasvar(local_moodlecheck_file $file) {
         if ($variable->phpdocs !== false) {
             $documentedvars = $variable->phpdocs->get_params('var', 2);
             if (!count($documentedvars) || $documentedvars[0][0] == 'type') {
-                $errors[] = array('line' => $variable->phpdocs->get_line_number($file, '@var'), 'variable' => $variable->fullname);
+                $errors[] = array(
+                    'line' => $variable->phpdocs->get_line_number($file, '@var'),
+                    'variable' => $variable->fullname);
             }
         }
     }
@@ -480,7 +487,8 @@ function local_moodlecheck_definedoccorrect(local_moodlecheck_file $file) {
     $errors = array();
     foreach ($file->get_defines() as $object) {
         if ($object->phpdocs !== false) {
-            if (!preg_match('/^\s*'.$object->name.'\s+-\s+(.*)/', $object->phpdocs->get_description(), $matches) || !strlen(trim($matches[1]))) {
+            if (!preg_match('/^\s*'.$object->name.'\s+-\s+(.*)/', $object->phpdocs->get_description(), $matches) ||
+                    !strlen(trim($matches[1]))) {
                 $errors[] = array('line' => $object->phpdocs->get_line_number($file), 'object' => $object->fullname);
             }
         }
