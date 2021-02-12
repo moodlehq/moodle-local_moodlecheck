@@ -721,10 +721,13 @@ class local_moodlecheck_file {
                         // This is the doc comment to the following class/function.
                         $found = false;
                     }
-                    // } else {
                     // TODO: change to debugging.
-                    // echo "************ Unknown token following the first phpdocs in {$this->filepath}: id = {$nexttoken[0]}, text = '{$nexttoken[1]}' **************<br>".
-                    // }
+                    // } else {
+                    // echo "************ "
+                    // echo "Unknown token following the first phpdocs in "
+                    // echo "{$this->filepath}: id = {$nexttoken[0]}, text = '{$nexttoken[1]}'"
+                    // echo " **************<br>"
+                    // }.
                 }
             }
             $this->filephpdocs = $this->get_phpdocs($found);
