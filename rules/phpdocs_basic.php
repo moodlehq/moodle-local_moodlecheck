@@ -70,6 +70,11 @@ function local_moodlecheck_noemptysecondline(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_filephpdocpresent(local_moodlecheck_file $file) {
+    // This rule doesn't apply if the file is 1-artifact file (see #66).
+    $artifacts = $file->get_artifacts();
+    if (count($artifacts[T_CLASS]) + count($artifacts[T_INTERFACE]) + count($artifacts[T_TRAIT]) === 1) {
+        return array();
+    }
     if ($file->find_file_phpdocs() === false) {
         $tokens = &$file->get_tokens();
         for ($i = 0; $i < 30; $i++) {
