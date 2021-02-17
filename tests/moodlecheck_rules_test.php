@@ -76,6 +76,45 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
     }
 
     /**
+     * Assert that the file block is required for old files, and not for 1-artifact ones.
+     */
+    public function test_file_block_required() {
+        global $PAGE;
+
+        $output = $PAGE->get_renderer('local_moodlecheck');
+
+        // A file with multiple classes, require the file phpdoc block.
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_yes1.php', null);
+        $result = $output->display_path($path, 'xml');
+        $this->assertStringContainsString('File-level phpdocs block is not found', $result);
+
+        // A file without any class (library-like), require the file phpdoc block.
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_yes2.php', null);
+        $result = $output->display_path($path, 'xml');
+        $this->assertStringContainsString('File-level phpdocs block is not found', $result);
+
+        // A file with one interface and one trait, require the file phpdoc block.
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_yes3.php', null);
+        $result = $output->display_path($path, 'xml');
+        $this->assertStringContainsString('File-level phpdocs block is not found', $result);
+
+        // A file with only one class, do not require the file phpdoc block.
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_no1.php', null);
+        $result = $output->display_path($path, 'xml');
+        $this->assertStringNotContainsString('File-level phpdocs block is not found', $result);
+
+        // A file with only one interface, do not require the file phpdoc block.
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_no2.php', null);
+        $result = $output->display_path($path, 'xml');
+        $this->assertStringNotContainsString('File-level phpdocs block is not found', $result);
+
+        // A file with only one trait, do not require the file phpdoc block.
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_no3.php', null);
+        $result = $output->display_path($path, 'xml');
+        $this->assertStringNotContainsString('File-level phpdocs block is not found', $result);
+    }
+
+    /**
      * Assert that classes do not need to have any particular phpdocs tags.
      */
     public function test_classtags() {

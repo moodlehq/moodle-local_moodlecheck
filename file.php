@@ -38,6 +38,8 @@ class local_moodlecheck_file {
     protected $tokens = null;
     protected $tokenscount = 0;
     protected $classes = null;
+    protected $interfaces = null;
+    protected $traits = null;
     protected $functions = null;
     protected $filephpdocs = null;
     protected $allphpdocs = null;
@@ -61,6 +63,8 @@ class local_moodlecheck_file {
         $this->tokens = null;
         $this->tokenscount = 0;
         $this->classes = null;
+        $this->interfaces = null;
+        $this->traits = null;
         $this->functions = null;
         $this->filephpdocs = null;
         $this->allphpdocs = null;
@@ -172,22 +176,27 @@ class local_moodlecheck_file {
     }
 
     /**
-     * Returns all classes found in file
+     * Returns all artifacts (classes, interfaces, traits) found in file
      *
-     * Returns array of objects where each element represents a class:
-     * $class->name : name of the class
-     * $class->tagpair : array of two elements: id of token { for the class and id of token } (false if not found)
-     * $class->phpdocs : phpdocs for this class (instance of local_moodlecheck_phpdocs or false if not found)
-     * $class->boundaries : array with ids of first and last token for this class
+     * Returns 3 arrays (classes, interfaces and traits) of objects where each element represents an artifact:
+     * ->type : token type of the artifact (T_CLASS, T_INTERFACE, T_TRAIT)
+     * ->name : name of the artifact
+     * ->tagpair : array of two elements: id of token { for the class and id of token } (false if not found)
+     * ->phpdocs : phpdocs for this artifact (instance of local_moodlecheck_phpdocs or false if not found)
+     * ->boundaries : array with ids of first and last token for this artifact.
      *
-     * @return array
+     * @return array with 3 elements (classes, interfaces & traits), each being an array.
      */
-    public function &get_classes() {
+    public function get_artifacts() {
+        $types = array(T_CLASS, T_INTERFACE, T_TRAIT); // We are interested on these.
+        $artifacts = array_combine($types, $types);
         if ($this->classes === null) {
             $this->classes = array();
+            $this->interfaces = array();
+            $this->traits = array();
             $tokens = &$this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
-                if ($this->tokens[$tid][0] == T_CLASS) {
+                if (isset($artifacts[$this->tokens[$tid][0]])) {
                     if ($this->previous_nonspace_token($tid) === "::") {
                         // Skip use of the ::class special constant.
                         continue;
@@ -211,17 +220,41 @@ class local_moodlecheck_file {
                             continue;
                         }
                     }
-                    $class = new stdClass();
-                    $class->tid = $tid;
-                    $class->name = $this->next_nonspace_token($tid);
-                    $class->phpdocs = $this->find_preceeding_phpdoc($tid);
-                    $class->tagpair = $this->find_tag_pair($tid, '{', '}');
-                    $class->boundaries = $this->find_object_boundaries($class);
-                    $this->classes[] = $class;
+                    $artifact = new stdClass();
+                    $artifact->type = $artifacts[$this->tokens[$tid][0]];
+                    $artifact->tid = $tid;
+                    $artifact->name = $this->next_nonspace_token($tid);
+                    $artifact->phpdocs = $this->find_preceeding_phpdoc($tid);
+                    $artifact->tagpair = $this->find_tag_pair($tid, '{', '}');
+                    $artifact->boundaries = $this->find_object_boundaries($artifact);
+                    switch ($artifact->type) {
+                        case T_CLASS:
+                            $this->classes[] = $artifact;
+                            break;
+                        case T_INTERFACE:
+                            $this->interfaces[] = $artifact;
+                            break;
+                        case T_TRAIT:
+                            $this->traits[] = $artifact;
+                            break;
+                    }
                 }
             }
         }
-        return $this->classes;
+        return array(T_CLASS => $this->classes, T_INTERFACE => $this->interfaces, T_TRAIT => $this->traits);
+    }
+
+    /**
+     * Returns all classes found in file
+     *
+     * Returns array of objects where each element represents a class:
+     * $class->name : name of the class
+     * $class->tagpair : array of two elements: id of token { for the class and id of token } (false if not found)
+     * $class->phpdocs : phpdocs for this class (instance of local_moodlecheck_phpdocs or false if not found)
+     * $class->boundaries : array with ids of first and last token for this class
+     */
+    public function &get_classes() {
+        return $this->get_artifacts()[T_CLASS];
     }
 
     /**
