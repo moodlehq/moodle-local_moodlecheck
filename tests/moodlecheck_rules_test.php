@@ -63,11 +63,11 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $xmlresult->loadXML($result);
 
         // Let's verify we have received a xml with file top element and 2 children.
-        $expect = new DOMDocument();
-        $expect->loadXML('<file name="">' .
-                str_repeat('<error line="" severity="" message="" source=""/>', 2) .
-                '</file>');
-        $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
+        $xpath = new DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(2, $found->length);
+
         // Also verify that contents do not include any problem with line 42 / classesdocumented. Use simple string matching here.
         $this->assertStringContainsString('line="20"', $result);
         $this->assertStringContainsString('packagevalid', $result);
@@ -142,12 +142,12 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $xmlresult = new DOMDocument();
         $xmlresult->loadXML($result);
 
-        // Let's verify we have received a xml with file top element and 2 children.
-        $expect = new DOMDocument();
-        $expect->loadXML('<file name="">' .
-                str_repeat('<error line="" severity="" message="" source=""/>', 8) .
-                '</file>');
-        $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
+        // Let's verify we have received a xml with file top element and 8 children.
+        $xpath = new DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(8, $found->length);
+
         // Also verify various bits by content.
         $this->assertStringContainsString('packagevalid', $result);
         $this->assertStringContainsString('Invalid phpdocs tag @small', $result);
@@ -173,12 +173,12 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $xmlresult = new DOMDocument();
         $xmlresult->loadXML($result);
 
-        // Let's verify we have received a xml with file top element and 2 children.
-        $expect = new DOMDocument();
-        $expect->loadXML('<file name="">' .
-                str_repeat('<error line="" severity="" message="" source=""/>', 5) .
-                '</file>');
-        $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
+        // Let's verify we have received a xml with file top element and 5 children.
+        $xpath = new DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(5, $found->length);
+
         // Also verify various bits by content.
         $this->assertStringContainsString('packagevalid', $result);
         $this->assertStringContainsString('Invalid phpdocs tag @small', $result);
@@ -204,12 +204,12 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $xmlresult = new DOMDocument();
         $xmlresult->loadXML($result);
 
-        // Let's verify we have received a xml with file top element and 2 children.
-        $expect = new DOMDocument();
-        $expect->loadXML('<file name="">' .
-                str_repeat('<error line="" severity="" message="" source=""/>', 8) .
-                '</file>');
-        $this->assertEqualXMLStructure($expect->firstChild, $xmlresult->firstChild, true);
+        // Let's verify we have received a xml with file top element and 8 children.
+        $xpath = new DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(8, $found->length);
+
         // Also verify various bits by content.
         $this->assertStringContainsString('packagevalid', $result);
         $this->assertStringContainsString('Invalid inline phpdocs tag @param found', $result);
