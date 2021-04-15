@@ -146,10 +146,20 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $xpath = new DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(8, $found->length);
+        $this->assertSame(18, $found->length);
 
         // Also verify various bits by content.
         $this->assertStringContainsString('packagevalid', $result);
+        $this->assertStringContainsString('incomplete_param_annotation has incomplete parameters list', $result);
+        $this->assertStringContainsString('missing_param_defintion has incomplete parameters list', $result);
+        $this->assertStringContainsString('missing_param_annotation has incomplete parameters list', $result);
+        $this->assertStringContainsString('incomplete_param_definition has incomplete parameters list', $result);
+        $this->assertStringContainsString('incomplete_param_annotation1 has incomplete parameters list', $result);
+        $this->assertStringContainsString('mismatch_param_types has incomplete parameters list', $result);
+        $this->assertStringContainsString('mismatch_param_types1 has incomplete parameters list', $result);
+        $this->assertStringContainsString('mismatch_param_types2 has incomplete parameters list', $result);
+        $this->assertStringContainsString('mismatch_param_types3 has incomplete parameters list', $result);
+        $this->assertStringContainsString('incomplete_return_annotation has incomplete parameters list', $result);
         $this->assertStringContainsString('Invalid phpdocs tag @small', $result);
         $this->assertStringContainsString('Invalid phpdocs tag @zzzing', $result);
         $this->assertStringContainsString('Invalid phpdocs tag @inheritdoc', $result);
@@ -158,6 +168,8 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $this->assertStringContainsString('Incorrect path for phpdocs tag @group', $result);
         $this->assertStringNotContainsString('@deprecated', $result);
         $this->assertStringNotContainsString('@codingStandardsIgnoreLine', $result);
+        $this->assertStringNotContainsString('correct_param_types', $result);
+        $this->assertStringNotContainsString('correct_return_type', $result);
     }
 
     /**
