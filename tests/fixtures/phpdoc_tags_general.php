@@ -62,4 +62,172 @@ class fixturing_general {
     public function all_invalid_tags() {
         echo "yoy!";
     }
+
+    /**
+     * Incomplete param annotation (type is missing).
+     *
+     * @param $one
+     * @param $two
+     */
+    public function incomplete_param_annotation($one, $two) {
+        echo "yoy!";
+    }
+
+    /**
+     * Missing param definition.
+     *
+     * @param string $one
+     * @param bool $two
+     */
+    public function missing_param_defintion() {
+        echo "yoy!";
+    }
+
+    /**
+     * Missing param annotation.
+     */
+    public function missing_param_annotation(string $one, bool $two) {
+        echo "yoy!";
+    }
+
+    /**
+     * Incomplete param definition.
+     *
+     * @param string $one
+     * @param bool $two
+     */
+    public function incomplete_param_definition(string $one) {
+        echo "yoy!";
+    }
+
+    /**
+     * Incomplete param annotation (annotation is missing).
+     *
+     * @param string $one
+     */
+    public function incomplete_param_annotation1(string $one, bool $two) {
+        echo "yoy!";
+    }
+
+    /**
+     * Mismatch param types.
+     *
+     * @param string $one
+     * @param bool $two
+     */
+    public function mismatch_param_types(string $one, array $two = []) {
+        echo "yoy!";
+    }
+
+    /**
+     * Mismatch param types.
+     *
+     * @param string|bool $one
+     * @param bool $two
+     */
+    public function mismatch_param_types1(string $one, bool $two) {
+        echo "yoy!";
+    }
+
+    /**
+     * Mismatch param types.
+     *
+     * @param string|bool $one
+     * @param bool $params
+     */
+    public function mismatch_param_types2(string $one, ...$params) {
+        echo "yoy!";
+    }
+
+    /**
+     * Mismatch param types.
+     *
+     * @param string $one
+     * @param int[] $params
+     */
+    public function mismatch_param_types3(string $one, int $params) {
+        echo "yoy!";
+    }
+
+    /**
+     * Correct param types.
+     *
+     * @param string|bool $one
+     * @param bool $two
+     * @param array $three
+     */
+    public function correct_param_types($one, bool $two, array $three) {
+        echo "yay!";
+    }
+
+    /**
+     * Correct param types.
+     *
+     * @param string|bool $one
+     * @param bool $two
+     * @param array $three
+     */
+    public function correct_param_types1($one, bool $two, array $three) {
+        echo "yay!";
+    }
+
+    /**
+     * Correct param types.
+     *
+     * @param string $one
+     * @param bool $two
+     */
+    public function correct_param_types2($one, $two) {
+        echo "yay!";
+    }
+
+    /**
+     * Correct param types.
+     *
+     * @param string|null $one
+     * @param bool $two
+     * @param array $three
+     */
+    public function correct_param_types3(?string $one = null, bool $two, array $three) {
+        echo "yay!";
+    }
+
+    /**
+     * Correct param types.
+     *
+     * @param string|null $one
+     * @param bool $two
+     * @param int[] $three
+     */
+    public function correct_param_types4($one = null, bool $two, array $three) {
+        echo "yay!";
+    }
+
+    /**
+     * Correct param types.
+     *
+     * @param string $one
+     * @param mixed ...$params one or more params
+     */
+    public function correct_param_types5(string $one, ...$params) {
+        echo "yay!";
+    }
+
+    /**
+     * Incomplete return annotation (type is missing).
+     *
+     * @return
+     */
+    public function incomplete_return_annotation() {
+        echo "yoy!";
+    }
+
+    /**
+     * Correct return type.
+     *
+     * @return string
+     */
+    public function correct_return_type(): string {
+        return "yay!";
+    }
 }

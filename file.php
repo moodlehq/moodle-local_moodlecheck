@@ -310,12 +310,17 @@ class local_moodlecheck_file {
                     foreach ($function->argumentstokens as $argtokens) {
                         $type = null;
                         $variable = null;
+                        $splat = false;
                         for ($j = 0; $j < count($argtokens); $j++) {
                             if ($argtokens[$j][0] == T_VARIABLE) {
-                                $variable = $argtokens[$j][1];
+                                $variable = ($splat) ? '...'.$argtokens[$j][1] : $argtokens[$j][1];
                                 break;
-                            } else if ($argtokens[$j][0] != T_WHITESPACE && $argtokens[$j][1] != '&') {
+                            } else if ($argtokens[$j][0] != T_WHITESPACE &&
+                                    $argtokens[$j][0] != T_ELLIPSIS && $argtokens[$j][1] != '&') {
                                 $type = $argtokens[$j][1];
+                            } else if ($argtokens[$j][0] == T_ELLIPSIS) {
+                                // Variadic function.
+                                $splat = true;
                             }
                         }
                         $function->arguments[] = array($type, $variable);
