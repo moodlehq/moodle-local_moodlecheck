@@ -16,13 +16,13 @@ cache:
 
 jobs:
   include:
-    - php: 7.4
+    - php: 8.0
       env: MOODLE_BRANCH=master            DB=pgsql
-    - php: 7.4
+    - php: 8.0
       env: MOODLE_BRANCH=master            DB=mysqli
-    - php: 7.4
+    - php: 8.0
       env: MOODLE_BRANCH=MOODLE_311_STABLE DB=pgsql
-    - php: 7.4
+    - php: 8.0
       env: MOODLE_BRANCH=MOODLE_311_STABLE DB=mysqli
     - php: 7.4
       env: MOODLE_BRANCH=MOODLE_310_STABLE DB=pgsql
@@ -64,6 +64,10 @@ jobs:
     # be executed with that PHP versions.
 
 before_install:
+  # The following line is only needed if you're going to run php8 jobs and your
+  # plugin needs xmlrpc services.
+  - if [[ ${TRAVIS_PHP_VERSION:0:1} -gt 7 ]]; then pecl install xmlrpc-beta; fi
+  - echo 'max_input_vars=5000' >> ~/.phpenv/versions/$(phpenv version-name)/etc/conf.d/travis.ini
   - phpenv config-rm xdebug.ini
   - cd ../..
   - composer create-project -n --no-dev --prefer-dist moodlehq/moodle-plugin-ci ci ^3
