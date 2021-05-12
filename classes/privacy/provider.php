@@ -26,9 +26,6 @@ namespace local_moodlecheck\privacy;
 
 defined('MOODLE_INTERNAL') || die();
 
-use core_privacy\local\legacy_polyfill;
-use core_privacy\local\metadata\null_provider;
-
 /**
  * Privacy provider for local_moodlecheck implementing null provider
  *
@@ -36,9 +33,7 @@ use core_privacy\local\metadata\null_provider;
  * @copyright   2019 Paul Holden <paulh@moodle.com>
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class provider implements null_provider {
-
-    use legacy_polyfill;
+class provider implements \core_privacy\local\metadata\null_provider {
 
     /**
      * Get the language string identifier with the component's language
@@ -46,7 +41,7 @@ class provider implements null_provider {
      *
      * @return string
      */
-    public static function _get_reason() {
+    public static function get_reason(): string {
         return 'privacy:metadata';
     }
 }
