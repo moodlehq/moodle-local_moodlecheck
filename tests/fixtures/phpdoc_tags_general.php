@@ -43,7 +43,6 @@ class fixturing_general {
      * @deprecated
      * @author
      * @todo
-     * @codingStandardsIgnoreLine
      */
     public function all_valid_tags() {
         echo "yay!";
@@ -52,6 +51,7 @@ class fixturing_general {
     /**
      * Some invalid tags, to verify they are detected.
      *
+     * @codingStandardsIgnoreLine
      * @covers
      * @dataProvider
      * @group
