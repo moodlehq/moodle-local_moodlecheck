@@ -146,7 +146,7 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $xpath = new DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(18, $found->length);
+        $this->assertSame(19, $found->length);
 
         // Also verify various bits by content.
         $this->assertStringContainsString('packagevalid', $result);
@@ -166,8 +166,8 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $this->assertStringContainsString('Incorrect path for phpdocs tag @covers', $result);
         $this->assertStringContainsString('Incorrect path for phpdocs tag @dataProvider', $result);
         $this->assertStringContainsString('Incorrect path for phpdocs tag @group', $result);
+        $this->assertStringContainsString('@codingStandardsIgnoreLine', $result);
         $this->assertStringNotContainsString('@deprecated', $result);
-        $this->assertStringNotContainsString('@codingStandardsIgnoreLine', $result);
         $this->assertStringNotContainsString('correct_param_types', $result);
         $this->assertStringNotContainsString('correct_return_type', $result);
     }
@@ -200,7 +200,6 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $this->assertStringNotContainsString('Incorrect path for phpdocs tag @dataProvider', $result);
         $this->assertStringNotContainsString('Incorrect path for phpdocs tag @group', $result);
         $this->assertStringNotContainsString('@deprecated', $result);
-        $this->assertStringNotContainsString('@codingStandardsIgnoreLine', $result);
     }
 
     /**

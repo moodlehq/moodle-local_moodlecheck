@@ -43,7 +43,6 @@ class fixturing_tests {
      * @deprecated
      * @author
      * @todo
-     * @codingStandardsIgnoreLine
      */
     public function all_valid_tags() {
         echo "yay!";
@@ -55,6 +54,7 @@ class fixturing_tests {
      * @covers
      * @dataProvider
      * @group
+     * @runTestsInSeparateProcesses
      */
     public function also_all_valid_tags() {
         echo "reyay!";

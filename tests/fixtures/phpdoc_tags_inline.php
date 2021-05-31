@@ -43,7 +43,7 @@ class fixturing_inline {
      * @deprecated
      * @author
      * @todo
-     * @codingStandardsIgnoreLine
+     * @uses
      */
     public function all_valid_tags() {
         echo "yay!";
