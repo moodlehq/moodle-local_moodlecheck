@@ -1,7 +1,7 @@
 Moodle PHPdoc Checker
 =====================
 
-[![Build Status](https://travis-ci.com/moodlehq/moodle-local_moodlecheck.svg?branch=master)](https://travis-ci.com/moodlehq/moodle-local_moodlecheck)
+[![Moodlecheck CI](https://github.com/moodlehq/moodle-local_moodlecheck/actions/workflows/ci.yml/badge.svg)](https://github.com/moodlehq/moodle-local_moodlecheck/actions/workflows/ci.yml)
 
 Installation:
 -------------
