@@ -14,17 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Privacy provider implementation for local_moodlecheck
- *
- * @package     local_moodlecheck
- * @copyright   2019 Paul Holden <paulh@moodle.com>
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 namespace local_moodlecheck\privacy;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Privacy provider for local_moodlecheck implementing null provider

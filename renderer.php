@@ -15,16 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Renderer for local_moodlecheck
- *
- * @package    local_moodlecheck
- * @copyright  2012 Marina Glancy
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
-defined('MOODLE_INTERNAL') || die;
-
-/**
  * Renderer for displaying local_moodlecheck
  *
  * @package    local_moodlecheck
