@@ -14,19 +14,20 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace local_moodlecheck;
+
+use local_moodlecheck_path;
+use local_moodlecheck_registry;
+
 /**
- * This file contains unit tests for covering "moodle" PHPDoc rules.
+ * Contains unit tests for covering "moodle" PHPDoc rules.
  *
  * @package    local_moodlecheck
- * @subpackage phpunit
- * @category   phpunit
+ * @category   test
  * @copyright  2018 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-defined('MOODLE_INTERNAL') || die(); // Remove this to use me out from Moodle.
-
-class local_moodlecheck_rules_testcase extends advanced_testcase {
+class moodlecheck_rules_test extends \advanced_testcase {
 
     public function setUp(): void {
         global $CFG;
@@ -59,11 +60,11 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $result = $output->display_path($path, 'xml');
 
         // Convert results to XML Objext.
-        $xmlresult = new DOMDocument();
+        $xmlresult = new \DOMDocument();
         $xmlresult->loadXML($result);
 
         // Let's verify we have received a xml with file top element and 2 children.
-        $xpath = new DOMXpath($xmlresult);
+        $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(2, $found->length);
@@ -139,11 +140,11 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $result = $output->display_path($path, 'xml');
 
         // Convert results to XML Objext.
-        $xmlresult = new DOMDocument();
+        $xmlresult = new \DOMDocument();
         $xmlresult->loadXML($result);
 
         // Let's verify we have received a xml with file top element and 8 children.
-        $xpath = new DOMXpath($xmlresult);
+        $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(19, $found->length);
@@ -182,11 +183,11 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $result = $output->display_path($path, 'xml');
 
         // Convert results to XML Objext.
-        $xmlresult = new DOMDocument();
+        $xmlresult = new \DOMDocument();
         $xmlresult->loadXML($result);
 
         // Let's verify we have received a xml with file top element and 5 children.
-        $xpath = new DOMXpath($xmlresult);
+        $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(5, $found->length);
@@ -212,11 +213,11 @@ class local_moodlecheck_rules_testcase extends advanced_testcase {
         $result = $output->display_path($path, 'xml');
 
         // Convert results to XML Objext.
-        $xmlresult = new DOMDocument();
+        $xmlresult = new \DOMDocument();
         $xmlresult->loadXML($result);
 
         // Let's verify we have received a xml with file top element and 8 children.
-        $xpath = new DOMXpath($xmlresult);
+        $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(8, $found->length);
