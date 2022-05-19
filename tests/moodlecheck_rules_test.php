@@ -52,6 +52,9 @@ class moodlecheck_rules_test extends \advanced_testcase {
 
     /**
      * Verify the ::class constant is not reported as phpdoc problem.
+     *
+     * @covers \local_moodlecheck_file::get_classes
+     * @covers \local_moodlecheck_file::previous_nonspace_token
      */
     public function test_constantclass() {
         global $PAGE;
@@ -78,6 +81,8 @@ class moodlecheck_rules_test extends \advanced_testcase {
 
     /**
      * Assert that the file block is required for old files, and not for 1-artifact ones.
+     *
+     * @covers ::local_moodlecheck_filephpdocpresent
      */
     public function test_file_block_required() {
         global $PAGE;
@@ -117,6 +122,9 @@ class moodlecheck_rules_test extends \advanced_testcase {
 
     /**
      * Assert that classes do not need to have any particular phpdocs tags.
+     *
+     * @covers ::local_moodlecheck_filehascopyright
+     * @covers ::local_moodlecheck_filehaslicense
      */
     public function test_classtags() {
         global $PAGE;
@@ -132,6 +140,8 @@ class moodlecheck_rules_test extends \advanced_testcase {
 
     /**
      * Verify various phpdoc tags in general directories.
+     *
+     * @covers ::local_moodlecheck_functionarguments
      */
     public function test_phpdoc_tags_general() {
         global $PAGE;
@@ -175,6 +185,10 @@ class moodlecheck_rules_test extends \advanced_testcase {
 
     /**
      * Verify various phpdoc tags in tests directories.
+     *
+     * @covers ::local_moodlecheck_phpdocsinvalidtag
+     * @covers ::local_moodlecheck_phpdocsnotrecommendedtag
+     * @covers ::local_moodlecheck_phpdocsinvalidpathtag
      */
     public function test_phpdoc_tags_tests() {
         global $PAGE;
@@ -205,6 +219,10 @@ class moodlecheck_rules_test extends \advanced_testcase {
 
     /**
      * Verify various phpdoc tags can be used inline.
+     *
+     * @covers ::local_moodlecheck_phpdocsinvalidinlinetag
+     * @covers ::local_moodlecheck_phpdocsuncurlyinlinetag
+     * @covers ::local_moodlecheck_phpdoccontentsinlinetag
      */
     public function test_phpdoc_tags_inline() {
         global $PAGE;
@@ -238,6 +256,8 @@ class moodlecheck_rules_test extends \advanced_testcase {
 
     /**
      * Test that {@see local_moodlecheck_get_categories()} returns the correct list of allowed categories.
+     *
+     * @covers ::local_moodlecheck_get_categories
      */
     public function test_local_moodlecheck_get_categories() {
 
@@ -271,6 +291,8 @@ class moodlecheck_rules_test extends \advanced_testcase {
      * @dataProvider anonymous_class_provider
      * @param   string $path
      * @param   bool $expectclassesdocumentedfail Whether the
+     *
+     * @covers \local_moodlecheck_file::get_artifacts
      */
     public function test_phpdoc_anonymous_class_docblock(string $path, bool $expectclassesdocumentedfail) {
         global $PAGE;
