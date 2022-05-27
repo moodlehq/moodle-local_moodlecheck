@@ -342,4 +342,44 @@ class moodlecheck_rules_test extends \advanced_testcase {
             ],
         ];
     }
+
+    /**
+     * Verify that empty files and files without PHP aren't processed
+     *
+     * @dataProvider empty_nophp_files_provider
+     * @param   string $path
+     *
+     * @covers \local_moodlecheck_file::validate
+     */
+    public function test_empty_nophp_files($file) {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path($file, null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Object.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 1 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(1, $found->length);
+
+        // Also verify various bits by content.
+        $this->assertStringContainsString('The file is empty or doesn&#039;t contain PHP code. Skipped.', $result);
+    }
+
+    /**
+     * Data provider for test_empty_nophp_files()
+     *
+     * @return array
+     */
+    public function empty_nophp_files_provider(): array {
+        return [
+            'empty' => ['local/moodlecheck/tests/fixtures/empty.php'],
+            'nophp' => ['local/moodlecheck/tests/fixtures/nophp.php'],
+        ];
+    }
 }

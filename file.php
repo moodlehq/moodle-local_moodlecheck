@@ -117,6 +117,18 @@ class local_moodlecheck_file {
         if (!$this->needs_validation()) {
             return $this->errors;
         }
+        // If the file doesn't have tokens, has one or misses open tag, report it as one more error and stop processing.
+        if (!$this->get_tokens() ||
+                count($this->get_tokens()) === 1 ||
+                (isset($this->get_tokens()[0][0]) && $this->get_tokens()[0][0] !== T_OPEN_TAG)) {
+            $this->errors[] = array(
+                'line' => 1,
+                'severity' => 'error',
+                'message' => get_string('error_emptynophpfile', 'local_moodlecheck'),
+                'source' => '&#x00d8;'
+            );
+            return $this->errors;
+        }
         foreach (local_moodlecheck_registry::get_enabled_rules() as $code => $rule) {
             $ruleerrors = $rule->validatefile($this);
             if (count($ruleerrors)) {
