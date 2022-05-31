@@ -139,6 +139,21 @@ class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
+     * Ensure that token_get_all() does not return PHP Warnings.
+     *
+     * @covers \local_moodlecheck_file::get_tokens
+     */
+    public function test_get_tokens() {
+        global $PAGE;
+
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/unfinished.php ', null);
+
+        $this->expectOutputString('');
+        $result = $output->display_path($path, 'xml');
+    }
+
+    /**
      * Verify various phpdoc tags in general directories.
      *
      * @covers ::local_moodlecheck_functionarguments

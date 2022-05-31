@@ -159,7 +159,7 @@ class local_moodlecheck_file {
     public function &get_tokens() {
         if ($this->tokens === null) {
             $source = file_get_contents($this->filepath);
-            $this->tokens = token_get_all($source);
+            $this->tokens = @token_get_all($source);
             $this->tokenscount = count($this->tokens);
             $inquotes = -1;
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
