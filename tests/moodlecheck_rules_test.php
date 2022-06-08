@@ -259,11 +259,13 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringContainsString('packagevalid', $result);
         $this->assertStringContainsString('Invalid inline phpdocs tag @param found', $result);
         $this->assertStringContainsString('Invalid inline phpdocs tag @throws found', $result);
-        $this->assertStringContainsString('Inline phpdocs tag {@link tags have to be 1 url} with incorrect', $result);
-        $this->assertStringContainsString('Inline phpdocs tag {@see must be 1 word only} with incorrect', $result);
+        $this->assertStringContainsString('Inline phpdocs tag {@link tags need to have a valid URL} with incorrect', $result);
         $this->assertStringContainsString('Inline phpdocs tag {@see $this-&gt;tagrules[&#039;url&#039;]} with incorrect', $result);
         $this->assertStringContainsString('Inline phpdocs tag not enclosed with curly brackets @see found', $result);
-        $this->assertStringContainsString('It must match {@link valid URL} or {@see valid FQSEN}', $result);
+        $this->assertStringContainsString(
+            'It must match {@link [valid URL] [description (optional)]} or {@see [valid FQSEN] [description (optional)]}',
+            $result
+        );
         $this->assertStringNotContainsString('{@link https://moodle.org}', $result);
         $this->assertStringNotContainsString('{@see has_capability}', $result);
         $this->assertStringNotContainsString('ba8by}', $result);

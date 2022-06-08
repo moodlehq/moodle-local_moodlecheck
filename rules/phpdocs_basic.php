@@ -317,6 +317,8 @@ function local_moodlecheck_phpdocsuncurlyinlinetag(local_moodlecheck_file $file)
 /**
  * Check that all the valid inline curly tags have correct contents.
  *
+ * @link https://docs.phpdoc.org/3.0/guide/references/phpdoc/inline-tags/link.html#link phpDocumentor@link
+ * @link https://docs.phpdoc.org/3.0/guide/references/phpdoc/tags/see.html#see          phpDocumentor@see
  * @param local_moodlecheck_file $file
  * @return array of found errors
  */
@@ -325,19 +327,20 @@ function local_moodlecheck_phpdoccontentsinlinetag(local_moodlecheck_file $file)
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         if ($curlyinlinetags = $phpdocs->get_inline_tags(true, true)) {
             foreach ($curlyinlinetags as $curlyinlinetag) {
-                // Split into tag and content.
-                list($tag, $content) = explode(' ', $curlyinlinetag, 2);
+                // Split into tag and URL/FQSEN. Limit of 3 because the 3rd part can be the description.
+                list($tag, $uriorfqsen) = explode(' ', $curlyinlinetag, 3);
                 if (in_array($tag, local_moodlecheck_phpdocs::$inlinetags)) {
                     switch ($tag) {
-                        case 'link': // Must be a correct URL.
-                            if (!filter_var($content, FILTER_VALIDATE_URL)) {
+                        case 'link':
+                            // Must be a correct URL with optional description.
+                            if (!filter_var($uriorfqsen, FILTER_VALIDATE_URL)) {
                                 $errors[] = array(
                                     'line' => $phpdocs->get_line_number($file, ' {@' . $curlyinlinetag),
                                     'tag' => '{@' . $curlyinlinetag . '}');
                             }
                             break;
                         case 'see': // Must be 1-word (with some chars allowed - FQSEN only.
-                            if (str_word_count($content, 0, '\()-_:>$012345789') !== 1) {
+                            if (str_word_count($uriorfqsen, 0, '\()-_:>$012345789') !== 1) {
                                 $errors[] = array(
                                     'line' => $phpdocs->get_line_number($file, ' {@' . $curlyinlinetag),
                                     'tag' => '{@' . $curlyinlinetag . '}');
