@@ -57,6 +57,8 @@ class fixturing_inline {
      *
      * To know more, visit {@link https://moodle.org} for Moodle info.
      * To know more, take a look to {@see has_capability} about permissions.
+     * {@link https://moodle.org Links tags with descriptions} should be fine as long as they contain valid URL.
+     * {@see some_function See tags with descriptions} should be fine as well.
      * And verify that crazy {@see \so-me\com-plex\th_ing::$come->ba8by()} are ok too.
      */
     public function correct_inline_tags() {
@@ -68,8 +70,8 @@ class fixturing_inline {
      *
      * This tag {@param string Some param} cannot be used inline.
      * Neither {@throws exception} can.
-     * Ideally all {@link tags have to be 1 url}.
-     * And all {@see must be 1 word only}
+     * Ideally all {@link tags need to have a valid URL}. An optional description is allowed too.
+     * {@see https://moodle.org We do not support URLs in see tags.} See MDLSITE-6105.
      * And {@see $this->tagrules['url']} is not a proper structural element.
      * Also they aren't valid without using @see curly brackets
      */
