@@ -416,8 +416,8 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                     // Must be at least type and parameter name.
                     $match = false;
                 } else {
-                    $expectedtype = $function->arguments[$i][0];
-                    $expectedparam = $function->arguments[$i][1];
+                    $expectedtype = (string)$function->arguments[$i][0];
+                    $expectedparam = (string)$function->arguments[$i][1];
                     $documentedtype = $documentedarguments[$i][0];
                     $documentedparam = $documentedarguments[$i][1];
 

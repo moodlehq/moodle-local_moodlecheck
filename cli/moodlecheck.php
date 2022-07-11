@@ -34,9 +34,9 @@ list($options, $unrecognized) = cli_get_params(
         array('h' => 'help', 'p' => 'path', 'f' => 'format', 'e' => 'exclude', 'r' => 'rules', 'c' => 'componentsfile')
     );
 
-$rules = preg_split('/\s*[\n,;]\s*/', trim($options['rules']), null, PREG_SPLIT_NO_EMPTY);
-$paths = preg_split('/\s*[\n,;]\s*/', trim($options['path']), null, PREG_SPLIT_NO_EMPTY);
-$exclude = preg_split('/\s*[\n,;]\s*/', trim($options['exclude']), null, PREG_SPLIT_NO_EMPTY);
+$rules = preg_split('/\s*[\n,;]\s*/', trim($options['rules']), -1, PREG_SPLIT_NO_EMPTY);
+$paths = preg_split('/\s*[\n,;]\s*/', trim($options['path']), -1, PREG_SPLIT_NO_EMPTY);
+$exclude = preg_split('/\s*[\n,;]\s*/', trim($options['exclude']), -1, PREG_SPLIT_NO_EMPTY);
 if (!in_array($options['format'], array('xml', 'html', 'text'))) {
     unset($options['format']);
 }
