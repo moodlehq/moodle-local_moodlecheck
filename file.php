@@ -340,7 +340,7 @@ class local_moodlecheck_file {
                         // and continue returning only the final part of the namespace. Someday we'll
                         // move to use full namespaces here, but not for now (we are doing the same,
                         // in other parts of the code, when processing phpdoc blocks).
-                        if (strpos($type, '\\') !== false) {
+                        if (strpos((string)$type, '\\') !== false) {
                             // Namespaced typehint, potentially sub-namespaced.
                             // We need to strip namespacing as this area just isn't that smart.
                             $type = substr($type, strrpos($type, '\\') + 1);
@@ -553,7 +553,7 @@ class local_moodlecheck_file {
      */
     public function is_whitespace_token($tid) {
         $this->get_tokens();
-        return ($this->tokens[$tid][0] == T_WHITESPACE);
+        return (isset($this->tokens[$tid][0]) && $this->tokens[$tid][0] == T_WHITESPACE);
     }
 
     /**

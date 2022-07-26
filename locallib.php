@@ -75,7 +75,7 @@ class local_moodlecheck_rule {
     }
 
     public function get_error_message($args) {
-        if (strlen($this->errorstring) && get_string_manager()->string_exists($this->errorstring, 'local_moodlecheck')) {
+        if (!empty($this->errorstring) && get_string_manager()->string_exists($this->errorstring, 'local_moodlecheck')) {
             return get_string($this->errorstring, 'local_moodlecheck', $args);
         } else if (get_string_manager()->string_exists('error_'. $this->code, 'local_moodlecheck')) {
             return get_string('error_'. $this->code, 'local_moodlecheck', $args);
