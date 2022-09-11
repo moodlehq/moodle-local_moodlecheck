@@ -176,7 +176,7 @@ class local_moodlecheck_path {
         $path = clean_param(trim($path), PARAM_PATH);
         // If the path is already one existing full path
         // accept it, else assume it's a relative one.
-        if (!file_exists($path) and substr($path, 0, 1) == '/') {
+        if (!file_exists($path) && substr($path, 0, 1) == '/') {
             $path = substr($path, 1);
         }
         $this->path = $path;
@@ -262,7 +262,7 @@ class local_moodlecheck_path {
         if (empty($componentsfile)) {
             return array();
         }
-        if (file_exists($componentsfile) and is_readable($componentsfile)) {
+        if (file_exists($componentsfile) && is_readable($componentsfile)) {
             $fh = fopen($componentsfile, 'r');
             while (($line = fgets($fh, 4096)) !== false) {
                 $split = explode(',', $line);
@@ -270,7 +270,7 @@ class local_moodlecheck_path {
                     // Wrong count of elements in the line.
                     continue;
                 }
-                if (trim($split[0]) != 'plugin' and trim($split[0]) != 'subsystem') {
+                if (trim($split[0]) != 'plugin' && trim($split[0]) != 'subsystem') {
                     // Wrong type.
                     continue;
                 }

@@ -117,8 +117,8 @@ function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
     foreach ($file->get_functions() as $function) {
         if ($function->phpdocs === false) {
             // Exception is made for plain phpunit test methods MDLSITE-3282, MDLSITE-3856.
-            $istestmethod = (strpos($function->name, 'test_') === 0 or
-                            stripos($function->name, 'setup') === 0 or
+            $istestmethod = (strpos($function->name, 'test_') === 0 ||
+                            stripos($function->name, 'setup') === 0 ||
                             stripos($function->name, 'teardown') === 0);
             if (!($isphpunitfile && $istestmethod)) {
                 $errors[] = array('function' => $function->fullname, 'line' => $file->get_line_number($function->boundaries[0]));
@@ -224,7 +224,7 @@ function local_moodlecheck_phpdocsnotrecommendedtag(local_moodlecheck_file $file
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         foreach ($phpdocs->get_tags() as $tag) {
             $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
-            if (in_array($tag, local_moodlecheck_phpdocs::$validtags) and
+            if (in_array($tag, local_moodlecheck_phpdocs::$validtags) &&
                     !in_array($tag, local_moodlecheck_phpdocs::$recommendedtags)) {
                 $errors[] = array(
                     'line' => $phpdocs->get_line_number($file, '@' . $tag),
@@ -246,8 +246,8 @@ function local_moodlecheck_phpdocsinvalidpathtag(local_moodlecheck_file $file) {
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         foreach ($phpdocs->get_tags() as $tag) {
             $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
-            if (in_array($tag, local_moodlecheck_phpdocs::$validtags) and
-                    in_array($tag, local_moodlecheck_phpdocs::$recommendedtags) and
+            if (in_array($tag, local_moodlecheck_phpdocs::$validtags) &&
+                    in_array($tag, local_moodlecheck_phpdocs::$recommendedtags) &&
                     isset(local_moodlecheck_phpdocs::$pathrestrictedtags[$tag])) {
                 // Verify file path matches some of the valid paths for the tag.
                 if (!preg_filter(local_moodlecheck_phpdocs::$pathrestrictedtags[$tag], '$0', $file->get_filepath())) {

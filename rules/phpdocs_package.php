@@ -133,7 +133,7 @@ function local_moodlecheck_package_names(local_moodlecheck_file $file) {
         // Prepare the list of core packages.
         foreach ($allsubsystems as $subsystem => $dir) {
             // Subsytems may come with the valid component name (core_ prefixed) already.
-            if (strpos($subsystem, 'core_') === 0 or $subsystem === 'core') {
+            if (strpos($subsystem, 'core_') === 0 || $subsystem === 'core') {
                 $corepackages[] = $subsystem;
             } else {
                 $corepackages[] = 'core_' . $subsystem;
