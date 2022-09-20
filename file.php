@@ -196,6 +196,8 @@ class local_moodlecheck_file {
      * ->tagpair : array of two elements: id of token { for the class and id of token } (false if not found)
      * ->phpdocs : phpdocs for this artifact (instance of local_moodlecheck_phpdocs or false if not found)
      * ->boundaries : array with ids of first and last token for this artifact.
+     * ->hasextends : boolean indicating whether this artifact has an `extends` clause
+     * ->hasimplements : boolean indicating whether this artifact has an `implements` clause
      *
      * @return array with 3 elements (classes, interfaces & traits), each being an array.
      */
@@ -238,6 +240,22 @@ class local_moodlecheck_file {
                     $artifact->name = $this->next_nonspace_token($tid);
                     $artifact->phpdocs = $this->find_preceeding_phpdoc($tid);
                     $artifact->tagpair = $this->find_tag_pair($tid, '{', '}');
+
+                    $artifact->hasextends = false;
+                    $artifact->hasimplements = false;
+
+                    if ($artifact->tagpair) {
+                        // Iterate over the remaining tokens in the class definition (until opening {).
+                        foreach (array_slice($this->tokens, $tid, $artifact->tagpair[0] - $tid) as $token) {
+                            if ($token[0] == T_EXTENDS) {
+                                $artifact->hasextends = true;
+                            }
+                            if ($token[0] == T_IMPLEMENTS) {
+                                $artifact->hasimplements = true;
+                            }
+                        }
+                    }
+
                     $artifact->boundaries = $this->find_object_boundaries($artifact);
                     switch ($artifact->type) {
                         case T_CLASS:
