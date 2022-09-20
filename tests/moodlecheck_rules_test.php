@@ -428,4 +428,35 @@ class moodlecheck_rules_test extends \advanced_testcase {
 
         $this->assertEquals(["error", "warning", "warning", "warning"], $severities);
     }
+
+    /**
+     * Verify that `variablesdocumented` correctly detects PHPdoc on different kinds of properties.
+     *
+     * @covers ::local_moodlecheck_variablesdocumented
+     * @covers \local_moodlecheck_file::get_variables
+     */
+    public function test_variablesdocumented() {
+        $file = __DIR__ . "/fixtures/phpdoc_properties.php";
+
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path($file, null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Object.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        $xpath = new \DOMXpath($xmlresult);
+
+        $found = $xpath->query('//file/error[@source="variablesdocumented"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(4, $found->length);
+
+        // The PHPdocs of the other properties should be detected correctly.
+        $this->assertStringContainsString('$undocumented1', $found->item(0)->getAttribute("message"));
+        $this->assertStringContainsString('$undocumented2', $found->item(1)->getAttribute("message"));
+        $this->assertStringContainsString('$undocumented3', $found->item(2)->getAttribute("message"));
+        $this->assertStringContainsString('$undocumented4', $found->item(3)->getAttribute("message"));
+    }
 }

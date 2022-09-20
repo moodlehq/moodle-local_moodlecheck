@@ -32,6 +32,8 @@ defined('MOODLE_INTERNAL') || die;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_moodlecheck_file {
+    private const MODIFIERS = [T_ABSTRACT, T_PRIVATE, T_PUBLIC, T_PROTECTED, T_STATIC, T_VAR, T_FINAL, T_CONST];
+
     protected $filepath = null;
     protected $needsvalidation = null;
     protected $errors = null;
@@ -400,8 +402,11 @@ class local_moodlecheck_file {
                     $variable->name = $this->tokens[$tid][1];
                     $variable->class = $class;
                     $variable->fullname = $class->name . '::' . $variable->name;
-                    $variable->accessmodifiers = $this->find_access_modifiers($tid);
-                    $variable->phpdocs = $this->find_preceeding_phpdoc($tid);
+
+                    $beforetype = $this->skip_preceding_type($tid);
+                    $variable->accessmodifiers = $this->find_access_modifiers($beforetype);
+                    $variable->phpdocs = $this->find_preceeding_phpdoc($beforetype);
+
                     $variable->boundaries = $this->find_object_boundaries($variable);
                     $this->variables[] = $variable;
                 }
@@ -646,8 +651,7 @@ class local_moodlecheck_file {
             if ($this->is_whitespace_token($i)) {
                 // Skip.
                 continue;
-            } else if (in_array($tokens[$i][0],
-                    array(T_ABSTRACT, T_PRIVATE, T_PUBLIC, T_PROTECTED, T_STATIC, T_VAR, T_FINAL, T_CONST))) {
+            } else if (in_array($tokens[$i][0], self::MODIFIERS)) {
                 $modifiers[] = $tokens[$i][0];
             } else {
                 break;
@@ -692,6 +696,37 @@ class local_moodlecheck_file {
             }
         }
         return false;
+    }
+
+    /**
+     * Skips any tokens that _could be_ part of a type of a typed property definition.
+     *
+     * @param int $tid the token before which a type is expected
+     * @return int the token id (`< $tid`) directly before the first token of the type. If there is no type, this will
+     *             be the token directly preceding `$tid`.
+     */
+    private function skip_preceding_type(int $tid): int {
+        for ($i = $tid - 1; $i >= 0; $i--) {
+            if ($this->is_whitespace_token($i)) {
+                continue;
+            }
+
+            $token = $this->tokens[$i];
+
+            if (in_array($token[0], self::MODIFIERS)) {
+                // This looks like the last modifier. Return the token after it.
+                return $i + 1;
+            } else if (in_array($token[1], ['{', '}', ';'])) {
+                // We've gone past the beginning of the statement. This isn't possible in valid PHP, but still...
+                // Return the first token of the statement we were in.
+                return $i + 1;
+            }
+
+            // This is something else. Let's assume it to be part of the property's type and skip it.
+        }
+
+        // We've gone all the way to the start of the file, which shouldn't be possible in valid PHP.
+        return 0;
     }
 
     /**
