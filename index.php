@@ -23,6 +23,8 @@
  */
 
 require_once('../../config.php');
+require_once($CFG->libdir . '/adminlib.php');
+
 require_once($CFG->dirroot. '/local/moodlecheck/locallib.php');
 
 // Include all files from rules directory.
@@ -38,26 +40,44 @@ if ($dh = opendir($CFG->dirroot. '/local/moodlecheck/rules')) {
     closedir($dh);
 }
 
-require_login();
-$context = context_system::instance();
-$PAGE->set_context($context);
-$PAGE->set_pagelayout('admin');
-$PAGE->set_heading($SITE->fullname);
-$PAGE->set_title($SITE->fullname . ': ' . get_string('pluginname', 'local_moodlecheck'));
-$PAGE->set_url(new moodle_url('/local/moodlecheck/index.php'));
+$pathlist = optional_param('path', '', PARAM_RAW);
+$ignore = optional_param('ignorepath', '', PARAM_NOTAGS);
+$checkall = optional_param('checkall', 'all', PARAM_NOTAGS);
+$rules = optional_param_array('rule', [], PARAM_NOTAGS);
+
+$pageparams = array();
+if ($pathlist) {
+    $pageparams['path'] = $pathlist;
+}
+if ($ignore) {
+    $pageparams['ignorepath'] = $ignore;
+}
+if ($checkall) {
+    $pageparams['checkall'] = $checkall;
+}
+if ($rules) {
+    foreach ($rules as $name => $value) {
+        $pageparams['rule[' . $name . ']'] = $value;
+    }
+}
+
+admin_externalpage_setup('local_moodlecheck', $pageparams);
+
+$form = new local_moodlecheck_form(new moodle_url('/local/moodlecheck/'));
+$form->set_data((object)$pageparams);
+if ($data = $form->get_data()) {
+    redirect(new moodle_url('/local/moodlecheck/', $pageparams));
+}
+
 $output = $PAGE->get_renderer('local_moodlecheck');
 
 echo $output->header();
 
-$form = new local_moodlecheck_form();
-$form->display();
-
-if ($form->is_submitted() && $form->is_validated()) {
-    $data = $form->get_data();
-    $paths = preg_split('/\s*\n\s*/', trim((string)$data->path), -1, PREG_SPLIT_NO_EMPTY);
-    $ignorepaths = preg_split('/\s*\n\s*/', trim((string)$data->ignorepath), -1, PREG_SPLIT_NO_EMPTY);
-    if (isset($data->checkall) && $data->checkall == 'selected' && isset($data->rule)) {
-        foreach ($data->rule as $code => $value) {
+if ($pathlist) {
+    $paths = preg_split('/\s*\n\s*/', trim((string)$pathlist), -1, PREG_SPLIT_NO_EMPTY);
+    $ignorepaths = preg_split('/\s*\n\s*/', trim((string)$ignore), -1, PREG_SPLIT_NO_EMPTY);
+    if (isset($checkall) && $checkall == 'selected' && isset($rules)) {
+        foreach ($rules as $code => $value) {
             local_moodlecheck_registry::enable_rule($code);
         }
     } else {
@@ -78,5 +98,7 @@ if ($form->is_submitted() && $form->is_validated()) {
         echo $line;
     }
 }
+
+$form->display();
 
 echo $output->footer();
