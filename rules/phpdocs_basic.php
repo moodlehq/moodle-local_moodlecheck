@@ -105,14 +105,16 @@ function local_moodlecheck_classesdocumented(local_moodlecheck_file $file) {
 }
 
 /**
- * Checks if all functions have phpdocs blocks
+ * Checks if all functions have phpdocs blocks.
+ *
+ * For methods of a class which extends another or implements interfaces, a violation in only a warning, since the
+ * method might be overriding a sufficiently documented method. In all other cases, it is an error.
  *
  * @param local_moodlecheck_file $file
  * @return array of found errors
  */
 function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
-
-    $isphpunitfile = preg_match('#/tests/[^/]+_test\.php$#', $file->get_filepath());
+    $isphpunitfile = preg_match('#/tests/.+_test\.php$#', $file->get_filepath());
     $errors = array();
     foreach ($file->get_functions() as $function) {
         if ($function->phpdocs === false) {
@@ -120,8 +122,20 @@ function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
             $istestmethod = (strpos($function->name, 'test_') === 0 ||
                             stripos($function->name, 'setup') === 0 ||
                             stripos($function->name, 'teardown') === 0);
+
+            $isinsubclass = $function->class && ($function->class->hasextends || $function->class->hasimplements);
+
             if (!($isphpunitfile && $istestmethod)) {
-                $errors[] = array('function' => $function->fullname, 'line' => $file->get_line_number($function->boundaries[0]));
+                $error = [
+                    'function' => $function->fullname,
+                    'line' => $file->get_line_number($function->boundaries[0])
+                ];
+
+                if ($isinsubclass) {
+                    $error["severity"] = "warning";
+                }
+
+                $errors[] = $error;
             }
         }
     }

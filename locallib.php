@@ -102,7 +102,7 @@ class local_moodlecheck_rule {
         foreach ($reterrors as $args) {
             $ruleerrors[] = array(
                 'line' => $args['line'],
-                'severity' => $this->severity,
+                'severity' => $args["severity"] ?? $this->severity,
                 'message' => $this->get_error_message($args),
                 'source' => $this->code
             );
