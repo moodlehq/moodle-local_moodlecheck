@@ -315,7 +315,7 @@ class local_moodlecheck_form extends moodleform {
         $mform->addGroup($group, 'checkboxgroup', '', array('<br>'), false);
         foreach (local_moodlecheck_registry::get_registered_rules() as $code => $rule) {
             $group[] =& $mform->createElement('checkbox', "rule[$code]", ' ', $rule->get_name());
-            $mform->setDefault("rule[$code]", 1);
+            $mform->setDefault("rule[$code]", 0);
             $mform->disabledIf("rule[$code]", 'checkall', 'eq', 'all');
         }
 
