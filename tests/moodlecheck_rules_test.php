@@ -272,6 +272,36 @@ class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
+     * Verify the package tag is required for class/trait/interface/global scope functions.
+     *
+     * @covers ::local_moodlecheck_packagespecified
+     */
+    public function test_phpdoc_tags_packagespecified() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_packagespecified.php', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Object.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 4 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query('//file/error[@source="packagespecified"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(4, $found->length);
+
+        // Also verify various bits by content.
+        $this->assertStringContainsString('Package is not specified for class missingclass', $result);
+        $this->assertStringContainsString('Package is not specified for interface missinginterface', $result);
+        $this->assertStringContainsString('Package is not specified for trait missingtrait', $result);
+        $this->assertStringContainsString('Package is not specified for function missingfunction', $result);
+        $this->assertStringNotContainsString('packaged', $result);
+        $this->assertStringNotContainsString('somemethod', $result);
+    }
+
+    /**
      * Test that {@see local_moodlecheck_get_categories()} returns the correct list of allowed categories.
      *
      * @covers ::local_moodlecheck_get_categories
