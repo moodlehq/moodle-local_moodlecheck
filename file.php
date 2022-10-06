@@ -194,6 +194,7 @@ class local_moodlecheck_file {
      *
      * Returns 3 arrays (classes, interfaces and traits) of objects where each element represents an artifact:
      * ->type : token type of the artifact (T_CLASS, T_INTERFACE, T_TRAIT)
+     * ->typestring : type of the artifact as a string ('class', 'interface', 'trait')
      * ->name : name of the artifact
      * ->tagpair : array of two elements: id of token { for the class and id of token } (false if not found)
      * ->phpdocs : phpdocs for this artifact (instance of local_moodlecheck_phpdocs or false if not found)
@@ -238,6 +239,8 @@ class local_moodlecheck_file {
                     }
                     $artifact = new stdClass();
                     $artifact->type = $artifacts[$this->tokens[$tid][0]];
+                    $artifact->typestring = $this->tokens[$tid][1];
+
                     $artifact->tid = $tid;
                     $artifact->name = $this->next_nonspace_token($tid);
                     $artifact->phpdocs = $this->find_preceeding_phpdoc($tid);
@@ -277,6 +280,17 @@ class local_moodlecheck_file {
     }
 
     /**
+     * Like {@see get_artifacts()}, but returns classes, interfaces and traits in a single flat array.
+     *
+     * @return stdClass[]
+     * @see get_artifacts()
+     */
+    public function get_artifacts_flat(): array {
+        $artifacts = $this->get_artifacts();
+        return array_merge($artifacts[T_CLASS], $artifacts[T_INTERFACE], $artifacts[T_TRAIT]);
+    }
+
+    /**
      * Returns all classes found in file
      *
      * Returns array of objects where each element represents a class:
@@ -296,7 +310,9 @@ class local_moodlecheck_file {
      * $function->tid : token id of the token 'function'
      * $function->name : name of the function
      * $function->phpdocs : phpdocs for this function (instance of local_moodlecheck_phpdocs or false if not found)
+     * TODO: Delete this because it's not used anymore (2023). See #97
      * $function->class : containing class object (false if this is not a class method)
+     * $function->owner : containing artifact object (class, interface, trait, or false if this is not a method)
      * $function->fullname : name of the function with class name (if applicable)
      * $function->accessmodifiers : tokens like static, public, protected, abstract, etc.
      * $function->tagpair : array of two elements: id of token { for the function and id of token } (false if not found)
@@ -322,8 +338,9 @@ class local_moodlecheck_file {
                     }
                     $function->phpdocs = $this->find_preceeding_phpdoc($tid);
                     $function->class = $this->is_inside_class($tid);
-                    if ($function->class !== false) {
-                        $function->fullname = $function->class->name . '::' . $function->name;
+                    $function->owner = $this->is_inside_artifact($tid);
+                    if ($function->owner !== false) {
+                        $function->fullname = $function->owner->name . '::' . $function->name;
                     }
                     $function->accessmodifiers = $this->find_access_modifiers($tid);
                     if (!in_array(T_ABSTRACT, $function->accessmodifiers)) {
@@ -546,6 +563,22 @@ class local_moodlecheck_file {
         for ($clid = 0; $clid < $classescnt; $clid++) {
             if ($classes[$clid]->boundaries[0] <= $tid && $classes[$clid]->boundaries[1] >= $tid) {
                 return $classes[$clid];
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Checks if the token with id $tid in inside some artifact (class, interface, or trait).
+     *
+     * @param int $tid
+     * @return stdClass|false containing artifact or false if this is not a member
+     */
+    public function is_inside_artifact(int $tid) {
+        $artifacts = $this->get_artifacts_flat();
+        foreach ($artifacts as $artifact) {
+            if ($artifact->boundaries[0] <= $tid && $artifact->boundaries[1] >= $tid) {
+                return $artifact;
             }
         }
         return false;

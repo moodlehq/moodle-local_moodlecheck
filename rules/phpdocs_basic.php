@@ -123,7 +123,7 @@ function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
                             stripos($function->name, 'setup') === 0 ||
                             stripos($function->name, 'teardown') === 0);
 
-            $isinsubclass = $function->class && ($function->class->hasextends || $function->class->hasimplements);
+            $isinsubclass = $function->owner && ($function->owner->hasextends || $function->owner->hasimplements);
 
             if (!($isphpunitfile && $istestmethod)) {
                 $error = [
