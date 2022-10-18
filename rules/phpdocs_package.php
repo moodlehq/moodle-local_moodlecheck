@@ -207,12 +207,14 @@ function &local_moodlecheck_get_categories($forceoffline = false) {
             $allcategories = array();
             $filecontent = false;
             if (!$forceoffline) {
-                $filecontent = @file_get_contents("https://docs.moodle.org/dev/Core_APIs");
+                $filecontent = @file_get_contents("https://moodledev.io/docs/apis");
             }
             if (empty($filecontent)) {
                 $filecontent = file_get_contents($CFG->dirroot . '/local/moodlecheck/rules/coreapis.txt');
             }
-            preg_match_all('|<span\s*.*\s*class="mw-headline".*>.*API\s*\((.*)\)\s*</span>|i', $filecontent, $matches);
+            // Remove newlines, easier for the regular expression.
+            $filecontent = preg_replace('|[\r\n]|', '', $filecontent);
+            preg_match_all('|<h3[^>]+>\s*.+?API\s*\(([^\)]+)\)\s*<a|i', $filecontent, $matches);
             foreach ($matches[1] as $match) {
                 $allcategories[] = trim(strip_tags(strtolower($match)));
             }
