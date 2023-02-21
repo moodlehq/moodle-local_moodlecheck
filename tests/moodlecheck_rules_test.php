@@ -431,6 +431,30 @@ class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
+     * Verify that method parameters are correctly interpreted no matter the definition style.
+     *
+     * @covers ::local_moodlecheck_functionarguments
+     */
+    public function test_functionsdocumented_method_multiline() {
+        $file = __DIR__ . "/fixtures/phpdoc_method_multiline.php";
+
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path($file, null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Object.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query('//file/error[@source="functionarguments"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(0, $found->length); // All examples in fixtures are ok.
+    }
+
+
+    /**
      * Verify that top-level methods without docs are errors but methods in subclasses without docs are warnings.
      *
      * @covers ::local_moodlecheck_functionsdocumented
