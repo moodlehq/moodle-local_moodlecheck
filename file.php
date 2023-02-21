@@ -357,6 +357,11 @@ class local_moodlecheck_file {
                     }
                     $function->arguments = array();
                     foreach ($function->argumentstokens as $argtokens) {
+                        // If the token is completely empty then it's not an argument. This happens, for example, with
+                        // trailing commas in parameters, allowed since PHP 8.0 and break_tokens_by() returns it that way.
+                        if (empty($argtokens)) {
+                            continue;
+                        }
                         $type = null;
                         $variable = null;
                         $splat = false;
