@@ -77,7 +77,7 @@ function local_moodlecheck_filephpdocpresent(local_moodlecheck_file $file) {
     }
     if ($file->find_file_phpdocs() === false) {
         $tokens = &$file->get_tokens();
-        for ($i = 0; $i < 30; $i++) {
+        for ($i = 0; $i < 90; $i++) {
             if (isset($tokens[$i]) && !in_array($tokens[$i][0], array(T_OPEN_TAG, T_WHITESPACE, T_COMMENT))) {
                 return array(array('line' => $file->get_line_number($i)));
             }
