@@ -379,6 +379,18 @@ class moodlecheck_rules_test extends \advanced_testcase {
                 "{$rootpath}/extendsandimplements.php",
                 false,
             ],
+            'return new class (with params) {' => [
+                "{$rootpath}/anonymous_with_params.php",
+                false,
+            ],
+            'return new class (with params) extends parentclass {' => [
+                "{$rootpath}/extends_with_params.php",
+                false,
+            ],
+            'return new class (with params) implements someinterface {' => [
+                "{$rootpath}/implements_with_params.php",
+                false,
+            ],
             '$value = new class {' => [
                 "{$rootpath}/assigned.php",
                 false,

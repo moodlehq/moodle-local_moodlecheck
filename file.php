@@ -222,17 +222,37 @@ class local_moodlecheck_file {
                     if ($this->previous_nonspace_token($tid) == 'new') {
                         // This looks to be an anonymous class.
 
-                        if ($this->next_nonspace_token($tid) == '{') {
+                        $tpid = $tid; // Let's keep the original $tid and use own for anonymous searches.
+                        if ($this->next_nonspace_token($tpid) == '(') {
+                            // It may be an anonymous class with parameters, let's skip them
+                            // by advancing till we find the corresponding bracket closing token.
+                            $level = 0; // To control potential nesting of brackets within the params.
+                            while ($tpid = $this->next_nonspace_token($tpid, true)) {
+                                if ($this->tokens[$tpid][1] == '(') {
+                                    $level++;
+                                }
+                                if ($this->tokens[$tpid][1] == ')') {
+                                    $level--;
+                                    // We are back to level 0, we are done (have walked over all params).
+                                    if ($level === 0) {
+                                        $tpid = $tpid;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+
+                        if ($this->next_nonspace_token($tpid) == '{') {
                             // An anonymous class in the format `new class {`.
                             continue;
                         }
 
-                        if ($this->next_nonspace_token($tid) == 'extends') {
+                        if ($this->next_nonspace_token($tpid) == 'extends') {
                             // An anonymous class in the format `new class extends otherclasses {`.
                             continue;
                         }
 
-                        if ($this->next_nonspace_token($tid) == 'implements') {
+                        if ($this->next_nonspace_token($tpid) == 'implements') {
                             // An anonymous class in the format `new class implements someinterface {`.
                             continue;
                         }
