@@ -525,4 +525,42 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringContainsString('$undocumented3', $found->item(2)->getAttribute("message"));
         $this->assertStringContainsString('$undocumented4', $found->item(3)->getAttribute("message"));
     }
+
+    /**
+     * Verify that the text format shown information about the severity of the problem (error vs warning)
+     *
+     * @covers \local_moodlecheck_renderer
+     */
+    public function test_text_format_errors_and_warnings() {
+        $file = __DIR__ . "/fixtures/error_and_warning.php";
+
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path($file, null);
+        $result = $output->display_path($path, 'text');
+
+        $this->assertStringContainsString('tests/fixtures/error_and_warning.php', $result);
+        $this->assertStringContainsString('2: Empty line found after PHP open tag (warning)', $result);
+        $this->assertStringContainsString('11: Class someclass is not documented (error)', $result);
+        $this->assertStringContainsString('12: Function someclass::somefunc is not documented (warning)', $result);
+    }
+
+    /**
+     * Verify that the html format shown information about the severity of the problem (error vs warning)
+     *
+     * @covers \local_moodlecheck_renderer
+     */
+    public function test_html_format_errors_and_warnings() {
+        $file = __DIR__ . "/fixtures/error_and_warning.php";
+
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path($file, null);
+        $result = $output->display_path($path, 'html');
+
+        $this->assertStringContainsString('tests/fixtures/error_and_warning.php</span>', $result);
+        $this->assertStringContainsString('<b>2</b>: Empty line found after PHP open tag (warning)', $result);
+        $this->assertStringContainsString('<b>11</b>: Class <b>someclass</b> is not documented (error)', $result);
+        $this->assertStringContainsString('<b>12</b>: Function <b>someclass::somefunc</b> is not documented (warning)', $result);
+    }
 }
