@@ -84,8 +84,14 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
             $output .= $filename. "\n";
         }
         foreach ($errors as $error) {
-            if (($format == 'html' || $format == 'text') && isset($error['line']) && strlen($error['line'])) {
-                $error['message'] = get_string('linenum', 'local_moodlecheck', $error['line']). $error['message'];
+            // Add the severity always to both text and html formats.
+            if ($format == 'html' || $format == 'text') {
+                $error['message'] .= ' (' . $error['severity'] . ')';
+            }
+
+            // Prepend the line number, if available.
+            if (($format == 'html' || $format == 'text') && isset($error['line']) && $error['line'] !== '') {
+                $error['message'] = get_string('linenum', 'local_moodlecheck', $error['line']) . $error['message'];
             }
             if ($format == 'html') {
                 $output .= html_writer::tag('li', $error['message'], array('class' => 'errorline'));
