@@ -496,6 +496,30 @@ class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
+     * Verify that "use function" statements are ignored.
+     *
+     * @covers ::local_moodlecheck_functionsdocumented
+     * @covers ::local_moodlecheck_constsdocumented
+     */
+    public function test_functionsdocumented_constsdocumented_ignore_uses() {
+        $file = __DIR__ . "/fixtures/uses.php";
+
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path($file, null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Object.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query('//file/error[@source="functionsdocumented" or @source="constsdocumented"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(0, $found->length);
+    }
+
+    /**
      * Verify that `variablesdocumented` correctly detects PHPdoc on different kinds of properties.
      *
      * @covers ::local_moodlecheck_variablesdocumented
