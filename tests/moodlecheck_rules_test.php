@@ -501,7 +501,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      * @covers ::local_moodlecheck_variablesdocumented
      * @covers \local_moodlecheck_file::get_variables
      */
-    public function test_variablesdocumented() {
+    public function test_variables_and_constants_documented() {
         $file = __DIR__ . "/fixtures/phpdoc_properties.php";
 
         global $PAGE;
@@ -515,6 +515,8 @@ class moodlecheck_rules_test extends \advanced_testcase {
 
         $xpath = new \DOMXpath($xmlresult);
 
+        // Verify that the undocumented variables are reported.
+
         $found = $xpath->query('//file/error[@source="variablesdocumented"]');
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(4, $found->length);
@@ -524,6 +526,24 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringContainsString('$undocumented2', $found->item(1)->getAttribute("message"));
         $this->assertStringContainsString('$undocumented3', $found->item(2)->getAttribute("message"));
         $this->assertStringContainsString('$undocumented4', $found->item(3)->getAttribute("message"));
+
+        // Verify that the undocumented constants are reported.
+
+        $found = $xpath->query('//file/error[@source="constsdocumented"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(2, $found->length);
+
+        // The PHPdocs of the other properties should be detected correctly.
+        $this->assertStringContainsString('UNDOCUMENTED_CONSTANT1', $found->item(0)->getAttribute("message"));
+        $this->assertStringContainsString('UNDOCUMENTED_CONSTANT2', $found->item(1)->getAttribute("message"));
+
+        // Verify that the @const tag is reported as invalid.
+
+        $found = $xpath->query('//file/error[@source="phpdocsinvalidtag"]');
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(1, $found->length);
+
+        $this->assertStringContainsString('Invalid phpdocs tag @const used', $found->item(0)->getAttribute("message"));
     }
 
     /**
