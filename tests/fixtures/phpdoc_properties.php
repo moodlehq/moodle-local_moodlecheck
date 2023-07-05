@@ -24,6 +24,13 @@ class dummy_with_properties {
     var ?string $undocumented2;
     private $undocumented3;
     private ?string $undocumented4;
+    const UNDOCUMENTED_CONSTANT1 = 0;
+    public const UNDOCUMENTED_CONSTANT2 = 0;
+
+    /**
+     * @const A wrongly documented constant.
+     */
+    const WRONGLY_DOCUMENTED_CONSTANT = 0;
 
     /**
      * @var mixed $documented1 I'm just a dummy!
@@ -41,4 +48,9 @@ class dummy_with_properties {
      * @var ?string $documented4 I'm just a dummy!
      */
     private ?string $documented4;
+
+    /**
+     * @var A correctly documented constant.
+     */
+    const CORRECTLY_DOCUMENTED_CONSTANT = 0;
 }
