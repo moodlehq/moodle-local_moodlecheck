@@ -32,10 +32,16 @@ class constructor_property_promotion {
      *
      * @param stdClass|cm_info $cm The course module data
      * @param string $name The name
+     * @param int|float $size The size
+     * @param null|string $description The description
+     * @param ?string $content The content
      */
     public function __construct(
         private stdClass|cm_info $cm,
         protected string $name,
+        protected float|int $size,
+        protected ?string $description = null,
+        protected ?string $content = null
     ) {
     }
 }
