@@ -74,6 +74,7 @@ function local_moodlecheck_packagespecified(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_packagevalid(local_moodlecheck_file $file) {
     $errors = array();
+
     $allowedpackages = local_moodlecheck_package_names($file);
     foreach ($file->get_all_phpdocs() as $phpdoc) {
         foreach ($phpdoc->get_tags('package') as $package) {
