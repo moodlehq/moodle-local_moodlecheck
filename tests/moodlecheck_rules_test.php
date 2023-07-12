@@ -69,6 +69,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
         // Let's verify we have received a xml with file top element and 2 children.
         $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
+
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(2, $found->length);
 
@@ -218,9 +219,9 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $found = $xpath->query("//file/error");
 
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(2, $found->length);
+        $this->assertSame(1, $found->length);
         $this->assertStringNotContainsString('constructor_property_promotion::__construct has incomplete parameters list', $result);
-
+        $this->assertStringContainsString('packagevalid', $result);
     }
 
     /**

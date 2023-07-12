@@ -382,21 +382,37 @@ class local_moodlecheck_file {
                         if (empty($argtokens)) {
                             continue;
                         }
+                        $possibletypes = [];
                         $type = null;
                         $variable = null;
                         $splat = false;
+
                         for ($j = 0; $j < count($argtokens); $j++) {
-                            if ($argtokens[$j][0] == T_VARIABLE) {
-                                $variable = ($splat) ? '...'.$argtokens[$j][1] : $argtokens[$j][1];
-                                break;
-                            } else if ($argtokens[$j][0] != T_WHITESPACE &&
-                                    $argtokens[$j][0] != T_ELLIPSIS && $argtokens[$j][1] != '&') {
-                                $type = $argtokens[$j][1];
-                            } else if ($argtokens[$j][0] == T_ELLIPSIS) {
-                                // Variadic function.
-                                $splat = true;
+                            switch ($argtokens[$j][0]) {
+                                case T_WHITESPACE:
+                                case T_PUBLIC:
+                                case T_PROTECTED:
+                                case T_WHITESPACE:
+                                    continue 2;
+                                case T_VARIABLE:
+                                    $variable = ($splat) ? '...' . $argtokens[$j][1] : $argtokens[$j][1];
+                                    continue 2;
+                                case T_ELLIPSIS:
+                                    // Variadic function.
+                                    $splat = true;
+                                    break;
                             }
+                            switch ($argtokens[$j][1]) {
+                                case '|':
+                                case '&':
+                                    continue 2;
+                                    continue 2;
+                            }
+
+                            $possibletypes[] = $argtokens[$j][1];
                         }
+
+                        $type = implode('|', $possibletypes);
 
                         // PHP 8 treats namespaces as single token. So we are going to undo this here
                         // and continue returning only the final part of the namespace. Someday we'll

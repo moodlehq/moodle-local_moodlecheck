@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * A fixture to verify various phpdoc tags in a general location.
- *
- * @package   local_moodlecheck
- * @copyright 2018 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
- * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
-
 use cm_info;
 use stdClass;
 
@@ -38,10 +30,16 @@ class constructor_property_promotion {
      *
      * @param stdClass|cm_info $cm The course module data
      * @param string $name The name
+     * @param int|float $size The size
+     * @param null|string $description The description
+     * @param ?string $content The content
      */
     public function __construct(
         protected stdClass|cm_info $cm,
         protected string $name,
+        protected float|int $size,
+        protected ?string $description = null,
+        protected ?string $content = null
     ) {
     }
 }

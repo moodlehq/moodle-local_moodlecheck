@@ -421,6 +421,7 @@ function local_moodlecheck_functiondescription(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
     $errors = array();
+
     foreach ($file->get_functions() as $function) {
         if ($function->phpdocs !== false) {
             $documentedarguments = $function->phpdocs->get_params();
@@ -434,6 +435,12 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                     $expectedparam = (string)$function->arguments[$i][1];
                     $documentedtype = $documentedarguments[$i][0];
                     $documentedparam = $documentedarguments[$i][1];
+
+                    $typematch = $expectedtype === $documentedtype;
+                    $parammatch = $expectedparam === $documentedparam;
+                    if ($typematch && $parammatch) {
+                        continue;
+                    }
 
                     // Documented types can be a collection (| separated).
                     foreach (explode('|', $documentedtype) as $documentedtype) {
