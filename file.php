@@ -408,13 +408,21 @@ class local_moodlecheck_file {
                                     // For example ...$example
                                     // Variadic function.
                                     $splat = true;
-                                    break;
+                                    continue 2;
                             }
                             switch ($argtokens[$j][1]) {
                                 case '|':
                                     // Union types.
                                 case '&':
                                     // Return by reference.
+                                    continue 2;
+                                case '?':
+                                    // Nullable type.
+                                    $possibletypes[] = 'null';
+                                    continue 2;
+                                case '=':
+                                    // Default value.
+                                    $j = count($argtokens);
                                     continue 2;
                             }
 
@@ -778,6 +786,7 @@ class local_moodlecheck_file {
     public function find_preceeding_phpdoc($tid) {
         $tokens = &$this->get_tokens();
         $modifiers = $this->find_access_modifiers($tid);
+
         for ($i = $tid - 1; $i >= 0; $i--) {
             if ($this->is_whitespace_token($i)) {
                 if ($this->is_multiline_token($i) > 1) {
@@ -1361,8 +1370,18 @@ class local_moodlecheck_phpdocs {
      */
     public function get_params($tag = 'param', $splitlimit = 3) {
         $params = array();
+
         foreach ($this->get_tags($tag) as $token) {
             $params[] = preg_split('/\s+/', trim($token), $splitlimit); // AKA 'type $name multi-word description'.
+        }
+
+        foreach ($params as $key => $param) {
+            if (strpos($param[0], '?') !== false) {
+                $param[0] = str_replace('?', 'null|', $param[0]);
+            }
+            $types = explode('|', $param[0]);
+            sort($types);
+            $params[$key][0] = implode('|', $types);
         }
         return $params;
     }

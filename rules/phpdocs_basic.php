@@ -436,6 +436,17 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                     $documentedtype = $documentedarguments[$i][0];
                     $documentedparam = $documentedarguments[$i][1];
 
+                    if (strpos($expectedtype, '|' ) !== false) {
+                        $types = explode('|', $expectedtype);
+                        sort($types);
+                        $expectedtype = implode('|', $types);
+                    }
+                    if (strpos($documentedtype, '|' ) !== false) {
+                        $types = explode('|', $documentedtype);
+                        sort($types);
+                        $documentedtype = implode('|', $types);
+                    }
+
                     $typematch = $expectedtype === $documentedtype;
                     $parammatch = $expectedparam === $documentedparam;
                     if ($typematch && $parammatch) {
