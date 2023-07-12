@@ -199,6 +199,31 @@ class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
+     * Verify that constructor property promotion is supported.
+     *
+     * @covers ::local_moodlecheck_functionarguments
+     */
+    public function test_phpdoc_constructor_property_promotion() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_constructor_property_promotion.php ', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 8 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(2, $found->length);
+        $this->assertStringNotContainsString('constructor_property_promotion::__construct has incomplete parameters list', $result);
+
+    }
+
+    /**
      * Verify various phpdoc tags in tests directories.
      *
      * @covers ::local_moodlecheck_phpdocsinvalidtag
