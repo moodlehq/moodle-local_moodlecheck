@@ -347,6 +347,12 @@ class local_moodlecheck_file {
             $this->functions = array();
             $tokens = &$this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
+                if ($this->tokens[$tid][0] == T_USE) {
+                    // Skip the entire use statement, to avoid interpreting "use function" as a function.
+                    $tid = $this->end_of_statement($tid);
+                    continue;
+                }
+
                 if ($this->tokens[$tid][0] == T_FUNCTION) {
                     $function = new stdClass();
                     $function->tid = $tid;
@@ -475,6 +481,12 @@ class local_moodlecheck_file {
             $this->constants = array();
             $this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
+                if ($this->tokens[$tid][0] == T_USE) {
+                    // Skip the entire use statement, to avoid interpreting "use const" as a constant.
+                    $tid = $this->end_of_statement($tid);
+                    continue;
+                }
+
                 if ($this->tokens[$tid][0] == T_CONST && !$this->is_inside_function($tid)) {
                     $variable = new stdClass;
                     $variable->tid = $tid;
@@ -675,7 +687,7 @@ class local_moodlecheck_file {
     /**
      * Returns the first token which is not whitespace before the token with id $tid
      *
-     * Also returns false if no meaningful token found till the beggining of file
+     * Also returns false if no meaningful token found till the beginning of file
      *
      * @param int $tid
      * @param bool $returnid
@@ -694,6 +706,24 @@ class local_moodlecheck_file {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the next semicolon or close tag following $tid, or the last token of the file, whichever comes first.
+     *
+     * @param int $tid starting token
+     * @return int index of the next semicolon or close tag following $tid, or the last token of the file, whichever
+     *                 comes first
+     */
+    public function end_of_statement($tid) {
+        for (; $tid < $this->tokenscount; $tid++) {
+            if ($this->tokens[$tid][1] == ";" || $this->tokens[$tid][0] == T_CLOSE_TAG) {
+                // Semicolons and close tags (?&gt;) end statements.
+                return $tid;
+            }
+        }
+        // EOF also ends statements.
+        return $tid;
     }
 
     /**
