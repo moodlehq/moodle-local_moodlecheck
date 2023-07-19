@@ -1055,6 +1055,9 @@ class local_moodlecheck_phpdocs {
         'Then',
         'When',
         // PHPUnit tags.
+        'codeCoverageIgnore',
+        'codeCoverageIgnoreStart',
+        'codeCoverageIgnoreEnd',
         'covers',
         'coversDefaultClass',
         'coversNothing',
@@ -1110,6 +1113,9 @@ class local_moodlecheck_phpdocs {
         'Then',
         'When',
         // PHPUnit tags.
+        'codeCoverageIgnore',
+        'codeCoverageIgnoreStart',
+        'codeCoverageIgnoreEnd',
         'covers',
         'coversDefaultClass',
         'coversNothing',
