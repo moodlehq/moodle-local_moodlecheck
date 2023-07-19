@@ -388,21 +388,48 @@ class local_moodlecheck_file {
                         if (empty($argtokens)) {
                             continue;
                         }
-                        $type = null;
+                        $possibletypes = [];
                         $variable = null;
                         $splat = false;
+
                         for ($j = 0; $j < count($argtokens); $j++) {
-                            if ($argtokens[$j][0] == T_VARIABLE) {
-                                $variable = ($splat) ? '...'.$argtokens[$j][1] : $argtokens[$j][1];
-                                break;
-                            } else if ($argtokens[$j][0] != T_WHITESPACE &&
-                                    $argtokens[$j][0] != T_ELLIPSIS && $argtokens[$j][1] != '&') {
-                                $type = $argtokens[$j][1];
-                            } else if ($argtokens[$j][0] == T_ELLIPSIS) {
-                                // Variadic function.
-                                $splat = true;
+                            switch ($argtokens[$j][0]) {
+                                // Skip any whitespace, or argument visibility.
+                                case T_WHITESPACE:
+                                case T_PUBLIC:
+                                case T_PROTECTED:
+                                case T_PRIVATE:
+                                    continue 2;
+                                case T_VARIABLE:
+                                    // The variale name, adding in the vardiadic if required.
+                                    $variable = ($splat) ? '...' . $argtokens[$j][1] : $argtokens[$j][1];
+                                    continue 2;
+                                case T_ELLIPSIS:
+                                    // For example ...$example
+                                    // Variadic function.
+                                    $splat = true;
+                                    continue 2;
                             }
+                            switch ($argtokens[$j][1]) {
+                                case '|':
+                                    // Union types.
+                                case '&':
+                                    // Return by reference.
+                                    continue 2;
+                                case '?':
+                                    // Nullable type.
+                                    $possibletypes[] = 'null';
+                                    continue 2;
+                                case '=':
+                                    // Default value.
+                                    $j = count($argtokens);
+                                    continue 2;
+                            }
+
+                            $possibletypes[] = $argtokens[$j][1];
                         }
+
+                        $type = implode('|', $possibletypes);
 
                         // PHP 8 treats namespaces as single token. So we are going to undo this here
                         // and continue returning only the final part of the namespace. Someday we'll
@@ -759,6 +786,7 @@ class local_moodlecheck_file {
     public function find_preceeding_phpdoc($tid) {
         $tokens = &$this->get_tokens();
         $modifiers = $this->find_access_modifiers($tid);
+
         for ($i = $tid - 1; $i >= 0; $i--) {
             if ($this->is_whitespace_token($i)) {
                 if ($this->is_multiline_token($i) > 1) {
@@ -1342,8 +1370,25 @@ class local_moodlecheck_phpdocs {
      */
     public function get_params($tag = 'param', $splitlimit = 3) {
         $params = array();
+
         foreach ($this->get_tags($tag) as $token) {
             $params[] = preg_split('/\s+/', trim($token), $splitlimit); // AKA 'type $name multi-word description'.
+        }
+
+        foreach ($params as $key => $param) {
+            if (strpos($param[0], '?') !== false) {
+                $param[0] = str_replace('?', 'null|', $param[0]);
+            }
+            $types = explode('|', $param[0]);
+            $types = array_map(function($type): string {
+                // Normalise array types such as `string[]` to `array`.
+                if (substr($type, -2) == '[]') {
+                    return 'array';
+                }
+                return $type;
+            }, $types);
+            sort($types);
+            $params[$key][0] = implode('|', $types);
         }
         return $params;
     }

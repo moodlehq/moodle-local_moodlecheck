@@ -69,6 +69,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
         // Let's verify we have received a xml with file top element and 2 children.
         $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
+
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(2, $found->length);
 
@@ -196,6 +197,80 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringNotContainsString('@deprecated', $result);
         $this->assertStringNotContainsString('correct_param_types', $result);
         $this->assertStringNotContainsString('correct_return_type', $result);
+    }
+
+    /**
+     * Verify that constructor property promotion is supported.
+     *
+     * @covers ::local_moodlecheck_functionarguments
+     */
+    public function test_phpdoc_constructor_property_promotion() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_constructor_property_promotion.php ', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 8 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(1, $found->length);
+        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertStringNotContainsString('constructor_property_promotion::__construct has incomplete parameters list', $result);
+    }
+
+    /**
+     * Verify that constructor property promotion is supported.
+     *
+     * @covers ::local_moodlecheck_functionarguments
+     */
+    public function test_phpdoc_union_types() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_method_union_types.php ', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 8 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(1, $found->length);
+        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertStringNotContainsString(
+            'constructor_property_promotion::__construct has incomplete parameters list',
+            $result
+         );
+        $this->assertStringNotContainsString(
+            'Phpdocs for function union_types::method_oneline has incomplete parameters list',
+            $result
+        );
+        $this->assertStringNotContainsString(
+            'Phpdocs for function union_types::method_oneline_multi has incomplete parameters list',
+            $result
+        );
+        $this->assertStringNotContainsString(
+            'Phpdocs for function union_types::method_multiline has incomplete parameters list',
+            $result
+        );
+        $this->assertStringNotContainsString(
+            'Phpdocs for function union_types::method_union_order_does_not_matter has incomplete parameters list',
+            $result
+        );
+        $this->assertStringNotContainsString(
+            'Phpdocs for function union_types::method_union_containing_array has incomplete parameters list',
+            $result
+        );
     }
 
     /**
