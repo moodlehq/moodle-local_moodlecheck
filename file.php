@@ -1380,6 +1380,13 @@ class local_moodlecheck_phpdocs {
                 $param[0] = str_replace('?', 'null|', $param[0]);
             }
             $types = explode('|', $param[0]);
+            $types = array_map(function($type): string {
+                // Normalise array types such as `string[]` to `array`.
+                if (substr($type, -2) == '[]') {
+                    return 'array';
+                }
+                return $type;
+            }, $types);
             sort($types);
             $params[$key][0] = implode('|', $types);
         }
