@@ -233,6 +233,32 @@ class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
+     * Verify phpunit codeCoverageIgnore can be applied to an entire file.
+     *
+     * @covers ::local_moodlecheck_phpdocsinvalidtag
+     */
+    public function test_phpdoc_phpunit_coverage_ignored_for_file() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_phpunit_coverage_ignored.php ', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 5 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(1, $found->length);
+
+        // Also verify various bits by content.
+        $this->assertStringContainsString('packagevalid', $result);
+    }
+
+    /**
      * Verify various phpdoc tags can be used inline.
      *
      * @covers ::local_moodlecheck_phpdocsinvalidinlinetag

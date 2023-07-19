@@ -63,6 +63,16 @@ class fixturing_tests {
     }
 
     /**
+     * Some more valid tags, because we are under tests area.
+     *
+     */
+    public function valid_inline_tags() {
+        // @codeCoverageIgnoreStart
+        echo "reyay!";
+        // @codeCoverageIgnoreEnd
+    }
+
+    /**
      * Some invalid tags.
      *
      * @small
