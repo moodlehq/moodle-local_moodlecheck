@@ -230,4 +230,16 @@ class fixturing_general {
     public function correct_return_type(): string {
         return "yay!";
     }
+
+    /**
+     * Namespaced types.
+     *
+     * @param \core\user $user
+     * @return \core\user
+     */
+    public function namespaced_parameter_type(
+        \core\user $user
+    ): \core\user {
+        return $user;
+    }
 }
