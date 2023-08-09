@@ -457,7 +457,7 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                     foreach (explode('|', $documentedtype) as $documentedtype) {
 
                         // Ignore null. They cannot match any type in function.
-                        if (trim( $documentedtype) === 'null') {
+                        if (trim($documentedtype) === 'null') {
                             continue;
                         }
 

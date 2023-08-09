@@ -394,42 +394,28 @@ class local_moodlecheck_file {
                         $splat = false;
 
                         if (PHP_VERSION_ID < 80000) {
+                            $maxindex = array_key_last($argtokens);
                             // In PHP 7.4 and earlier, the namespace was parsed separately, for example:
                             // \core\course would be come '\', 'core', '\', 'course'.
                             // From PHP 8.0 this becomes '\core\course'.
                             // To address this we modify the tokens to match the PHP 8.0 format.
                             // This is a bit of a hack, but it works.
                             // Note: argtokens contains arrays of [token index, string content, line number].
-                            for ($j = 0; $j < count($argtokens); $j++) {
-                                if ($argtokens[$j][0] === T_NS_SEPARATOR && count($argtokens) > $j + 1) {
-                                    // If the token is a literal backslash, then
-                                    // append future tokens until we find a non-namespace token.
+                            for ($j = 0; $j < $maxindex; $j++) {
+                                if ($argtokens[$j][0] === T_NS_SEPARATOR || $argtokens[$j][0] === T_STRING) {
                                     $argtokens[$j][0] = T_STRING;
                                     $initialtoken = $j;
-                                    for ($namespacetoken = $j + 1; $namespacetoken < count($argtokens); $namespacetoken++) {
-                                        switch ($argtokens[$namespacetoken][1]) {
-                                            case '|':
-                                            case '=':
+                                    for ($namespacesearch = $j + 1; $namespacesearch < $maxindex; $namespacesearch++) {
+                                        switch ($argtokens[$namespacesearch][0]) {
+                                            case T_STRING:
+                                            case T_NS_SEPARATOR:
+                                                break;
+                                            default:
                                                 break 2;
                                         }
-                                        $argtokens[$initialtoken][1] .= $argtokens[$namespacetoken][1];
-                                        unset($argtokens[$namespacetoken]);
-                                        $j = $namespacetoken;
-                                    }
-                                } else if (count($argtokens) <= $j && $argtokens[$j + 1][0] === T_NS_SEPARATOR) {
-                                    // If the next token is a literal backslash, then
-                                    // append future tokens until we find a non-namespace token.
-                                    $argtokens[$j][0] = T_STRING;
-                                    $initialtoken = $j;
-                                    for ($namespacetoken = $j + 1; $namespacetoken < count($argtokens); $namespacetoken++) {
-                                        switch ($argtokens[$namespacetoken][1]) {
-                                            case '|':
-                                            case '=':
-                                                break 2;
-                                        }
-                                        $argtokens[$initialtoken][1] .= $argtokens[$namespacetoken][1];
-                                        unset($argtokens[$namespacetoken]);
-                                        $j = $namespacetoken;
+                                        $argtokens[$initialtoken][1] .= $argtokens[$namespacesearch][1];
+                                        unset($argtokens[$namespacesearch]);
+                                        $j = $namespacesearch;
                                     }
                                 }
                             }
