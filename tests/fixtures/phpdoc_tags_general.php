@@ -248,11 +248,13 @@ class fixturing_general {
     /**
      * Namespaced types.
      *
-     * @param \stdClass $data
+     * @param null|\stdClass   $data
+     * @param null|\core\test\something|\core\some\other_thing $moredata
      * @return \stdClass
      */
     public function builtin(
-        \stdClass $data
+        ?\stdClass $data,
+        ?\core\test\something|\core\some\other_thing $moredata
     ): \stdClass {
         return $user;
     }

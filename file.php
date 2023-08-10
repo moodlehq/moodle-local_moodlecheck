@@ -461,16 +461,6 @@ class local_moodlecheck_file {
 
                         $type = implode('|', $possibletypes);
 
-                        // PHP 8 treats namespaces as single token. So we are going to undo this here
-                        // and continue returning only the final part of the namespace. Someday we'll
-                        // move to use full namespaces here, but not for now (we are doing the same,
-                        // in other parts of the code, when processing phpdoc blocks).
-                        if (strpos((string)$type, '\\') !== false) {
-                            // Namespaced typehint, potentially sub-namespaced.
-                            // We need to strip namespacing as this area just isn't that smart.
-                            $type = substr($type, strrpos($type, '\\') + 1);
-                        }
-
                         $function->arguments[] = array($type, $variable);
                     }
                     $function->boundaries = $this->find_object_boundaries($function);
