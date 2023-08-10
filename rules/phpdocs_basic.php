@@ -431,21 +431,10 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                     // Must be at least type and parameter name.
                     $match = false;
                 } else {
-                    $expectedtype = (string)$function->arguments[$i][0];
+                    $expectedtype = local_moodlecheck_normalise_function_type((string) $function->arguments[$i][0]);
                     $expectedparam = (string)$function->arguments[$i][1];
-                    $documentedtype = $documentedarguments[$i][0];
+                    $documentedtype = local_moodlecheck_normalise_function_type((string) $documentedarguments[$i][0]);
                     $documentedparam = $documentedarguments[$i][1];
-
-                    if (strpos($expectedtype, '|' ) !== false) {
-                        $types = explode('|', $expectedtype);
-                        sort($types);
-                        $expectedtype = implode('|', $types);
-                    }
-                    if (strpos($documentedtype, '|' ) !== false) {
-                        $types = explode('|', $documentedtype);
-                        sort($types);
-                        $documentedtype = implode('|', $types);
-                    }
 
                     $typematch = $expectedtype === $documentedtype;
                     $parammatch = $expectedparam === $documentedparam;
@@ -455,16 +444,9 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
 
                     // Documented types can be a collection (| separated).
                     foreach (explode('|', $documentedtype) as $documentedtype) {
-
                         // Ignore null. They cannot match any type in function.
-                        if (trim( $documentedtype) === 'null') {
+                        if (trim($documentedtype) === 'null') {
                             continue;
-                        }
-
-                        if (strpos($documentedtype, '\\') !== false) {
-                            // Namespaced typehint, potentially sub-namespaced.
-                            // We need to strip namespacing as this area just isn't that smart.
-                            $documentedtype = substr($documentedtype, strrpos($documentedtype, '\\') + 1);
                         }
 
                         if (strlen($expectedtype) && $expectedtype !== $documentedtype) {
@@ -494,6 +476,42 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
         }
     }
     return $errors;
+}
+
+/**
+ * Normalise function type to be able to compare it.
+ *
+ * @param string $typelist
+ * @return string
+ */
+function local_moodlecheck_normalise_function_type(string $typelist): string {
+    // Normalise a nullable type to `null|type` as these are just shorthands.
+    $typelist = str_replace(
+        '?',
+        'null|',
+        $typelist
+    );
+
+    // PHP 8 treats namespaces as single token. So we are going to undo this here
+    // and continue returning only the final part of the namespace. Someday we'll
+    // move to use full namespaces here, but not for now (we are doing the same,
+    // in other parts of the code, when processing phpdoc blocks).
+    $types = explode('|', $typelist);
+
+    // Namespaced typehint, potentially sub-namespaced.
+    // We need to strip namespacing as this area just isn't that smart.
+    $types = array_map(
+        function($type) {
+            if (strpos((string)$type, '\\') !== false) {
+                $type = substr($type, strrpos($type, '\\') + 1);
+            }
+            return $type;
+        },
+        $types
+    );
+    sort($types);
+
+    return implode('|', $types);
 }
 
 /**
