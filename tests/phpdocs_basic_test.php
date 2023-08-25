@@ -50,39 +50,34 @@ class phpdocs_basic_test extends \advanced_testcase {
     public static function local_moodlecheck_normalise_function_type_provider(): array {
         return [
             'Simple case' => [
-                'stdClass', 'stdClass',
+                'stdClass', 'Stdclass',
             ],
 
             'Fully-qualified stdClass' => [
-                '\stdClass', 'stdClass',
+                '\stdClass', 'Stdclass',
             ],
 
             'Fully-qualified namespaced item' => [
                 \core_course\local\some\type_of_item::class,
-                'type_of_item',
+                'Type_of_item',
             ],
 
             'Unioned simple case' => [
-                'stdClass|object', 'object|stdClass',
+                'stdClass|object', 'Stdclass|object',
             ],
 
             'Unioned fully-qualfied case' => [
-                '\stdClass|\object', 'object|stdClass',
+                '\stdClass|\object', 'Object|Stdclass',
             ],
 
             'Unioned fully-qualfied namespaced item' => [
                 '\stdClass|\core_course\local\some\type_of_item',
-                'stdClass|type_of_item',
+                'Stdclass|Type_of_item',
             ],
 
             'Nullable fully-qualified type' => [
-                '?\core-course\local\some\type_of_item',
-                'null|type_of_item',
-            ],
-
-            'Nullable fully-qualified type z-a' => [
-                '?\core-course\local\some\alpha_item',
-                'alpha_item|null',
+                '?\core_course\local\some\type_of_item',
+                'Type_of_item|void',
             ],
         ];
     }

@@ -427,39 +427,17 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
             $documentedarguments = $function->phpdocs->get_params();
             $match = (count($documentedarguments) == count($function->arguments));
             for ($i = 0; $match && $i < count($documentedarguments); $i++) {
-                if (count($documentedarguments[$i]) < 2) {
+                if (count($documentedarguments[$i]) < 2 || $documentedarguments[$i][0] == null) {
                     // Must be at least type and parameter name.
                     $match = false;
                 } else {
-                    $expectedtype = local_moodlecheck_normalise_function_type((string) $function->arguments[$i][0]);
+                    $expectedtype = $function->arguments[$i][0];
                     $expectedparam = (string)$function->arguments[$i][1];
-                    $documentedtype = local_moodlecheck_normalise_function_type((string) $documentedarguments[$i][0]);
+                    $documentedtype = $documentedarguments[$i][0];
                     $documentedparam = $documentedarguments[$i][1];
 
-                    $typematch = $expectedtype === $documentedtype;
-                    $parammatch = $expectedparam === $documentedparam;
-                    if ($typematch && $parammatch) {
-                        continue;
-                    }
-
-                    // Documented types can be a collection (| separated).
-                    foreach (explode('|', $documentedtype) as $documentedtype) {
-                        // Ignore null. They cannot match any type in function.
-                        if (trim($documentedtype) === 'null') {
-                            continue;
-                        }
-
-                        if (strlen($expectedtype) && $expectedtype !== $documentedtype) {
-                            // It could be a type hinted array.
-                            if ($expectedtype !== 'array' || substr($documentedtype, -2) !== '[]') {
-                                $match = false;
-                            }
-                        } else if ($documentedtype === 'type') {
-                            $match = false;
-                        } else if ($expectedparam !== $documentedparam) {
-                            $match = false;
-                        }
-                    }
+                    $match = ($expectedparam === $documentedparam)
+                            && \local_moodlecheck\type_parser::compare_types($expectedtype, $documentedtype);
                 }
             }
             $documentedreturns = $function->phpdocs->get_params('return');
@@ -482,36 +460,12 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
  * Normalise function type to be able to compare it.
  *
  * @param string $typelist
- * @return string
+ * @return ?string
  */
-function local_moodlecheck_normalise_function_type(string $typelist): string {
-    // Normalise a nullable type to `null|type` as these are just shorthands.
-    $typelist = str_replace(
-        '?',
-        'null|',
-        $typelist
-    );
-
-    // PHP 8 treats namespaces as single token. So we are going to undo this here
-    // and continue returning only the final part of the namespace. Someday we'll
-    // move to use full namespaces here, but not for now (we are doing the same,
-    // in other parts of the code, when processing phpdoc blocks).
-    $types = explode('|', $typelist);
-
-    // Namespaced typehint, potentially sub-namespaced.
-    // We need to strip namespacing as this area just isn't that smart.
-    $types = array_map(
-        function($type) {
-            if (strpos((string)$type, '\\') !== false) {
-                $type = substr($type, strrpos($type, '\\') + 1);
-            }
-            return $type;
-        },
-        $types
-    );
-    sort($types);
-
-    return implode('|', $types);
+function local_moodlecheck_normalise_function_type(string $typelist): ?string {
+    $typeparser = new \local_moodlecheck\type_parser();
+    list($type, $remainder) = $typeparser->parse_type($typelist);
+    return $type;
 }
 
 /**
@@ -525,7 +479,7 @@ function local_moodlecheck_variableshasvar(local_moodlecheck_file $file) {
     foreach ($file->get_variables() as $variable) {
         if ($variable->phpdocs !== false) {
             $documentedvars = $variable->phpdocs->get_params('var', 2);
-            if (!count($documentedvars) || $documentedvars[0][0] == 'type') {
+            if (!count($documentedvars) || $documentedvars[0][0] == 'type' || $documentedvars[0][0] == null) {
                 $errors[] = array(
                     'line' => $variable->phpdocs->get_line_number($file, '@var'),
                     'variable' => $variable->fullname);

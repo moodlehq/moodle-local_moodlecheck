@@ -344,6 +344,7 @@ class local_moodlecheck_file {
      */
     public function &get_functions() {
         if ($this->functions === null) {
+            $typeparser = new \local_moodlecheck\type_parser();
             $this->functions = array();
             $tokens = &$this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
@@ -389,77 +390,46 @@ class local_moodlecheck_file {
                         if (empty($argtokens)) {
                             continue;
                         }
-                        $possibletypes = [];
-                        $variable = null;
-                        $splat = false;
 
-                        if (PHP_VERSION_ID < 80000) {
-                            $maxindex = array_key_last($argtokens);
-                            // In PHP 7.4 and earlier, the namespace was parsed separately, for example:
-                            // \core\course would be come '\', 'core', '\', 'course'.
-                            // From PHP 8.0 this becomes '\core\course'.
-                            // To address this we modify the tokens to match the PHP 8.0 format.
-                            // This is a bit of a hack, but it works.
-                            // Note: argtokens contains arrays of [token index, string content, line number].
-                            for ($j = 0; $j < $maxindex; $j++) {
-                                if ($argtokens[$j][0] === T_NS_SEPARATOR || $argtokens[$j][0] === T_STRING) {
-                                    $argtokens[$j][0] = T_STRING;
-                                    $initialtoken = $j;
-                                    for ($namespacesearch = $j + 1; $namespacesearch < $maxindex; $namespacesearch++) {
-                                        switch ($argtokens[$namespacesearch][0]) {
-                                            case T_STRING:
-                                            case T_NS_SEPARATOR:
-                                                break;
-                                            default:
-                                                break 2;
-                                        }
-                                        $argtokens[$initialtoken][1] .= $argtokens[$namespacesearch][1];
-                                        unset($argtokens[$namespacesearch]);
-                                        $j = $namespacesearch;
-                                    }
-                                }
-                            }
-                        }
-                        $argtokens = array_values($argtokens);
+                        $j = 0;
 
-                        for ($j = 0; $j < count($argtokens); $j++) {
-                            switch ($argtokens[$j][0]) {
-                                // Skip any whitespace, or argument visibility.
-                                case T_WHITESPACE:
-                                case T_PUBLIC:
-                                case T_PROTECTED:
-                                case T_PRIVATE:
-                                    continue 2;
-                                case T_VARIABLE:
-                                    // The variale name, adding in the vardiadic if required.
-                                    $variable = ($splat) ? '...' . $argtokens[$j][1] : $argtokens[$j][1];
-                                    continue 2;
-                                case T_ELLIPSIS:
-                                    // For example ...$example
-                                    // Variadic function.
-                                    $splat = true;
-                                    continue 2;
-                            }
-                            switch ($argtokens[$j][1]) {
-                                case '|':
-                                    // Union types.
-                                case '&':
-                                    // Return by reference.
-                                    continue 2;
-                                case '?':
-                                    // Nullable type.
-                                    $possibletypes[] = 'null';
-                                    continue 2;
-                                case '=':
-                                    // Default value.
-                                    $j = count($argtokens);
-                                    continue 2;
-                            }
-
-                            $possibletypes[] = $argtokens[$j][1];
+                        // Skip argument visibility.
+                        while ($j < count($argtokens)
+                                && in_array($argtokens[$j][0], [T_WHITESPACE, T_PUBLIC, T_PROTECTED, T_PRIVATE])) {
+                            $j++;
                         }
 
-                        $type = implode('|', $possibletypes);
+                        // Get type.
+                        $typeandremainder = '';
+                        for (; $j < count($argtokens); $j++) {
+                            $typeandremainder .= $argtokens[$j][1];
+                        }
+                        list($type, $remainder) = $typeparser->parse_type($typeandremainder);
+
+                        // Get variable.
+                        $variable = '';
+                        $j = 0;
+                        while ($j < strlen($remainder) && ctype_space($remainder[$j])) {
+                            $j++;
+                        }
+                        if (substr($remainder, $j, 3) == '...') {
+                            $variable .= '...';
+                            $j += 3;
+                        }
+                        while ($j < strlen($remainder) && ctype_space($remainder[$j])) {
+                            $j++;
+                        }
+                        if (substr($remainder, $j, 1) == '&') {
+                            $j += 1;
+                        }
+                        while ($j < strlen($remainder) && ctype_space($remainder[$j])) {
+                            $j++;
+                        }
+                        while ($j < strlen($remainder)
+                                && ($remainder[$j] == '$' || ctype_alnum($remainder[$j]) || $remainder[$j] == '_')) {
+                            $variable .= $remainder[$j];
+                            $j++;
+                        }
 
                         $function->arguments[] = array($type, $variable);
                     }
@@ -1389,27 +1359,15 @@ class local_moodlecheck_phpdocs {
      * @return array
      */
     public function get_params($tag = 'param', $splitlimit = 3) {
+        $typeparser = new \local_moodlecheck\type_parser();
         $params = array();
 
         foreach ($this->get_tags($tag) as $token) {
-            $params[] = preg_split('/\s+/', trim($token), $splitlimit); // AKA 'type $name multi-word description'.
+            list($type, $remainder) = $typeparser->parse_type($token);
+            $tokenarray = array_merge([$type], preg_split('/\s+/', trim($remainder), $splitlimit - 1));
+            $params[] = $tokenarray; // AKA 'type $name multi-word description'.
         }
 
-        foreach ($params as $key => $param) {
-            if (strpos($param[0], '?') !== false) {
-                $param[0] = str_replace('?', 'null|', $param[0]);
-            }
-            $types = explode('|', $param[0]);
-            $types = array_map(function($type): string {
-                // Normalise array types such as `string[]` to `array`.
-                if (substr($type, -2) == '[]') {
-                    return 'array';
-                }
-                return $type;
-            }, $types);
-            sort($types);
-            $params[$key][0] = implode('|', $types);
-        }
         return $params;
     }
 
