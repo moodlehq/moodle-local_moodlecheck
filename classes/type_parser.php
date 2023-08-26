@@ -43,27 +43,63 @@ class type_parser {
     /**
      * Parse the whole type
      *
-     * @param string $type the type to parse
-     * @return array{?non-empty-string, string} the simplified type, and remaining text
+     * @param string $intype the type to parse
+     * @param bool $getvar whether to get variable name
+     * @return array{?non-empty-string, ?non-empty-string, string} the simplified type, variable, and remaining text
      */
-    public function parse_type(string $type): array {
+    public function parse_type_and_var(string $intype, bool $getvar = true): array {
 
         // Initialise variables.
-        $this->type = strtolower($type);
+        $this->type = strtolower($intype);
         $this->nextnextpos = 0;
         $this->prefetch_next_token();
 
-        // Try to parse.
+        // Try to parse type.
+        $savednextpos = $this->nextpos;
+        $savednexttoken = $this->nexttoken;
+        $savednextnextpos = $this->nextnextpos;
         try {
-            $result = $this->parse_dnf_type();
-            if ($this->nextpos < strlen($type) && !ctype_space($type[$this->nextpos])) {
-                throw new \Error("Error parsing type, no space at end");
+            $outtype = $this->parse_dnf_type();
+            if ($this->nextpos < strlen($intype) && !ctype_space($intype[$this->nextpos]) && $this->nexttoken != '...') {
+                throw new \Error("Error parsing type, no space at end of type");
             }
-            return [$result, substr($type, $this->nextpos)];
         } catch (\Error $e) {
-            return [null, $type];
+            $this->nextpos = $savednextpos;
+            $this->nexttoken = $savednexttoken;
+            $this->nextnextpos = $savednextnextpos;
+            $outtype = null;
         }
 
+        // Try to parse variable.
+        if ($getvar) {
+            $savednextpos = $this->nextpos;
+            $savednexttoken = $this->nexttoken;
+            $savednextnextpos = $this->nextnextpos;
+            try {
+                if ($this->nexttoken == '&') {
+                    $this->parse_token('&');
+                }
+                if ($this->nexttoken == '...') {
+                    $this->parse_token('...');
+                }
+                if (!($this->nexttoken != null && $this->nexttoken[0] == '$')) {
+                    throw new \Error("Error parsing type, expected variable, saw {$this->nexttoken}");
+                }
+                $variable = $this->parse_token();
+                if ($this->nextpos < strlen($intype) && !ctype_space($intype[$this->nextpos]) && $this->nexttoken != '=') {
+                    throw new \Error("Error parsing type, no space at end of variable");
+                }
+            } catch (\Error $e) {
+                $this->nextpos = $savednextpos;
+                $this->nexttoken = $savednexttoken;
+                $this->nextnextpos = $savednextnextpos;
+                $variable = null;
+            }
+        } else {
+            $variable = null;
+        }
+
+        return [$outtype, $variable, trim(substr($intype, $this->nextpos))];
     }
 
     /**
@@ -92,24 +128,7 @@ class type_parser {
             // If the expected types are super types, that should match.
             $narrowadditions = [];
             foreach ($narrowsingles as $narrowsingle) {
-                if ($narrowsingle == 'int') {
-                    $supertypes = ['array-key', 'float', 'scalar'];
-                } else if ($narrowsingle == 'string') {
-                    $supertypes = ['array-key', 'scaler'];
-                } else if ($narrowsingle == 'callable-string') {
-                    $supertypes = ['callable', 'string', 'array-key', 'scalar'];
-                } else if (in_array($narrowsingle, ['array-key', 'bool', 'float'])) {
-                    $supertypes = ['scalar'];
-                } else if ($narrowsingle == 'array') {
-                    $supertypes = ['iterable'];
-                } else if ($narrowsingle == 'Traversable') {
-                    $supertypes = ['iterable', 'object'];
-                } else if (in_array($narrowsingle, ['self', 'parent', 'static'])
-                        || $narrowsingle[0] >= 'A' && $narrowsingle[0] <= 'Z' || $narrowsingle[0] == '_') {
-                    $supertypes = ['object'];
-                } else {
-                    $supertypes = [];
-                }
+                $supertypes = static::super_types($narrowsingle);
                 $narrowadditions = array_merge($narrowadditions, $supertypes);
             }
             $narrowsingles = array_merge($narrowsingles, $narrowadditions);
@@ -142,6 +161,34 @@ class type_parser {
             }
         }
         return $haveallintersections;
+    }
+
+    /**
+     * Get super types
+     *
+     * @param string $basetype
+     * @return non-empty-string[] super types
+     */
+    protected static function super_types(string $basetype): array {
+        if ($basetype == 'int') {
+            $supertypes = ['array-key', 'float', 'scalar'];
+        } else if ($basetype == 'string') {
+            $supertypes = ['array-key', 'scaler'];
+        } else if ($basetype == 'callable-string') {
+            $supertypes = ['callable', 'string', 'array-key', 'scalar'];
+        } else if (in_array($basetype, ['array-key', 'bool', 'float'])) {
+            $supertypes = ['scalar'];
+        } else if ($basetype == 'array') {
+            $supertypes = ['iterable'];
+        } else if ($basetype == 'Traversable') {
+            $supertypes = ['iterable', 'object'];
+        } else if (in_array($basetype, ['self', 'parent', 'static'])
+                || $basetype[0] >= 'A' && $basetype[0] <= 'Z' || $basetype[0] == '_') {
+            $supertypes = ['object'];
+        } else {
+            $supertypes = [];
+        }
+        return $supertypes;
     }
 
     /**
@@ -270,6 +317,15 @@ class type_parser {
                 if (in_array('callable', $intersectiontypes) && in_array('string', $intersectiontypes)) {
                     $intersectiontypes[] = 'callable-string';
                 }
+                foreach ($intersectiontypes as $intersectiontype) {
+                    $supertypes = static::super_types($intersectiontype);
+                    foreach ($supertypes as $supertype) {
+                        $superpos = array_search($supertype, $intersectiontypes);
+                        if ($superpos !== false) {
+                            unset($intersectiontypes[$superpos]);
+                        }
+                    }
+                }
                 sort($intersectiontypes);
                 $intersectiontypes = array_unique($intersectiontypes);
                 $neverpos = array_search('never', $intersectiontypes);
@@ -290,6 +346,20 @@ class type_parser {
         }
 
         // Tidy and return union list. TODO: Normalise.
+        if ((in_array('int', $uniontypes) || in_array('float', $uniontypes)) && in_array('string', $uniontypes)) {
+            $uniontypes[] = 'array-key';
+        }
+        if (in_array('array-key', $uniontypes) && in_array('bool', $uniontypes) && in_array('float', $uniontypes)) {
+            $uniontypes[] = 'scalar';
+        }
+        if (in_array('Traversable', $uniontypes) && in_array('array', $uniontypes)) {
+            $uniontypes[] = 'iterable';
+        }
+        if (in_array('scalar', $uniontypes) && (in_array('array', $uniontypes) || in_array('iterable', $uniontypes))
+                && in_array('object', $uniontypes) && in_array('resource', $uniontypes) && in_array('callable', $uniontypes)
+                && in_array('void', $uniontypes)) {
+            $uniontypes = ['mixed'];
+        }
         sort($uniontypes);
         $uniontypes = array_unique($uniontypes);
         $mixedpos = array_search('mixed', $uniontypes);
@@ -493,21 +563,18 @@ class type_parser {
                 $splat = false;
                 while ($this->nexttoken != ')') {
                     $this->parse_dnf_type();
-                    if ($this->nexttoken == '=') {
-                        $this->parse_token('=');
+                    if ($this->nexttoken == '&') {
+                        $this->parse_token('&');
                     }
                     if ($this->nexttoken == '...') {
                         $this->parse_token('...');
                         $splat = true;
                     }
+                    if ($this->nexttoken == '=') {
+                        $this->parse_token('=');
+                    }
                     $nextchar = ($this->nexttoken != null) ? $this->nexttoken[0] : null;
-                    if ($nextchar == '&' || $nextchar == '$') {
-                        if ($this->nexttoken == '&') {
-                            if ($splat) {
-                                throw new \Error("Error parsing type, can't pass splat by reference");
-                            }
-                            $this->parse_token('&');
-                        }
+                    if ($nextchar == '$') {
                         $nextchar = ($this->nexttoken != null) ? $this->nexttoken[0] : null;
                         if ($nextchar == '$') {
                             $this->parse_token();

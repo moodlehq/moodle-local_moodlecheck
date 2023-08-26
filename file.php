@@ -399,37 +399,12 @@ class local_moodlecheck_file {
                             $j++;
                         }
 
-                        // Get type.
-                        $typeandremainder = '';
+                        // Get type and variable.
+                        $text = '';
                         for (; $j < count($argtokens); $j++) {
-                            $typeandremainder .= $argtokens[$j][1];
+                            $text .= $argtokens[$j][1];
                         }
-                        list($type, $remainder) = $typeparser->parse_type($typeandremainder);
-
-                        // Get variable.
-                        $variable = '';
-                        $j = 0;
-                        while ($j < strlen($remainder) && ctype_space($remainder[$j])) {
-                            $j++;
-                        }
-                        if (substr($remainder, $j, 3) == '...') {
-                            $variable .= '...';
-                            $j += 3;
-                        }
-                        while ($j < strlen($remainder) && ctype_space($remainder[$j])) {
-                            $j++;
-                        }
-                        if (substr($remainder, $j, 1) == '&') {
-                            $j += 1;
-                        }
-                        while ($j < strlen($remainder) && ctype_space($remainder[$j])) {
-                            $j++;
-                        }
-                        while ($j < strlen($remainder)
-                                && ($remainder[$j] == '$' || ctype_alnum($remainder[$j]) || $remainder[$j] == '_')) {
-                            $variable .= $remainder[$j];
-                            $j++;
-                        }
+                        list($type, $variable, $default) = $typeparser->parse_type_and_var($text);
 
                         $function->arguments[] = array($type, $variable);
                     }
@@ -1355,17 +1330,22 @@ class local_moodlecheck_phpdocs {
      * Each element is array(typename, variablename, variabledescription)
      *
      * @param string $tag tag name to look for. Usually param but may be var for variables
-     * @param int $splitlimit maximum number of chunks to return
+     * @param bool $getvar whether to get variable name
      * @return array
      */
-    public function get_params($tag = 'param', $splitlimit = 3) {
+    public function get_params($tag = 'param', $getvar = true) {
         $typeparser = new \local_moodlecheck\type_parser();
         $params = array();
 
         foreach ($this->get_tags($tag) as $token) {
-            list($type, $remainder) = $typeparser->parse_type($token);
-            $tokenarray = array_merge([$type], preg_split('/\s+/', trim($remainder), $splitlimit - 1));
-            $params[] = $tokenarray; // AKA 'type $name multi-word description'.
+            list($type, $variable, $description) = $typeparser->parse_type_and_var($token, $getvar);
+            $param = [];
+            $param[] = $type;
+            if ($getvar) {
+                $param[] = $variable;
+            }
+            $param[] = $description;
+            $params[] = $param;
         }
 
         return $params;
