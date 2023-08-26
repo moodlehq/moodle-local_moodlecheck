@@ -60,7 +60,8 @@ class type_parser {
         $savednextnextpos = $this->nextnextpos;
         try {
             $outtype = $this->parse_dnf_type();
-            if ($this->nextpos < strlen($intype) && !ctype_space($intype[$this->nextpos]) && $this->nexttoken != '...') {
+            if ($this->nextpos < strlen($intype) && !ctype_space($intype[$this->nextpos])
+                && !($this->nexttoken == '&' || $this->nexttoken == '...')) {
                 throw new \Error("Error parsing type, no space at end of type");
             }
         } catch (\Error $e) {
@@ -303,9 +304,9 @@ class type_parser {
                     array_push($intersectiontypes, $this->parse_single_type());
                     // We have to figure out whether a & is for intersection or pass by reference.
                     // Dirty hack.  TODO: Do something better.
-                    $haveintersection = $this->nexttoken == '&'
-                        && ($havebracket || !ctype_space($this->type[$this->nextpos])
-                            || $this->nextnextpos < strlen($this->type) && ctype_space($this->type[$this->nextnextpos]));
+                    $haveintersection = $this->nexttoken == '&' && ($this->nextnextpos < strlen($this->type))
+                        && ($havebracket || !(ctype_space($this->type[$this->nextpos])
+                                            xor ctype_space($this->type[$this->nextnextpos])));
                     if ($haveintersection) {
                         $this->parse_token('&');
                     }
