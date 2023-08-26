@@ -304,9 +304,11 @@ class type_parser {
                     array_push($intersectiontypes, $this->parse_single_type());
                     // We have to figure out whether a & is for intersection or pass by reference.
                     // Dirty hack.  TODO: Do something better.
-                    $haveintersection = $this->nexttoken == '&' && ($this->nextnextpos < strlen($this->type))
-                        && ($havebracket || !(ctype_space($this->type[$this->nextpos])
-                                            xor ctype_space($this->type[$this->nextnextpos])));
+                    $haveintersection = $this->nexttoken == '&' && ($havebracket
+                        || !($this->nextnextpos >= strlen($this->type)
+                                || in_array($this->type[$this->nextnextpos], ['.', '=', '$', ',', ')']))
+                            && !(!ctype_space($this->type[$this->nextpos])
+                                && ctype_space($this->type[$this->nextnextpos])));
                     if ($haveintersection) {
                         $this->parse_token('&');
                     }
