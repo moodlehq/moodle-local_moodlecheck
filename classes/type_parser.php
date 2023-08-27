@@ -243,6 +243,9 @@ class type_parser {
         } else if (strlen($this->type) >= $startpos + 3 && substr($this->type, $startpos, 3) == '...') {
             // Splat.
             $endpos = $startpos + 3;
+        } else if (strlen($this->type) >= $startpos + 2 && substr($this->type, $startpos, 2) == '::') {
+            // Scope resolution operator.
+            $endpos = $startpos + 2;
         } else {
             // Other symbol token.
             $endpos = $startpos + 1;
@@ -303,12 +306,14 @@ class type_parser {
                 do {
                     array_push($intersectiontypes, $this->parse_single_type());
                     // We have to figure out whether a & is for intersection or pass by reference.
-                    // Dirty hack.  TODO: Do something better.
-                    $haveintersection = $this->nexttoken == '&' && ($havebracket
-                        || !($this->nextnextpos >= strlen($this->type)
-                                || in_array($this->type[$this->nextnextpos], ['.', '=', '$', ',', ')']))
-                            && !(!ctype_space($this->type[$this->nextpos])
-                                && ctype_space($this->type[$this->nextnextpos])));
+                    // Dirty hack.
+                    $nextnextpos = $this->nextnextpos;
+                    while ($nextnextpos < strlen($this->type) && ctype_space($this->type[$nextnextpos])) {
+                        $nextnextpos++;
+                    }
+                    $nextnextchar = ($nextnextpos < strlen($this->type)) ? $this->type[$nextnextpos] : null;
+                    $haveintersection = $this->nexttoken == '&'
+                        && ($havebracket || !in_array($nextnextchar, ['.', '=', '$', ',', ')', null]));
                     if ($haveintersection) {
                         $this->parse_token('&');
                     }
@@ -316,7 +321,7 @@ class type_parser {
                 if ($havebracket) {
                     $this->parse_token(')');
                 }
-                // Tidy and store intersection list. TODO: Normalise.
+                // Tidy and store intersection list.
                 if (in_array('callable', $intersectiontypes) && in_array('string', $intersectiontypes)) {
                     $intersectiontypes[] = 'callable-string';
                 }
@@ -339,6 +344,7 @@ class type_parser {
                 if ($mixedpos !== false && count($intersectiontypes) > 1) {
                     unset($intersectiontypes[$mixedpos]);
                 }
+                // TODO: Check for conflicting types.
                 array_push($uniontypes, implode('&', $intersectiontypes));
                 // Check for more union items.
                 $haveunion = $this->nexttoken == '|';
@@ -348,7 +354,7 @@ class type_parser {
             } while ($haveunion);
         }
 
-        // Tidy and return union list. TODO: Normalise.
+        // Tidy and return union list.
         if ((in_array('int', $uniontypes) || in_array('float', $uniontypes)) && in_array('string', $uniontypes)) {
             $uniontypes[] = 'array-key';
         }
@@ -373,6 +379,7 @@ class type_parser {
         if ($neverpos !== false && count($uniontypes) > 1) {
             unset($uniontypes[$neverpos]);
         }
+        // TODO: Check for redundant types.
         return implode('|', $uniontypes);
 
     }
@@ -425,17 +432,22 @@ class type_parser {
                 // Parse integer mask.
                 $this->parse_token('<');
                 $nextchar = ($this->nexttoken != null) ? $this->nexttoken[0] : null;
-                do {
-                    if (!($nextchar != null && ctype_digit($nextchar) && strpos($this->nexttoken, '.') === false)) {
-                        throw new \Error("Error parsing type, expected int mask, saw {$this->nexttoken}");
-                    }
-                    $this->parse_token();
-                    $haveseperator = ($name == 'int-mask') && ($this->nexttoken == ',')
-                                    || ($name == 'int-mask-of') && ($this->nexttoken == '|');
-                    if ($haveseperator) {
+                if (ctype_digit($nextchar) || $name == 'int-mask') {
+                    do {
+                        if (!($nextchar != null && ctype_digit($nextchar) && strpos($this->nexttoken, '.') === false)) {
+                            throw new \Error("Error parsing type, expected int mask, saw {$this->nexttoken}");
+                        }
                         $this->parse_token();
-                    }
-                } while ($haveseperator);
+                        $haveseperator = ($name == 'int-mask') && ($this->nexttoken == ',')
+                                        || ($name == 'int-mask-of') && ($this->nexttoken == '|');
+                        if ($haveseperator) {
+                            $this->parse_token();
+                        }
+                        $nextchar = ($this->nexttoken != null) ? $this->nexttoken[0] : null;
+                    } while ($haveseperator);
+                } else {
+                    $this->parse_single_type();
+                }
                 $this->parse_token('>');
             }
             $name = 'int';
@@ -626,13 +638,13 @@ class type_parser {
         } else if ($name == 'key-of') {
             // Parse key-of details.
             $this->parse_token('<');
-            $this->parse_single_type();
+            $this->parse_dnf_type();
             $this->parse_token('>');
             $name = 'array-key';
         } else if ($name == 'value-of') {
             // Parse value-of details.
             $this->parse_token('<');
-            $this->parse_single_type();
+            $this->parse_dnf_type();
             $this->parse_token('>');
             $name = 'mixed';
         } else {
@@ -649,16 +661,27 @@ class type_parser {
             }
             $name = ucfirst($name);
         }
-        // TODO: Conditional return types.
 
-        // Parse array suffix.
-        $arrayed = ($this->nexttoken == '[');
-        if ($arrayed) {
+        if ($this->nexttoken == '::' && ($name == 'object' || in_array('object', static::super_types($name)))) {
+            // Parse class constant.
+            $this->parse_token('::');
+            $nextchar = ($this->nexttoken == null) ? null : $this->nexttoken[0];
+            $haveconstantname = $nextchar != null && (ctype_alpha($nextchar) || $nextchar == '_');
+            if ($haveconstantname) {
+                $this->parse_token();
+            }
+            if ($this->nexttoken == '*' || !$haveconstantname) {
+                $this->parse_token('*');
+            }
+            $name = 'mixed';
+        } else if ($this->nexttoken == '[') {
+            // Parse array suffix.
             $this->parse_token('[');
             $this->parse_token(']');
+            $name = 'array';
         }
 
-        return $arrayed ? 'array' : $name;
+        return $name;
     }
 
 }
