@@ -433,11 +433,15 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                 } else {
                     $expectedtype = $function->arguments[$i][0];
                     $expectedparam = (string)$function->arguments[$i][1];
+                    $expecteddefault = $function->arguments[$i][2];
                     $documentedtype = $documentedarguments[$i][0];
                     $documentedparam = $documentedarguments[$i][1];
 
                     $match = ($expectedparam === $documentedparam)
-                            && \local_moodlecheck\type_parser::compare_types($expectedtype, $documentedtype);
+                            && \local_moodlecheck\type_parser::compare_types($expectedtype, $documentedtype)
+                            && !($expecteddefault == 'null'
+                                && strpos("|{$documentedtype}|", '|void|') === false
+                                && $documentedtype != 'mixed');
                 }
             }
             $documentedreturns = $function->phpdocs->get_params('return', false);
