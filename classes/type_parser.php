@@ -88,6 +88,12 @@ class type_parser {
                 if ($this->nextpos < strlen($text) && !(ctype_space($text[$this->nextpos]) || $this->nexttoken == '=')) {
                     throw new \Error("Error parsing type, no space at end of variable.");
                 }
+                if ($this->nexttoken == '=') {
+                    $this->parse_token('=');
+                    if ($this->nexttoken == 'null' && $type != null) {
+                        $type = $type . '|void';
+                    }
+                }
             } catch (\Error $e) {
                 list($this->nextpos, $this->nexttoken, $this->nextnextpos) = $savedstate;
                 $variable = null;
