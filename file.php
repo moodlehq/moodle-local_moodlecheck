@@ -399,14 +399,14 @@ class local_moodlecheck_file {
                             $j++;
                         }
 
-                        // Get type, variable name, and default value.
+                        // Get type and variable.
                         $text = '';
                         for (; $j < count($argtokens); $j++) {
                             $text .= $argtokens[$j][1];
                         }
                         list($type, $variable, $default) = $typeparser->parse_type_and_var($text);
 
-                        $function->arguments[] = array($type, $variable, $default);
+                        $function->arguments[] = array($type, $variable);
                     }
                     $function->boundaries = $this->find_object_boundaries($function);
                     $this->functions[] = $function;
