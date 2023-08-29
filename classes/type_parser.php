@@ -62,10 +62,6 @@ class type_parser {
         $savedstate = [$this->nextpos, $this->nexttoken, $this->nextnextpos];
         try {
             $type = $this->parse_dnf_type();
-            if ($this->nextpos < strlen($text)
-                    && !(ctype_space($text[$this->nextpos]) || $this->nexttoken == '&' || $this->nexttoken == '...')) {
-                throw new \Error("Error parsing type, no space at end of type.");
-            }
         } catch (\Error $e) {
             list($this->nextpos, $this->nexttoken, $this->nextnextpos) = $savedstate;
             $type = null;
@@ -108,14 +104,14 @@ class type_parser {
     /**
      * Compare types
      *
-     * @param ?string $widetype the type that should be wider
-     * @param ?string $narrowtype the type that should be narrower
+     * @param ?string $widetype the type that should be wider, e.g. PHP type
+     * @param ?string $narrowtype the type that should be narrower, e.g. PHPDoc type
      * @return bool whether $narrowtype has the same or narrower scope as $widetype
      */
     public static function compare_types(?string $widetype, ?string $narrowtype): bool {
-        if ($narrowtype == null || $narrowtype == '') {
+        if ($narrowtype === null || $narrowtype == '') {
             return false;
-        } else if ($widetype == null || $widetype == '' || $widetype == 'mixed'
+        } else if ($widetype === null || $widetype == '' || $widetype == 'mixed'
                 || $narrowtype == 'never') {
             return true;
         }
@@ -432,7 +428,7 @@ class type_parser {
                 // Parse integer mask.
                 $this->parse_token('<');
                 $nextchar = ($this->nexttoken != null) ? $this->nexttoken[0] : null;
-                if (ctype_digit($nextchar) || $type == 'int-mask') {
+                if ($nextchar != null && ctype_digit($nextchar) || $type == 'int-mask') {
                     do {
                         if (!($nextchar != null && ctype_digit($nextchar) && strpos($this->nexttoken, '.') === false)) {
                             throw new \Error("Error parsing type, expected int mask, saw \"{$this->nexttoken}\".");
@@ -645,8 +641,22 @@ class type_parser {
                 throw new \Error("Error parsing type, class name has trailing slash.");
             }
             $type = ucfirst($type);
-        }
+            if ($this->nexttoken == '<') {
+                // Collection.
+                $this->parse_token('<');
+                $firsttype = $this->parse_dnf_type();
+                if ($this->nexttoken == ',') {
+                    $key = $firsttype;
+                    $this->parse_token(',');
+                    $value = $this->parse_dnf_type();
+                } else {
+                    $key = null;
+                    $value = $firsttype;
+                }
+                $this->parse_token('>');
+            }
 
+        }
         // Parse suffix.
         if ($this->nexttoken == '::' && ($type == 'object' || in_array('object', static::super_types($type)))) {
             // Parse class constant.
@@ -660,11 +670,15 @@ class type_parser {
                 $this->parse_token('*');
             }
             $type = $this->gowide ? 'mixed' : 'never';
-        } else if ($this->nexttoken == '[') {
-            // Parse array suffix.
-            $this->parse_token('[');
-            $this->parse_token(']');
-            $type = 'array';
+        } else {
+            while ($this->nexttoken == '['
+                && ($this->text[$this->nextpos] == '['
+                    || $this->nextnextpos < strlen($this->text) && $this->text[$this->nextnextpos] == ']')) {
+                // Parse array suffix.
+                $this->parse_token('[');
+                $this->parse_token(']');
+                $type = 'array';
+            }
         }
 
         return $type;
