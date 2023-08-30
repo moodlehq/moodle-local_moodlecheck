@@ -254,7 +254,7 @@ class fixturing_general {
      */
     public function builtin(
         ?\stdClass $data,
-        ?\core\test\something|\core\some\other_thing $moredata
+        \core\test\something|\core\some\other_thing|null $moredata
     ): \stdClass {
         return $user;
     }
