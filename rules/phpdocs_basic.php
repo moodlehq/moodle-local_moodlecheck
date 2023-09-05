@@ -424,25 +424,28 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
 
     foreach ($file->get_functions() as $function) {
         if ($function->phpdocs !== false) {
-            $documentedarguments = $function->phpdocs->get_params();
+            $documentedarguments = $function->phpdocs->get_params('param', 2);
             $match = (count($documentedarguments) == count($function->arguments));
             for ($i = 0; $match && $i < count($documentedarguments); $i++) {
-                if (count($documentedarguments[$i]) < 2 || $documentedarguments[$i][0] == null) {
+                if (count($documentedarguments[$i]) < 2 || $documentedarguments[$i][0] == null || $documentedarguments[$i][1] == null) {
                     // Must be at least type and parameter name.
                     $match = false;
                 } else {
                     $expectedtype = $function->arguments[$i][0];
                     $expectedparam = (string)$function->arguments[$i][1];
+                    $expectednullable = $function->arguments[$i][2];
                     $documentedtype = $documentedarguments[$i][0];
                     $documentedparam = $documentedarguments[$i][1];
 
                     $match = ($expectedparam === $documentedparam)
-                            && \local_moodlecheck\type_parser::compare_types($expectedtype, $documentedtype);
+                            && \local_moodlecheck\type_parser::compare_types($expectedtype, $documentedtype)
+                            // Code smell check follows.
+                            && (!$expectednullable || strpos("|{$documentedtype}|", "|void|") !== false);
                 }
             }
-            $documentedreturns = $function->phpdocs->get_params('return', false);
+            $documentedreturns = $function->phpdocs->get_params('return', 0);
             for ($i = 0; $match && $i < count($documentedreturns); $i++) {
-                if (empty($documentedreturns[$i][0]) || $documentedreturns[$i][0] == 'type') {
+                if (empty($documentedreturns[$i][0])) {
                     $match = false;
                 }
             }
@@ -464,7 +467,7 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_normalise_function_type(string $typelist): ?string {
     $typeparser = new \local_moodlecheck\type_parser();
-    list($type, $variable, $remainder) = $typeparser->parse_type_and_var($typelist, false);
+    list($type, $variable, $remainder) = $typeparser->parse_type_and_var($typelist, 0, true);
     return $type;
 }
 
@@ -478,8 +481,8 @@ function local_moodlecheck_variableshasvar(local_moodlecheck_file $file) {
     $errors = array();
     foreach ($file->get_variables() as $variable) {
         if ($variable->phpdocs !== false) {
-            $documentedvars = $variable->phpdocs->get_params('var', false);
-            if (!count($documentedvars) || $documentedvars[0][0] == 'type' || $documentedvars[0][0] == null) {
+            $documentedvars = $variable->phpdocs->get_params('var', 0);
+            if (!count($documentedvars) || $documentedvars[0][0] == null) {
                 $errors[] = array(
                     'line' => $variable->phpdocs->get_line_number($file, '@var'),
                     'variable' => $variable->fullname);

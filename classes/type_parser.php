@@ -20,99 +20,125 @@ namespace local_moodlecheck;
  * Type parser
  *
  * Checks that PHPDoc types are well formed, and returns a simplified version if so, or null otherwise.
+ * Global constants and the Collection|Type[] construct aren't supported,
+ * because this would require looking up type and global definitions.
  *
  * @package     local_moodlecheck
  * @copyright   2023 Te Pūkenga – New Zealand Institute of Skills and Technology
  * @author      James Calder
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later (or CC BY-SA v4 or later)
  */
 class type_parser {
 
     /** @var string the text to be parsed */
     protected $text;
 
+    /** @var string the text to be parsed, with case retained */
+    protected $textwithcase;
+
     /** @var bool when we encounter an unknown type, should we go wide or narrow */
     protected $gowide;
 
-    /** @var non-negative-int the position of the next token */
-    protected $nextpos;
+    /** @var object{startpos: non-negative-int, endpos: non-negative-int, text: ?non-empty-string}[] next tokens */
+    protected $nexts;
 
     /** @var ?non-empty-string the next token */
-    protected $nexttoken;
-
-    /** @var non-negative-int the position after the next token */
-    protected $nextnextpos;
+    protected $next;
 
     /**
      * Parse a type and possibly variable name
      *
      * @param string $text the text to parse
-     * @param bool $getvar whether to get variable name
-     * @return array{?non-empty-string, ?non-empty-string, string} the simplified type, variable, and remaining text
+     * @param 0|1|2|3 $getwhat what to get 0=type only 1=also var 2=also modifiers (& ...) 3=also default
+     * @param bool $gowide if we can't determine the type, should we assume wide (for native type) or narrow (for PHPDoc)?
+     * @return array{?non-empty-string, ?non-empty-string, string, bool} the simplified type, variable, remaining text,
+     *                                                                   and whether the type is explicitly nullable
      */
-    public function parse_type_and_var(string $text, bool $getvar = true): array {
+    public function parse_type_and_var(string $text, int $getwhat, bool $gowide): array {
 
         // Initialise variables.
         $this->text = strtolower($text);
-        $this->gowide = false;
-        $this->nextnextpos = 0;
-        $this->prefetch_next_token();
+        $this->textwithcase = $text;
+        $this->gowide = $gowide;
+        $this->nexts = [];
+        $this->next = $this->next();
 
         // Try to parse type.
-        $savedstate = [$this->nextpos, $this->nexttoken, $this->nextnextpos];
+        $savednexts = $this->nexts;
         try {
-            $type = $this->parse_dnf_type();
-        } catch (\Error $e) {
-            list($this->nextpos, $this->nexttoken, $this->nextnextpos) = $savedstate;
+            $type = $this->parse_any_type();
+            $explicitnullable = strpos("|{$type}|", "|void|") !== false; // For code smell check.
+            if (!($this->next == null || $getwhat >= 1
+                    || ctype_space(substr($this->text, $this->nexts[0]->startpos - 1, 1))
+                    || in_array($this->next, [',', ';', ':', '.']))) {
+                // Code smell check.
+                throw new \Exception("Warning parsing type, no space after type.");
+            }
+        } catch (\Exception $e) {
+            $this->nexts = $savednexts;
+            $this->next = $this->next();
             $type = null;
+            $explicitnullable = false;
         }
 
         // Try to parse variable.
-        if ($getvar) {
-            $savedstate = [$this->nextpos, $this->nexttoken, $this->nextnextpos];
+        if ($getwhat >= 1) {
+            $savednexts = $this->nexts;
             try {
-                if ($this->nexttoken == '&') {
-                    $this->parse_token('&');
+                $variable = '';
+                if ($getwhat >= 2) {
+                    if ($this->next == '&') {
+                        // Not adding this for code smell check,
+                        // because the checker previously disallowed pass by reference & in PHPDocs,
+                        // so adding this would be a nusiance for people who changed their PHPDocs
+                        // to conform to the previous rules.
+                        $this->parse_token('&');
+                    }
+                    if ($this->next == '...') {
+                        // Add to variable name for code smell check.
+                        $variable .= $this->parse_token('...');
+                    }
                 }
-                if ($this->nexttoken == '...') {
-                    $this->parse_token('...');
+                if (!($this->next != null && $this->next[0] == '$')) {
+                    throw new \Exception("Error parsing type, expected variable, saw \"{$this->next}\".");
                 }
-                if (!($this->nexttoken != null && $this->nexttoken[0] == '$')) {
-                    throw new \Error("Error parsing type, expected variable, saw \"{$this->nexttoken}\".");
+                $variable .= $this->next(0, true);
+                assert($variable != '');
+                $this->parse_token();
+                if (!($this->next == null || $getwhat >= 3 && $this->next == '='
+                        || ctype_space(substr($this->text, $this->nexts[0]->startpos - 1, 1))
+                        || in_array($this->next, [',', ';', ':', '.']))) {
+                    // Code smell check.
+                    throw new \Exception("Warning parsing type, no space after variable name.");
                 }
-                $variable = $this->parse_token();
-                if ($this->nextpos < strlen($text) && !(ctype_space($text[$this->nextpos]) || $this->nexttoken == '=')) {
-                    throw new \Error("Error parsing type, no space at end of variable.");
-                }
-                if ($this->nexttoken == '=') {
-                    $this->parse_token('=');
-                    if ($this->nexttoken == 'null' && $type != null) {
+                if ($getwhat >= 3) {
+                    if ($this->next == '=' && $this->next(1) == 'null' && $type != null) {
                         $type = $type . '|void';
                     }
                 }
-            } catch (\Error $e) {
-                list($this->nextpos, $this->nexttoken, $this->nextnextpos) = $savedstate;
+            } catch (\Exception $e) {
+                $this->nexts = $savednexts;
+                $this->next = $this->next();
                 $variable = null;
             }
         } else {
             $variable = null;
         }
 
-        return [$type, $variable, trim(substr($text, $this->nextpos))];
+        return [$type, $variable, trim(substr($text, $this->nexts[0]->startpos)), $explicitnullable];
     }
 
     /**
      * Compare types
      *
-     * @param ?string $widetype the type that should be wider, e.g. PHP type
-     * @param ?string $narrowtype the type that should be narrower, e.g. PHPDoc type
+     * @param ?non-empty-string $widetype the type that should be wider, e.g. PHP type
+     * @param ?non-empty-string $narrowtype the type that should be narrower, e.g. PHPDoc type
      * @return bool whether $narrowtype has the same or narrower scope as $widetype
      */
     public static function compare_types(?string $widetype, ?string $narrowtype): bool {
-        if ($narrowtype === null || $narrowtype == '') {
+        if ($narrowtype == null) {
             return false;
-        } else if ($widetype === null || $widetype == '' || $widetype == 'mixed'
-                || $narrowtype == 'never') {
+        } else if ($widetype == null || $widetype == 'mixed' || $narrowtype == 'never') {
             return true;
         }
 
@@ -127,6 +153,7 @@ class type_parser {
             // If the wide types are super types, that should match.
             $narrowadditions = [];
             foreach ($narrowsingles as $narrowsingle) {
+                assert($narrowsingle != '');
                 $supertypes = static::super_types($narrowsingle);
                 $narrowadditions = array_merge($narrowadditions, $supertypes);
             }
@@ -165,13 +192,11 @@ class type_parser {
     /**
      * Get super types
      *
-     * @param string $basetype
+     * @param non-empty-string $basetype
      * @return non-empty-string[] super types
      */
     protected static function super_types(string $basetype): array {
-        if ($basetype == 'int') {
-            $supertypes = ['array-key', 'float', 'scalar'];
-        } else if ($basetype == 'string') {
+        if (in_array($basetype, ['int', 'string'])) {
             $supertypes = ['array-key', 'scaler'];
         } else if ($basetype == 'callable-string') {
             $supertypes = ['callable', 'string', 'array-key', 'scalar'];
@@ -181,8 +206,10 @@ class type_parser {
             $supertypes = ['iterable'];
         } else if ($basetype == 'Traversable') {
             $supertypes = ['iterable', 'object'];
+        } else if ($basetype == 'Closure') {
+            $supertypes = ['callable', 'object'];
         } else if (in_array($basetype, ['self', 'parent', 'static'])
-                || $basetype[0] >= 'A' && $basetype[0] <= 'Z' || $basetype[0] == '_') {
+                || ctype_upper($basetype[0]) || $basetype[0] == '_') {
             $supertypes = ['object'];
         } else {
             $supertypes = [];
@@ -192,168 +219,203 @@ class type_parser {
 
     /**
      * Prefetch next token
+     *
+     * @param non-negative-int $lookahead
+     * @param bool $getcase
+     * @return ?non-empty-string
      */
-    protected function prefetch_next_token(): void {
+    protected function next(int $lookahead = 0, bool $getcase = false): ?string {
 
-        $startpos = $this->nextnextpos;
+        // Fetch any more tokens we need.
+        while (count($this->nexts) < $lookahead + 1) {
 
-        // Ignore whitespace.
-        while ($startpos < strlen($this->text) && ctype_space($this->text[$startpos])) {
-            $startpos++;
-        }
+            $startpos = $this->nexts ? end($this->nexts)->endpos : 0;
 
-        $firstchar = ($startpos < strlen($this->text)) ? $this->text[$startpos] : null;
-
-        // Deal with different types of tokens.
-        if ($firstchar == null) {
-            // No more tokens.
-            $endpos = $startpos;
-        } else if (ctype_digit($firstchar) || $firstchar == '-') {
-            // Number token.
-            $nextchar = $firstchar;
-            $havepoint = false;
-            $endpos = $startpos;
-            do {
-                $havepoint = $havepoint || $nextchar == '.';
-                $endpos = $endpos + 1;
-                $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
-            } while ($nextchar != null && (ctype_digit($nextchar) || $nextchar == '.' && !$havepoint));
-        } else if (ctype_alpha($firstchar) || $firstchar == '_' || $firstchar == '$' || $firstchar == '\\') {
-            // Identifier token.
-            $endpos = $startpos;
-            do {
-                $endpos = $endpos + 1;
-                $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
-            } while ($nextchar != null && (ctype_alnum($nextchar) || $nextchar == '_'
-                                        || $firstchar != '$' && ($nextchar == '-' || $nextchar == '\\')));
-        } else if ($firstchar == '"' || $firstchar == '\'') {
-            // String token.
-            $endpos = $startpos + 1;
-            $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
-            while ($nextchar != $firstchar) {
-                if ($nextchar == null) {
-                    throw new \Error("Error parsing type, unterminated string.");
-                }
-                $endpos = $endpos + 1;
-                $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
+            // Ignore whitespace.
+            while ($startpos < strlen($this->text) && ctype_space($this->text[$startpos])) {
+                $startpos++;
             }
-            $endpos++;
-        } else if (strlen($this->text) >= $startpos + 3 && substr($this->text, $startpos, 3) == '...') {
-            // Splat.
-            $endpos = $startpos + 3;
-        } else if (strlen($this->text) >= $startpos + 2 && substr($this->text, $startpos, 2) == '::') {
-            // Scope resolution operator.
-            $endpos = $startpos + 2;
-        } else {
-            // Other symbol token.
-            $endpos = $startpos + 1;
+
+            $firstchar = ($startpos < strlen($this->text)) ? $this->text[$startpos] : null;
+
+            // Deal with different types of tokens.
+            if ($firstchar == null) {
+                // No more tokens.
+                $endpos = $startpos;
+            } else if (ctype_alpha($firstchar) || $firstchar == '_' || $firstchar == '$' || $firstchar == '\\') {
+                // Identifier token.
+                $endpos = $startpos;
+                do {
+                    $endpos = $endpos + 1;
+                    $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
+                } while ($nextchar != null && (ctype_alnum($nextchar) || $nextchar == '_'
+                                            || $firstchar != '$' && ($nextchar == '-' || $nextchar == '\\')));
+            } else if (ctype_digit($firstchar) || $firstchar == '-'
+                    || $firstchar == '.' && strlen($this->text) >= $startpos + 2 && ctype_digit($this->text[$startpos + 1])) {
+                // Number token.
+                $nextchar = $firstchar;
+                $havepoint = false;
+                $endpos = $startpos;
+                do {
+                    $havepoint = $havepoint || $nextchar == '.';
+                    $endpos = $endpos + 1;
+                    $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
+                } while ($nextchar != null && (ctype_digit($nextchar) || $nextchar == '.' && !$havepoint));
+            } else if ($firstchar == '"' || $firstchar == '\'') {
+                // String token.
+                $endpos = $startpos + 1;
+                $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
+                while ($nextchar != $firstchar && $nextchar != null) { // There may be apostropes in comments.
+                    $endpos = $endpos + 1;
+                    $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
+                }
+                if ($nextchar != null) {
+                    $endpos++;
+                }
+            } else if (strlen($this->text) >= $startpos + 3 && substr($this->text, $startpos, 3) == '...') {
+                // Splat.
+                $endpos = $startpos + 3;
+            } else if (strlen($this->text) >= $startpos + 2 && substr($this->text, $startpos, 2) == '::') {
+                // Scope resolution operator.
+                $endpos = $startpos + 2;
+            } else {
+                // Other symbol token.
+                $endpos = $startpos + 1;
+            }
+
+            // Store token.
+            $next = substr($this->text, $startpos, $endpos - $startpos);
+            assert ($next !== false);
+            if (strlen($next) > 0 && in_array($next, ['"', '\''])
+                    && (strlen($next) < 2 || !in_array(substr($next, -1), ['"', '\'']))) {
+                // If we have an unterminated string, we've reached the end of usable tokens.
+                $next = '';
+            }
+            $this->nexts[] = (object)['startpos' => $startpos, 'endpos' => $endpos,
+                'text' => ($next !== '') ? $next : null];
         }
 
-        // Store token.
-        $this->nextpos = $this->nextnextpos;
-        $this->nexttoken = ($endpos > $startpos) ? substr($this->text, $startpos, $endpos - $startpos) : null;
-        $this->nextnextpos = $endpos;
+        // Return the needed token.
+        if ($getcase) {
+            $next = substr($this->textwithcase, $this->nexts[$lookahead]->startpos,
+                $this->nexts[$lookahead]->endpos - $this->nexts[$lookahead]->startpos);
+            assert($next !== false);
+            return ($next !== '') ? $next : null;
+        } else {
+            return $this->nexts[$lookahead]->text;
+        }
     }
 
     /**
      * Fetch the next token
      *
-     * @param ?string $expect the expected text
+     * @param ?non-empty-string $expect the expected text
      * @return non-empty-string
      */
     protected function parse_token(?string $expect = null): string {
 
-        $nexttoken = $this->nexttoken;
+        $next = $this->next;
 
         // Check we have the expected token.
-        if ($expect != null && $nexttoken != $expect) {
-            throw new \Error("Error parsing type, expected \"{$expect}\", saw \"{$nexttoken}\".");
-        } else if ($nexttoken == null) {
-            throw new \Error("Error parsing type, unexpected end.");
+        if ($expect != null && $next != $expect) {
+            throw new \Exception("Error parsing type, expected \"{$expect}\", saw \"{$next}\".");
+        } else if ($next == null) {
+            throw new \Exception("Error parsing type, unexpected end.");
         }
 
         // Prefetch next token.
-        $this->prefetch_next_token();
+        $this->next(1);
 
         // Return consumed token.
-        return $nexttoken;
+        array_shift($this->nexts);
+        $this->next = $this->next();
+        return $next;
     }
 
     /**
-     * Parse a list of types seperated by | and/or &, or a single nullable type
+     * Parse a list of types seperated by | and/or &, single nullable type, or conditional return type
      *
+     * @param bool $inbrackets are we immediately inside brackets?
      * @return non-empty-string the simplified type
      */
-    protected function parse_dnf_type(): string {
-        $uniontypes = [];
+    protected function parse_any_type(bool $inbrackets = false): string {
 
-        if ($this->nexttoken == '?') {
-            // Parse single nullable type.
+        if ($inbrackets && $this->next !== null && $this->next[0] == '$' && $this->next(1) == 'is') {
+            // Conditional return type.
+            $this->parse_token();
+            $this->parse_token('is');
+            $this->parse_any_type();
             $this->parse_token('?');
-            array_push($uniontypes, 'void');
-            array_push($uniontypes, $this->parse_single_type());
+            $firsttype = $this->parse_any_type();
+            $this->parse_token(':');
+            $secondtype = $this->parse_any_type();
+            $uniontypes = array_merge(explode('|', $firsttype), explode('|', $secondtype));
+        } else if ($this->next == '?') {
+            // Single nullable type.
+            $this->parse_token('?');
+            $uniontypes = explode('|', $this->parse_single_type());
+            $uniontypes[] = 'void';
         } else {
-            // Parse union list.
+            // Union list.
+            $uniontypes = [];
             do {
-                // Parse intersection list.
-                $havebracket = $this->nexttoken == '(';
-                if ($havebracket) {
-                    $this->parse_token('(');
-                }
+                // Intersection list.
+                $unioninstead = null;
                 $intersectiontypes = [];
                 do {
-                    array_push($intersectiontypes, $this->parse_single_type());
-                    // We have to figure out whether a & is for intersection or pass by reference.
-                    // Dirty hack.
-                    $nextnextpos = $this->nextnextpos;
-                    while ($nextnextpos < strlen($this->text) && ctype_space($this->text[$nextnextpos])) {
-                        $nextnextpos++;
+                    $singletype = $this->parse_single_type();
+                    if (strpos($singletype, '|') !== false) {
+                        $intersectiontypes[] = $this->gowide ? 'mixed' : 'never';
+                        $unioninstead = $singletype;
+                    } else {
+                        $intersectiontypes = array_merge($intersectiontypes, explode('&', $singletype));
                     }
-                    $nextnextchar = ($nextnextpos < strlen($this->text)) ? $this->text[$nextnextpos] : null;
-                    $haveintersection = $this->nexttoken == '&'
-                        && ($havebracket || !in_array($nextnextchar, ['.', '=', '$', ',', ')', null]));
-                    if ($haveintersection) {
+                    // We have to figure out whether a & is for intersection or pass by reference.
+                    $nextnext = $this->next(1);
+                    $havemoreintersections = $this->next == '&'
+                        && !(in_array($nextnext, ['...', '=', ',', ')', null])
+                            || $nextnext != null && $nextnext[0] == '$');
+                    if ($havemoreintersections) {
                         $this->parse_token('&');
                     }
-                } while ($haveintersection);
-                if ($havebracket) {
-                    $this->parse_token(')');
-                }
-                // Tidy and store intersection list.
-                if (in_array('callable', $intersectiontypes) && in_array('string', $intersectiontypes)) {
-                    $intersectiontypes[] = 'callable-string';
-                }
-                foreach ($intersectiontypes as $intersectiontype) {
-                    $supertypes = static::super_types($intersectiontype);
-                    foreach ($supertypes as $supertype) {
-                        $superpos = array_search($supertype, $intersectiontypes);
-                        if ($superpos !== false) {
-                            unset($intersectiontypes[$superpos]);
+                } while ($havemoreintersections);
+                if (count($intersectiontypes) <= 1 && $unioninstead !== null) {
+                    $uniontypes = array_merge($uniontypes, explode('|', $unioninstead));
+                } else {
+                    // Tidy and store intersection list.
+                    foreach ($intersectiontypes as $intersectiontype) {
+                        assert ($intersectiontype != '');
+                        $supertypes = static::super_types($intersectiontype);
+                        foreach ($supertypes as $supertype) {
+                            $superpos = array_search($supertype, $intersectiontypes);
+                            if ($superpos !== false) {
+                                unset($intersectiontypes[$superpos]);
+                            }
                         }
                     }
+                    sort($intersectiontypes);
+                    $intersectiontypes = array_unique($intersectiontypes);
+                    $neverpos = array_search('never', $intersectiontypes);
+                    if ($neverpos !== false) {
+                        $intersectiontypes = ['never'];
+                    }
+                    $mixedpos = array_search('mixed', $intersectiontypes);
+                    if ($mixedpos !== false && count($intersectiontypes) > 1) {
+                        unset($intersectiontypes[$mixedpos]);
+                    }
+                    // TODO: Check for conflicting types, and reduce to never?
+                    array_push($uniontypes, implode('&', $intersectiontypes));
                 }
-                sort($intersectiontypes);
-                $intersectiontypes = array_unique($intersectiontypes);
-                $neverpos = array_search('never', $intersectiontypes);
-                if ($neverpos !== false) {
-                    $intersectiontypes = ['never'];
-                }
-                $mixedpos = array_search('mixed', $intersectiontypes);
-                if ($mixedpos !== false && count($intersectiontypes) > 1) {
-                    unset($intersectiontypes[$mixedpos]);
-                }
-                // TODO: Check for conflicting types.
-                array_push($uniontypes, implode('&', $intersectiontypes));
                 // Check for more union items.
-                $haveunion = $this->nexttoken == '|';
-                if ($haveunion) {
+                $havemoreunions = $this->next == '|';
+                if ($havemoreunions) {
                     $this->parse_token('|');
                 }
-            } while ($haveunion);
+            } while ($havemoreunions);
         }
 
         // Tidy and return union list.
-        if ((in_array('int', $uniontypes) || in_array('float', $uniontypes)) && in_array('string', $uniontypes)) {
+        if (in_array('int', $uniontypes) && in_array('string', $uniontypes)) {
             $uniontypes[] = 'array-key';
         }
         if (in_array('array-key', $uniontypes) && in_array('bool', $uniontypes) && in_array('float', $uniontypes)) {
@@ -361,11 +423,6 @@ class type_parser {
         }
         if (in_array('Traversable', $uniontypes) && in_array('array', $uniontypes)) {
             $uniontypes[] = 'iterable';
-        }
-        if (in_array('scalar', $uniontypes) && (in_array('array', $uniontypes) || in_array('iterable', $uniontypes))
-                && in_array('object', $uniontypes) && in_array('resource', $uniontypes) && in_array('callable', $uniontypes)
-                && in_array('void', $uniontypes)) {
-            $uniontypes = ['mixed'];
         }
         sort($uniontypes);
         $uniontypes = array_unique($uniontypes);
@@ -377,8 +434,10 @@ class type_parser {
         if ($neverpos !== false && count($uniontypes) > 1) {
             unset($uniontypes[$neverpos]);
         }
-        // TODO: Check for redundant types.
-        return implode('|', $uniontypes);
+        // TODO: Check for and remove redundant sub types.
+        $type = implode('|', $uniontypes);
+        assert($type != '');
+        return $type;
 
     }
 
@@ -388,127 +447,137 @@ class type_parser {
      * @return non-empty-string the simplified type
      */
     protected function parse_single_type(): string {
-
-        // Parse base part.
-        $nextchar = ($this->nexttoken == null) ? null : $this->nexttoken[0];
-        if ($nextchar == '"' || $nextchar == '\'' || $nextchar >= '0' && $nextchar <= '9' || $nextchar == '-'
-                || $nextchar == '$' || $nextchar == '\\' || $nextchar != null && ctype_alpha($nextchar) || $nextchar == '_') {
-            $type = $this->parse_token();
+        if ($this->next == '(') {
+            $this->parse_token('(');
+            $type = $this->parse_any_type(true);
+            $this->parse_token(')');
         } else {
-            throw new \Error("Error parsing type, expecting type, saw \"{$this->nexttoken}\".");
+            $type = $this->parse_basic_type();
         }
+        while ($this->next == '[' && $this->next(1) == ']') {
+            // Array suffix.
+            $this->parse_token('[');
+            $this->parse_token(']');
+            $type = 'array';
+        }
+        return $type;
+    }
 
-        // Parse details part.
-        if (in_array($type, ['bool', 'boolean', 'true', 'false'])) {
-            // Parse bool details.
+    /**
+     * Parse a basic type
+     *
+     * @return non-empty-string the simplified type
+     */
+    protected function parse_basic_type(): string {
+
+        $next = $this->next;
+        if ($next == null) {
+            throw new \Exception("Error parsing type, expected type, saw end");
+        }
+        $nextchar = $next[0];
+
+        if (in_array($next, ['bool', 'boolean', 'true', 'false'])) {
+            // Bool.
+            $this->parse_token();
             $type = 'bool';
-        } else if (in_array($type, ['int', 'integer',
-                                    'positive-int', 'negative-int', 'non-positive-int', 'non-negative-int', 'non-zero-int',
+        } else if (in_array($next, ['int', 'integer', 'positive-int', 'negative-int',
+                                    'non-positive-int', 'non-negative-int', 'non-zero-int',
                                     'int-mask', 'int-mask-of'])
-                || ($type[0] >= '0' && $type[0] <= '9' || $type[0] == '-') && strpos($type, '.') === false) {
-            // Parse int details.
-            if ($type == 'int' && $this->nexttoken == '<') {
-                // Parse integer range.
+                || ($nextchar >= '0' && $nextchar <= '9' || $nextchar == '-') && strpos($next, '.') === false) {
+            // Int.
+            $inttype = $this->parse_token();
+            if ($inttype == 'int' && $this->next == '<') {
+                // Integer range.
                 $this->parse_token('<');
-                $nexttoken = $this->nexttoken;
-                if (!($nexttoken != null && ($nexttoken[0] >= '0' && $nexttoken[0] <= '9' || $nexttoken[0] == '-')
-                        || $nexttoken == 'min')) {
-                    throw new \Error("Error parsing type, expected int min, saw \"{$nexttoken}\".");
-                };
-                $this->parse_token();
-                $this->parse_token(',');
-                $nexttoken = $this->nexttoken;
-                if (!($nexttoken != null && ($nexttoken[0] >= '0' && $nexttoken[0] <= '9' || $nexttoken[0] == '-')
-                        || $nexttoken == 'max')) {
-                    throw new \Error("Error parsing type, expected int max, saw \"{$nexttoken}\".");
-                };
-                $this->parse_token();
-                $this->parse_token('>');
-            } else if (in_array($type, ['int-mask', 'int-mask-of'])) {
-                // Parse integer mask.
-                $this->parse_token('<');
-                $nextchar = ($this->nexttoken != null) ? $this->nexttoken[0] : null;
-                if ($nextchar != null && ctype_digit($nextchar) || $type == 'int-mask') {
-                    do {
-                        if (!($nextchar != null && ctype_digit($nextchar) && strpos($this->nexttoken, '.') === false)) {
-                            throw new \Error("Error parsing type, expected int mask, saw \"{$this->nexttoken}\".");
-                        }
-                        $this->parse_token();
-                        $haveseperator = ($type == 'int-mask') && ($this->nexttoken == ',')
-                                        || ($type == 'int-mask-of') && ($this->nexttoken == '|');
-                        if ($haveseperator) {
-                            $this->parse_token();
-                        }
-                        $nextchar = ($this->nexttoken != null) ? $this->nexttoken[0] : null;
-                    } while ($haveseperator);
+                if ($this->next == 'min') {
+                    $this->parse_token('min');
                 } else {
-                    $this->parse_single_type();
+                    $this->parse_basic_type();
                 }
+                $this->parse_token(',');
+                if ($this->next == 'max') {
+                    $this->parse_token('max');
+                } else {
+                    $this->parse_basic_type();
+                }
+                $this->parse_token('>');
+            } else if (in_array($inttype, ['int-mask', 'int-mask-of'])) {
+                // Integer mask.
+                $this->parse_token('<');
+                do {
+                    $this->parse_basic_type();
+                    $haveseperator = ($inttype == 'int-mask') && ($this->next == ',')
+                                    || ($inttype == 'int-mask-of') && ($this->next == '|');
+                    if ($haveseperator) {
+                        $this->parse_token();
+                    }
+                } while ($haveseperator);
                 $this->parse_token('>');
             }
             $type = 'int';
-        } else if (in_array($type, ['float', 'double'])
-                || ($type[0] >= '0' && $type[0] <= '9' || $type[0] == '-') && strpos($type, '.') !== false) {
-            // Parse float details.
+        } else if (in_array($next, ['float', 'double'])
+                || ($nextchar >= '0' && $nextchar <= '9' || $nextchar == '-'
+                    || $nextchar == '.' && $next != '...') && strpos($next, '.') !== false) {
+            // Float.
+            $this->parse_token();
             $type = 'float';
-        } else if (in_array($type, ['string', 'class-string', 'numeric-string', 'literal-string',
+        } else if (in_array($next, ['string', 'class-string', 'numeric-string', 'literal-string',
                                     'non-empty-string', 'non-falsy-string', 'truthy-string'])
-                    || $type[0] == '"' || $type[0] == '\'') {
-            // Parse string details.
-            if ($type == 'class-string' && $this->nexttoken == '<') {
+                    || $nextchar == '"' || $nextchar == '\'') {
+            // String.
+            $strtype = $this->parse_token();
+            if ($strtype == 'class-string' && $this->next == '<') {
                 $this->parse_token('<');
-                $classname = $this->parse_single_type();
-                if (!($classname[0] >= 'A' && $classname[0] <= 'Z' || $classname[0] == '_')) {
-                    throw new \Error("Error parsing type, class string type isn't class name.");
+                $stringtype = $this->parse_any_type();
+                if (!static::compare_types('object', $stringtype)) {
+                    throw new \Exception("Error parsing type, class-string type isn't class.");
                 }
                 $this->parse_token('>');
             }
             $type = 'string';
-        } else if ($type == 'callable-string') {
-            // Parse callable-string details.
+        } else if ($next == 'callable-string') {
+            // Callable-string.
+            $this->parse_token('callable-string');
             $type = 'callable-string';
-        } else if (in_array($type, ['array', 'non-empty-array', 'list', 'non-empty-list'])) {
-            // Parse array details.
-            if ($this->nexttoken == '<') {
+        } else if (in_array($next, ['array', 'non-empty-array', 'list', 'non-empty-list'])) {
+            // Array.
+            $arraytype = $this->parse_token();
+            if ($this->next == '<') {
                 // Typed array.
                 $this->parse_token('<');
-                $firsttype = $this->parse_dnf_type();
-                if ($this->nexttoken == ',') {
-                    if (in_array($type, ['list', 'non-empty-list'])) {
-                        throw new \Error("Error parsing type, lists cannot have keys specified.");
+                $firsttype = $this->parse_any_type();
+                if ($this->next == ',') {
+                    if (in_array($arraytype, ['list', 'non-empty-list'])) {
+                        throw new \Exception("Error parsing type, lists cannot have keys specified.");
                     }
                     $key = $firsttype;
                     $this->parse_token(',');
-                    $value = $this->parse_dnf_type();
+                    $value = $this->parse_any_type();
                 } else {
                     $key = null;
                     $value = $firsttype;
                 }
                 $this->parse_token('>');
-            } else if ($this->nexttoken == '{') {
+            } else if ($this->next == '{') {
                 // Array shape.
-                if (in_array($type, ['list', 'non-empty-list'])) {
-                    throw new \Error("Error parsing type, lists cannot have shapes.");
+                if (in_array($arraytype, ['non-empty-array', 'non-empty-list'])) {
+                    throw new \Exception("Error parsing type, non-empty-arrays cannot have shapes.");
                 }
                 $this->parse_token('{');
                 do {
-                    $key = null;
-                    $savedstate = [$this->nextpos, $this->nexttoken, $this->nextnextpos];
-                    try {
-                        $key = $this->parse_token();
-                        if (!(ctype_alpha($key) || $key[0] == '_' || $key[0] == '\'' || $key[0] == '"'
-                                || (ctype_digit($key) || $key[0] == '-') && strpos($key, '.') === false)) {
-                            throw new \Error("Error parsing type, invalid array key.");
-                        }
-                        if ($this->nexttoken == '?') {
+                    $next = $this->next;
+                    if ($next != null
+                            && (ctype_alpha($next) || $next[0] == '_' || $next[0] == '\'' || $next[0] == '"'
+                                || (ctype_digit($next) || $next[0] == '-') && strpos($next, '.') === false)
+                            && ($this->next(1) == ':' || $this->next(1) == '?' && $this->next(2) == ':')) {
+                        $this->parse_token();
+                        if ($this->next == '?') {
                             $this->parse_token('?');
                         }
                         $this->parse_token(':');
-                    } catch (\Error $e) {
-                        list($this->nextpos, $this->nexttoken, $this->nextnextpos) = $savedstate;
                     }
-                    $this->parse_dnf_type();
-                    $havecomma = $this->nexttoken == ',';
+                    $this->parse_any_type();
+                    $havecomma = $this->next == ',';
                     if ($havecomma) {
                         $this->parse_token(',');
                     }
@@ -516,22 +585,23 @@ class type_parser {
                 $this->parse_token('}');
             }
             $type = 'array';
-        } else if ($type == 'object') {
-            // Parse object details.
-            if ($this->nexttoken == '{') {
+        } else if ($next == 'object') {
+            // Object.
+            $this->parse_token('object');
+            if ($this->next == '{') {
                 // Object shape.
                 $this->parse_token('{');
                 do {
                     $key = $this->parse_token();
                     if (!(ctype_alpha($key) || $key[0] == '_' || $key[0] == '\'' || $key[0] == '"')) {
-                        throw new \Error("Error parsing type, invalid array key.");
+                        throw new \Exception("Error parsing type, invalid object key.");
                     }
-                    if ($this->nexttoken == '?') {
+                    if ($this->next == '?') {
                         $this->parse_token('?');
                     }
                     $this->parse_token(':');
-                    $this->parse_dnf_type();
-                    $havecomma = $this->nexttoken == ',';
+                    $this->parse_any_type();
+                    $havecomma = $this->next == ',';
                     if ($havecomma) {
                         $this->parse_token(',');
                     }
@@ -539,148 +609,158 @@ class type_parser {
                 $this->parse_token('}');
             }
             $type = 'object';
-        } else if ($type == 'resource') {
-            // Parse resource details.
+        } else if ($next == 'resource') {
+            // Resource.
+            $this->parse_token('resource');
             $type = 'resource';
-        } else if ($type == 'never' || $type == 'never-return' || $type == 'never-returns' || $type == 'no-return') {
-            // Parse never details.
+        } else if (in_array($next, ['never', 'never-return', 'never-returns', 'no-return'])) {
+            // Never.
+            $this->parse_token();
             $type = 'never';
-        } else if (in_array($type, ['void', 'null'])) {
-            // Parse void details.
+        } else if (in_array($next, ['void', 'null'])) {
+            // Void.
+            $this->parse_token();
             $type = 'void';
-        } else if ($type == 'self') {
-            // Parse self details.
+        } else if ($next == 'self') {
+            // Self.
+            $this->parse_token('self');
             $type = 'self';
-        } else if ($type == 'parent') {
-            // Parse parent details.
+        } else if ($next == 'parent') {
+            // Parent.
+            $this->parse_token('parent');
             $type = 'parent';
-        } else if (in_array($type, ['static', '$this'])) {
-            // Parse static details.
+        } else if (in_array($next, ['static', '$this'])) {
+            // Static.
+            $this->parse_token();
             $type = 'static';
-        } else if ($type == 'callable') {
-            // Parse callable details.
-            if ($this->nexttoken == '(') {
+        } else if (in_array($next, ['callable', 'closure', '\closure'])) {
+            // Callable.
+            $callabletype = $this->parse_token();
+            if ($this->next == '(') {
                 $this->parse_token('(');
-                $splat = false;
-                while ($this->nexttoken != ')') {
-                    $this->parse_dnf_type();
-                    if ($this->nexttoken == '&') {
+                while ($this->next != ')') {
+                    $this->parse_any_type();
+                    if ($this->next == '&') {
                         $this->parse_token('&');
                     }
-                    if ($this->nexttoken == '...') {
+                    if ($this->next == '...') {
                         $this->parse_token('...');
-                        $splat = true;
                     }
-                    if ($this->nexttoken == '=') {
+                    if ($this->next == '=') {
                         $this->parse_token('=');
                     }
-                    $nextchar = ($this->nexttoken != null) ? $this->nexttoken[0] : null;
+                    $nextchar = ($this->next != null) ? $this->next[0] : null;
                     if ($nextchar == '$') {
                         $this->parse_token();
                     }
-                    if ($this->nexttoken != ')') {
-                        if ($splat) {
-                            throw new \Error("Error parsing type, expected end of param list, saw \"{$this->nexttoken}\".");
-                        }
+                    if ($this->next != ')') {
                         $this->parse_token(',');
                     }
-                };
+                }
                 $this->parse_token(')');
                 $this->parse_token(':');
-                if ($this->nexttoken == '(') {
-                    $this->parse_token('(');
-                    $this->parse_dnf_type();
-                    $this->parse_token(')');
+                if ($this->next == '?') {
+                    $this->parse_any_type();
                 } else {
-                    if ($this->nexttoken == '?') {
-                        $this->parse_token('?');
-                    }
                     $this->parse_single_type();
                 }
             }
-            $type = 'callable';
-        } else if ($type == 'mixed') {
-            // Parse mixed details.
+            if ($callabletype == 'callable') {
+                $type = 'callable';
+            } else {
+                $type = 'Closure';
+            }
+        } else if ($next == 'mixed') {
+            // Mixed.
+            $this->parse_token('mixed');
             $type = 'mixed';
-        } else if ($type == 'iterable') {
-            // Parse iterable details (Traversable|array).
-            if ($this->nexttoken == '<') {
+        } else if ($next == 'iterable') {
+            // Iterable (Traversable|array).
+            $this->parse_token('iterable');
+            if ($this->next == '<') {
                 $this->parse_token('<');
-                $this->parse_dnf_type();
-                $this->parse_token('>');
-            }
-            $type = 'iterable';
-        } else if ($type == 'array-key') {
-            // Parse array-key details (int|string).
-            $type = 'array-key';
-        } else if ($type == 'scalar') {
-            // Parse scalar details (bool|int|float|string).
-            $type = 'scalar';
-        } else if ($type == 'key-of') {
-            // Parse key-of details.
-            $this->parse_token('<');
-            $this->parse_dnf_type();
-            $this->parse_token('>');
-            $type = $this->gowide ? 'array-key' : 'never';
-        } else if ($type == 'value-of') {
-            // Parse value-of details.
-            $this->parse_token('<');
-            $this->parse_dnf_type();
-            $this->parse_token('>');
-            $type = $this->gowide ? 'mixed' : 'never';
-        } else {
-            // Check valid class name.
-            if (strpos($type, '$') !== false || strpos($type, '-') !== false || strpos($type, '\\\\') !== false) {
-                throw new \Error("Error parsing type, invalid class name.");
-            }
-            $lastseperatorpos = strrpos($type, '\\');
-            if ($lastseperatorpos !== false) {
-                $type = substr($type, $lastseperatorpos + 1);
-            }
-            if ($type == '') {
-                throw new \Error("Error parsing type, class name has trailing slash.");
-            }
-            $type = ucfirst($type);
-            if ($this->nexttoken == '<') {
-                // Collection.
-                $this->parse_token('<');
-                $firsttype = $this->parse_dnf_type();
-                if ($this->nexttoken == ',') {
+                $firsttype = $this->parse_any_type();
+                if ($this->next == ',') {
                     $key = $firsttype;
                     $this->parse_token(',');
-                    $value = $this->parse_dnf_type();
+                    $value = $this->parse_any_type();
                 } else {
                     $key = null;
                     $value = $firsttype;
                 }
                 $this->parse_token('>');
             }
-
+            $type = 'iterable';
+        } else if ($next == 'array-key') {
+            // Array-key (int|string).
+            $this->parse_token('array-key');
+            $type = 'array-key';
+        } else if ($next == 'scalar') {
+            // Scalar can be (bool|int|float|string).
+            $this->parse_token('scalar');
+            $type = 'scalar';
+        } else if ($next == 'key-of') {
+            // Key-of.
+            $this->parse_token('key-of');
+            $this->parse_token('<');
+            $this->parse_any_type();
+            $this->parse_token('>');
+            $type = $this->gowide ? 'array-key' : 'never';
+        } else if ($next == 'value-of') {
+            // Value-of.
+            $this->parse_token('value-of');
+            $this->parse_token('<');
+            $this->parse_any_type();
+            $this->parse_token('>');
+            $type = $this->gowide ? 'mixed' : 'never';
+        } else if ((ctype_alpha($next[0]) || $next[0] == '_' || $next[0] == '\\')
+                && strpos($next, '-') === false && strpos($next, '\\\\') === false) {
+            // Class name.
+            $type = $this->parse_token();
+            $lastseperatorpos = strrpos($type, '\\');
+            if ($lastseperatorpos !== false) {
+                $type = substr($type, $lastseperatorpos + 1);
+                if ($type == '') {
+                    throw new \Exception("Error parsing type, class name has trailing slash.");
+                }
+            }
+            $type = ucfirst($type);
+            assert($type != '');
+            if ($this->next == '<') {
+                // Collection / Traversable.
+                $this->parse_token('<');
+                $firsttype = $this->parse_any_type();
+                if ($this->next == ',') {
+                    $key = $firsttype;
+                    $this->parse_token(',');
+                    $value = $this->parse_any_type();
+                } else {
+                    $key = null;
+                    $value = $firsttype;
+                }
+                $this->parse_token('>');
+            }
+        } else {
+            throw new \Exception("Error parsing type, unrecognised type.");
         }
-        // Parse suffix.
-        if ($this->nexttoken == '::' && ($type == 'object' || in_array('object', static::super_types($type)))) {
-            // Parse class constant.
+
+        // Suffix.
+        // We can't embed this in the class name section, because it could apply to relative classes.
+        if ($this->next == '::' && (in_array('object', static::super_types($type)))) {
+            // Class constant.
             $this->parse_token('::');
-            $nextchar = ($this->nexttoken == null) ? null : $this->nexttoken[0];
+            $nextchar = ($this->next == null) ? null : $this->next[0];
             $haveconstantname = $nextchar != null && (ctype_alpha($nextchar) || $nextchar == '_');
             if ($haveconstantname) {
                 $this->parse_token();
             }
-            if ($this->nexttoken == '*' || !$haveconstantname) {
+            if ($this->next == '*' || !$haveconstantname) {
                 $this->parse_token('*');
             }
             $type = $this->gowide ? 'mixed' : 'never';
-        } else {
-            while ($this->nexttoken == '['
-                && ($this->text[$this->nextpos] == '['
-                    || $this->nextnextpos < strlen($this->text) && $this->text[$this->nextnextpos] == ']')) {
-                // Parse array suffix.
-                $this->parse_token('[');
-                $this->parse_token(']');
-                $type = 'array';
-            }
         }
 
+        assert(strpos($type, '|') === false && strpos($type, '&') === false);
         return $type;
     }
 

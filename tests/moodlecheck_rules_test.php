@@ -708,4 +708,48 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringContainsString('<b>11</b>: Class <b>someclass</b> is not documented (error)', $result);
         $this->assertStringContainsString('<b>12</b>: Function <b>someclass::somefunc</b> is not documented (warning)', $result);
     }
+
+    /**
+     * Verify valid types pass checks
+     *
+     * @covers \local_moodlecheck\type_parser
+     */
+    public function test_phpdoc_types_valid() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_types_valid.php', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with the correct number of elements.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(1, $found->length);
+    }
+
+    /**
+     * Verify invalid types fail checks
+     *
+     * @covers \local_moodlecheck\type_parser
+     */
+    public function test_phpdoc_types_invalid() {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_types_invalid.php', null);
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with the correct number of elements.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+        // TODO: Change to DOMNodeList::count() when php71 support is gone.
+        $this->assertSame(13, $found->length);
+    }
 }

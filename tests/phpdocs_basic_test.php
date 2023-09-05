@@ -39,6 +39,7 @@ class phpdocs_basic_test extends \advanced_testcase {
      * @param string $inputtype The input type.
      * @param string $expectedtype The expected type.
      * @covers ::local_moodlecheck_normalise_function_type
+     * @covers \local_moodlecheck\type_parser
      */
     public function test_local_moodlecheck_normalise_function_type(string $inputtype, string $expectedtype): void {
         $this->assertEquals(
@@ -79,6 +80,17 @@ class phpdocs_basic_test extends \advanced_testcase {
                 '?\core_course\local\some\type_of_item',
                 'Type_of_item|void',
             ],
+
+            'Intersection type' => [
+                'Type2&Type1',
+                'Type1&Type2',
+            ],
+        
+            'DNF type' => [
+                'Type3|(Type2&Type1)',
+                'Type1&Type2|Type3',
+            ],
+
         ];
     }
 }

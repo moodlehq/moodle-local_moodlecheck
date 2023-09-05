@@ -402,11 +402,13 @@ class local_moodlecheck_file {
                         // Get type and variable.
                         $text = '';
                         for (; $j < count($argtokens); $j++) {
-                            $text .= $argtokens[$j][1];
+                            if ($argtokens[$j][0] != T_COMMENT) {
+                                $text .= $argtokens[$j][1];
+                            }
                         }
-                        list($type, $variable, $default) = $typeparser->parse_type_and_var($text);
+                        list($type, $variable, $default, $nullable) = $typeparser->parse_type_and_var($text, 3, true);
 
-                        $function->arguments[] = array($type, $variable);
+                        $function->arguments[] = array($type, $variable, $nullable);
                     }
                     $function->boundaries = $this->find_object_boundaries($function);
                     $this->functions[] = $function;
@@ -1329,19 +1331,19 @@ class local_moodlecheck_phpdocs {
      *
      * Each element is array(typename, variablename, variabledescription)
      *
-     * @param string $tag tag name to look for. Usually param but may be var for variables
-     * @param bool $getvar whether to get variable name
+     * @param string $tag tag name to look for. Usually 'param' but may be 'var' for variables
+     * @param 0|1|2|3 $getwhat what to get 0=type only 1=also var 2=also modifiers (& ...) 3=also default
      * @return array
      */
-    public function get_params($tag = 'param', $getvar = true) {
+    public function get_params(string $tag, int $getwhat) {
         $typeparser = new \local_moodlecheck\type_parser();
         $params = array();
 
         foreach ($this->get_tags($tag) as $token) {
-            list($type, $variable, $description) = $typeparser->parse_type_and_var($token, $getvar);
+            list($type, $variable, $description) = $typeparser->parse_type_and_var($token, $getwhat, false);
             $param = [];
             $param[] = $type;
-            if ($getvar) {
+            if ($getwhat >= 1) {
                 $param[] = $variable;
             }
             $param[] = $description;
