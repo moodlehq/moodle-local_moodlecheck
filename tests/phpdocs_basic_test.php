@@ -85,7 +85,7 @@ class phpdocs_basic_test extends \advanced_testcase {
                 'Type2&Type1',
                 'Type1&Type2',
             ],
-        
+
             'DNF type' => [
                 'Type3|(Type2&Type1)',
                 'Type1&Type2|Type3',

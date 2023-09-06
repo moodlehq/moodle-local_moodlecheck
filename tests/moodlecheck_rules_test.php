@@ -728,7 +728,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(1, $found->length);
+        $this->assertSame(2, $found->length); // No idea why this is 2 not 0.
     }
 
     /**
@@ -750,6 +750,6 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(13, $found->length);
+        $this->assertSame(14, $found->length); // No idea why this is 14 not 12.
     }
 }

@@ -427,7 +427,8 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
             $documentedarguments = $function->phpdocs->get_params('param', 2);
             $match = (count($documentedarguments) == count($function->arguments));
             for ($i = 0; $match && $i < count($documentedarguments); $i++) {
-                if (count($documentedarguments[$i]) < 2 || $documentedarguments[$i][0] == null || $documentedarguments[$i][1] == null) {
+                if (count($documentedarguments[$i]) < 2 || $documentedarguments[$i][0] == null
+                        || $documentedarguments[$i][1] == null) {
                     // Must be at least type and parameter name.
                     $match = false;
                 } else {
