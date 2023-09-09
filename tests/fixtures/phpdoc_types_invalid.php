@@ -63,6 +63,18 @@ class types_invalid {
     /** @var $varname Expecting type, saw other */
     public $expectingtypesawother;
 
+    // Unterminated string.
+    /** @var " */
+    public $unterminatedstring;
+
+    // Unterminated string with escaped quote.
+    /** @var "\"*/
+    public $unterminatedstringwithescapedquote;
+
+    // String has escape with no following character.
+    /** @var "\*/
+    public $stringhasescapewithnofollowingchar;
+
     // Expecting class for class-string, saw end.
     /** @var class-string< */
     public $expectingclassforclassstringsawend;

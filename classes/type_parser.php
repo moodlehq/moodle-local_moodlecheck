@@ -230,6 +230,7 @@ class type_parser {
         while (count($this->nexts) < $lookahead + 1) {
 
             $startpos = $this->nexts ? end($this->nexts)->endpos : 0;
+            $stringunterminated = false;
 
             // Ignore whitespace.
             while ($startpos < strlen($this->text) && ctype_space($this->text[$startpos])) {
@@ -265,12 +266,18 @@ class type_parser {
                 // String token.
                 $endpos = $startpos + 1;
                 $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
-                while ($nextchar != $firstchar && $nextchar != null) { // There may be apostropes in comments.
-                    $endpos = $endpos + 1;
+                while ($nextchar != $firstchar && $nextchar != null) { // There may be unterminated strings.
+                    if ($nextchar == '\\' && strlen($this->text) >= $endpos + 2) {
+                            $endpos = $endpos + 2;
+                    } else {
+                        $endpos++;
+                    }
                     $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
                 }
                 if ($nextchar != null) {
                     $endpos++;
+                } else {
+                    $stringunterminated = true;
                 }
             } else if (strlen($this->text) >= $startpos + 3 && substr($this->text, $startpos, 3) == '...') {
                 // Splat.
@@ -286,8 +293,7 @@ class type_parser {
             // Store token.
             $next = substr($this->text, $startpos, $endpos - $startpos);
             assert ($next !== false);
-            if (strlen($next) > 0 && in_array($next, ['"', '\''])
-                    && (strlen($next) < 2 || !in_array(substr($next, -1), ['"', '\'']))) {
+            if ($stringunterminated) {
                 // If we have an unterminated string, we've reached the end of usable tokens.
                 $next = '';
             }
@@ -592,10 +598,12 @@ class type_parser {
                 // Object shape.
                 $this->parse_token('{');
                 do {
-                    $key = $this->parse_token();
-                    if (!(ctype_alpha($key) || $key[0] == '_' || $key[0] == '\'' || $key[0] == '"')) {
+                    $next = $this->next;
+                    if ($next == null
+                        || !(ctype_alpha($next) || $next[0] == '_' || $next[0] == '\'' || $next[0] == '"')) {
                         throw new \Exception("Error parsing type, invalid object key.");
                     }
+                    $this->parse_token();
                     if ($this->next == '?') {
                         $this->parse_token('?');
                     }
