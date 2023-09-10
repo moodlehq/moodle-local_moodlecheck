@@ -196,11 +196,15 @@ class type_parser {
      * @return non-empty-string[] super types
      */
     protected static function super_types(string $basetype): array {
-        if (in_array($basetype, ['int', 'string'])) {
+        if ($basetype == 'int') {
+            $supertypes = ['array-key', 'number', 'scaler'];
+        } else if ($basetype == 'string') {
             $supertypes = ['array-key', 'scaler'];
         } else if ($basetype == 'callable-string') {
             $supertypes = ['callable', 'string', 'array-key', 'scalar'];
-        } else if (in_array($basetype, ['array-key', 'bool', 'float'])) {
+        } else if ($basetype == 'float') {
+            $supertypes = ['number', 'scalar'];
+        } else if (in_array($basetype, ['array-key', 'number', 'bool'])) {
             $supertypes = ['scalar'];
         } else if ($basetype == 'array') {
             $supertypes = ['iterable'];
@@ -421,10 +425,13 @@ class type_parser {
         }
 
         // Tidy and return union list.
-        if (in_array('int', $uniontypes) && in_array('string', $uniontypes)) {
+        if ((in_array('int', $uniontypes) || in_array('number', $uniontypes)) && in_array('string', $uniontypes)) {
             $uniontypes[] = 'array-key';
         }
-        if (in_array('array-key', $uniontypes) && in_array('bool', $uniontypes) && in_array('float', $uniontypes)) {
+        if ((in_array('int', $uniontypes) || in_array('array-key', $uniontypes)) && in_array('float', $uniontypes)) {
+            $uniontypes[] = 'number';
+        }
+        if (in_array('bool', $uniontypes) && in_array('number', $uniontypes) && in_array('array-key', $uniontypes)) {
             $uniontypes[] = 'scalar';
         }
         if (in_array('Traversable', $uniontypes) && in_array('array', $uniontypes)) {
@@ -703,6 +710,10 @@ class type_parser {
             // Array-key (int|string).
             $this->parse_token('array-key');
             $type = 'array-key';
+        } else if ($next == 'number') {
+            // Number (int|float).
+            $this->parse_token('number');
+            $type = 'number';
         } else if ($next == 'scalar') {
             // Scalar can be (bool|int|float|string).
             $this->parse_token('scalar');
