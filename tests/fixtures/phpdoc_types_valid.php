@@ -138,20 +138,21 @@ class types_valid extends types_valid_parent {
      * @param int|integer $int
      * @param positive-int|negative-int|non-positive-int|non-negative-int|non-zero-int $intrange1
      * @param int<0, 100>|int<min, 100>|int<50, max>|int<-100, max> $intrange2
-     * @param 234|-234 $literal
+     * @param 234|-234 $literal1
      * @param int-mask<1, 2, 4>|int-mask-of<1|2|4> $intmask1
      */
     public function integer_types(int $int, int $intrange1, int $intrange2,
-        int $literal, int $intmask1): void {
+        int $literal1, int $intmask1): void {
     }
 
     /**
      * Integer types complex
      * @param int<types_valid::INT_ONE, types_valid::INT_TWO> $intrange3
+     * @param 1_000|-1_000 $literal2
      * @param int-mask<types_valid::INT_*>|int-mask<key-of<types_valid::ARRAY_CONST>> $intmask2
      * @param int-mask-of<types_valid::INT_*>|int-mask-of<key-of<types_valid::ARRAY_CONST>> $intmask3
      */
-    public function integer_types_complex(int $intrange3, int $intmask2, int $intmask3): void {
+    public function integer_types_complex(int $intrange3, int $literal2, int $intmask2, int $intmask3): void {
     }
 
     /**

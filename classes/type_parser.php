@@ -265,14 +265,14 @@ class type_parser {
                     $havepoint = $havepoint || $nextchar == '.';
                     $endpos = $endpos + 1;
                     $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
-                } while ($nextchar != null && (ctype_digit($nextchar) || $nextchar == '.' && !$havepoint));
+                } while ($nextchar != null && (ctype_digit($nextchar) || $nextchar == '.' && !$havepoint || $nextchar == '_'));
             } else if ($firstchar == '"' || $firstchar == '\'') {
                 // String token.
                 $endpos = $startpos + 1;
                 $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
                 while ($nextchar != $firstchar && $nextchar != null) { // There may be unterminated strings.
                     if ($nextchar == '\\' && strlen($this->text) >= $endpos + 2) {
-                            $endpos = $endpos + 2;
+                        $endpos = $endpos + 2;
                     } else {
                         $endpos++;
                     }
