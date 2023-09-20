@@ -399,7 +399,8 @@ class type_parser {
                         foreach ($intersectiontypes as $intersectiontype) {
                             assert ($intersectiontype != '');
                             $supertypes = static::super_types($intersectiontype);
-                            if (!($intersectiontype == 'object' || in_array('object', $supertypes))) {
+                            if (!(in_array($intersectiontype, ['object', 'iterable', 'callable'])
+                                    || in_array('object', $supertypes))) {
                                 throw new \Exception("Error parsing type, intersection can only be used with objects.");
                             }
                             foreach ($supertypes as $supertype) {
