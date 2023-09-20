@@ -750,6 +750,6 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(17, $found->length); // 15 Type errors, 2 complaints about package annotations.
+        $this->assertSame(26, $found->length); // 24 Type errors, 2 complaints about package annotations.
     }
 }

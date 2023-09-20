@@ -255,8 +255,8 @@ class type_parser {
                     $nextchar = ($endpos < strlen($this->text)) ? $this->text[$endpos] : null;
                 } while ($nextchar != null && (ctype_alnum($nextchar) || $nextchar == '_'
                                             || $firstchar != '$' && ($nextchar == '-' || $nextchar == '\\')));
-            } else if (ctype_digit($firstchar) || $firstchar == '-'
-                    || $firstchar == '.' && strlen($this->text) >= $startpos + 2 && ctype_digit($this->text[$startpos + 1])) {
+            } else if (ctype_digit($firstchar)
+                        || $firstchar == '-' && strlen($this->text) >= $startpos + 2 && ctype_digit($this->text[$startpos + 1])) {
                 // Number token.
                 $nextchar = $firstchar;
                 $havepoint = false;
@@ -389,31 +389,37 @@ class type_parser {
                         $this->parse_token('&');
                     }
                 } while ($havemoreintersections);
-                if (count($intersectiontypes) <= 1 && $unioninstead !== null) {
+                if (count($intersectiontypes) > 1 && $unioninstead !== null) {
+                    throw new \Exception("Error parsing type, non-DNF.");
+                } else if (count($intersectiontypes) <= 1 && $unioninstead !== null) {
                     $uniontypes = array_merge($uniontypes, explode('|', $unioninstead));
                 } else {
                     // Tidy and store intersection list.
-                    foreach ($intersectiontypes as $intersectiontype) {
-                        assert ($intersectiontype != '');
-                        $supertypes = static::super_types($intersectiontype);
-                        foreach ($supertypes as $supertype) {
-                            $superpos = array_search($supertype, $intersectiontypes);
-                            if ($superpos !== false) {
-                                unset($intersectiontypes[$superpos]);
+                    if (count($intersectiontypes) > 1) {
+                        foreach ($intersectiontypes as $intersectiontype) {
+                            assert ($intersectiontype != '');
+                            $supertypes = static::super_types($intersectiontype);
+                            if (!($intersectiontype == 'object' || in_array('object', $supertypes))) {
+                                throw new \Exception("Error parsing type, intersection can only be used with objects.");
+                            }
+                            foreach ($supertypes as $supertype) {
+                                $superpos = array_search($supertype, $intersectiontypes);
+                                if ($superpos !== false) {
+                                    unset($intersectiontypes[$superpos]);
+                                }
                             }
                         }
+                        sort($intersectiontypes);
+                        $intersectiontypes = array_unique($intersectiontypes);
+                        $neverpos = array_search('never', $intersectiontypes);
+                        if ($neverpos !== false) {
+                            $intersectiontypes = ['never'];
+                        }
+                        $mixedpos = array_search('mixed', $intersectiontypes);
+                        if ($mixedpos !== false && count($intersectiontypes) > 1) {
+                            unset($intersectiontypes[$mixedpos]);
+                        }
                     }
-                    sort($intersectiontypes);
-                    $intersectiontypes = array_unique($intersectiontypes);
-                    $neverpos = array_search('never', $intersectiontypes);
-                    if ($neverpos !== false) {
-                        $intersectiontypes = ['never'];
-                    }
-                    $mixedpos = array_search('mixed', $intersectiontypes);
-                    if ($mixedpos !== false && count($intersectiontypes) > 1) {
-                        unset($intersectiontypes[$mixedpos]);
-                    }
-                    // TODO: Check for conflicting types, and reduce to never?
                     array_push($uniontypes, implode('&', $intersectiontypes));
                 }
                 // Check for more union items.
@@ -425,29 +431,39 @@ class type_parser {
         }
 
         // Tidy and return union list.
-        if ((in_array('int', $uniontypes) || in_array('number', $uniontypes)) && in_array('string', $uniontypes)) {
-            $uniontypes[] = 'array-key';
+        if (count($uniontypes) > 1) {
+            if ((in_array('int', $uniontypes) || in_array('number', $uniontypes)) && in_array('string', $uniontypes)) {
+                $uniontypes[] = 'array-key';
+            }
+            if ((in_array('int', $uniontypes) || in_array('array-key', $uniontypes)) && in_array('float', $uniontypes)) {
+                $uniontypes[] = 'number';
+            }
+            if (in_array('bool', $uniontypes) && in_array('number', $uniontypes) && in_array('array-key', $uniontypes)) {
+                $uniontypes[] = 'scalar';
+            }
+            if (in_array('Traversable', $uniontypes) && in_array('array', $uniontypes)) {
+                $uniontypes[] = 'iterable';
+            }
+            sort($uniontypes);
+            $uniontypes = array_unique($uniontypes);
+            $mixedpos = array_search('mixed', $uniontypes);
+            if ($mixedpos !== false) {
+                $uniontypes = ['mixed'];
+            }
+            $neverpos = array_search('never', $uniontypes);
+            if ($neverpos !== false && count($uniontypes) > 1) {
+                unset($uniontypes[$neverpos]);
+            }
+            foreach ($uniontypes as $uniontype) {
+                assert ($uniontype != '');
+                foreach ($uniontypes as $key => $uniontype2) {
+                    assert($uniontype2 != '');
+                    if ($uniontype2 != $uniontype && static::compare_types($uniontype, $uniontype2)) {
+                        unset($uniontypes[$key]);
+                    }
+                }
+            }
         }
-        if ((in_array('int', $uniontypes) || in_array('array-key', $uniontypes)) && in_array('float', $uniontypes)) {
-            $uniontypes[] = 'number';
-        }
-        if (in_array('bool', $uniontypes) && in_array('number', $uniontypes) && in_array('array-key', $uniontypes)) {
-            $uniontypes[] = 'scalar';
-        }
-        if (in_array('Traversable', $uniontypes) && in_array('array', $uniontypes)) {
-            $uniontypes[] = 'iterable';
-        }
-        sort($uniontypes);
-        $uniontypes = array_unique($uniontypes);
-        $mixedpos = array_search('mixed', $uniontypes);
-        if ($mixedpos !== false) {
-            $uniontypes = ['mixed'];
-        }
-        $neverpos = array_search('never', $uniontypes);
-        if ($neverpos !== false && count($uniontypes) > 1) {
-            unset($uniontypes[$neverpos]);
-        }
-        // TODO: Check for and remove redundant sub types.
         $type = implode('|', $uniontypes);
         assert($type != '');
         return $type;
@@ -485,7 +501,7 @@ class type_parser {
 
         $next = $this->next;
         if ($next == null) {
-            throw new \Exception("Error parsing type, expected type, saw end");
+            throw new \Exception("Error parsing type, expected type, saw end.");
         }
         $nextchar = $next[0];
 
@@ -494,43 +510,54 @@ class type_parser {
             $this->parse_token();
             $type = 'bool';
         } else if (in_array($next, ['int', 'integer', 'positive-int', 'negative-int',
-                                    'non-positive-int', 'non-negative-int', 'non-zero-int',
+                                    'non-positive-int', 'non-negative-int',
                                     'int-mask', 'int-mask-of'])
-                || ($nextchar >= '0' && $nextchar <= '9' || $nextchar == '-') && strpos($next, '.') === false) {
+                || (ctype_digit($nextchar) || $nextchar == '-') && strpos($next, '.') === false) {
             // Int.
             $inttype = $this->parse_token();
             if ($inttype == 'int' && $this->next == '<') {
                 // Integer range.
                 $this->parse_token('<');
-                if ($this->next == 'min') {
-                    $this->parse_token('min');
-                } else {
-                    $this->parse_basic_type();
+                $next = $this->next;
+                if ($next == null
+                        || !($next == 'min' || (ctype_digit($next[0]) || $next[0] == '-') && strpos($next, '.') === false)) {
+                    throw new \Exception("Error parsing type, expected int min, saw \"{$next}\".");
                 }
+                $this->parse_token();
                 $this->parse_token(',');
-                if ($this->next == 'max') {
-                    $this->parse_token('max');
-                } else {
-                    $this->parse_basic_type();
+                $next = $this->next;
+                if ($next == null
+                        || !($next == 'max' || (ctype_digit($next[0]) || $next[0] == '-') && strpos($next, '.') === false)) {
+                    throw new \Exception("Error parsing type, expected int max, saw \"{$next}\".");
                 }
+                $this->parse_token();
                 $this->parse_token('>');
-            } else if (in_array($inttype, ['int-mask', 'int-mask-of'])) {
+            } else if ($inttype == 'int-mask') {
                 // Integer mask.
                 $this->parse_token('<');
                 do {
-                    $this->parse_basic_type();
-                    $haveseperator = ($inttype == 'int-mask') && ($this->next == ',')
-                                    || ($inttype == 'int-mask-of') && ($this->next == '|');
+                    $mask = $this->parse_basic_type();
+                    if (!static::compare_types('int', $mask)) {
+                        throw new \Exception("Error parsing type, invalid int mask.");
+                    }
+                    $haveseperator = $this->next == ',';
                     if ($haveseperator) {
-                        $this->parse_token();
+                        $this->parse_token(',');
                     }
                 } while ($haveseperator);
+                $this->parse_token('>');
+            } else if ($inttype == 'int-mask-of') {
+                // Integer mask of.
+                $this->parse_token('<');
+                $mask = $this->parse_basic_type();
+                if (!static::compare_types('int', $mask)) {
+                    throw new \Exception("Error parsing type, invalid int mask.");
+                }
                 $this->parse_token('>');
             }
             $type = 'int';
         } else if (in_array($next, ['float', 'double'])
-                || ($nextchar >= '0' && $nextchar <= '9' || $nextchar == '-'
-                    || $nextchar == '.' && $next != '...') && strpos($next, '.') !== false) {
+                || (ctype_digit($nextchar) || $nextchar == '-') && strpos($next, '.') !== false) {
             // Float.
             $this->parse_token();
             $type = 'float';
@@ -564,6 +591,9 @@ class type_parser {
                         throw new \Exception("Error parsing type, lists cannot have keys specified.");
                     }
                     $key = $firsttype;
+                    if (!static::compare_types('array-key', $key)) {
+                        throw new \Exception("Error parsing type, invalid array key.");
+                    }
                     $this->parse_token(',');
                     $value = $this->parse_any_type();
                 } else {
@@ -581,7 +611,7 @@ class type_parser {
                     $next = $this->next;
                     if ($next != null
                             && (ctype_alpha($next) || $next[0] == '_' || $next[0] == '\'' || $next[0] == '"'
-                                || (ctype_digit($next) || $next[0] == '-') && strpos($next, '.') === false)
+                                || (ctype_digit($next[0]) || $next[0] == '-') && strpos($next, '.') === false)
                             && ($this->next(1) == ':' || $this->next(1) == '?' && $this->next(2) == ':')) {
                         $this->parse_token();
                         if ($this->next == '?') {
@@ -722,14 +752,20 @@ class type_parser {
             // Key-of.
             $this->parse_token('key-of');
             $this->parse_token('<');
-            $this->parse_any_type();
+            $iterable = $this->parse_any_type();
+            if (!(static::compare_types('iterable', $iterable) || static::compare_types('object', $iterable))) {
+                throw new \Exception("Error parsing type, can't get key of non-iterable.");
+            }
             $this->parse_token('>');
-            $type = $this->gowide ? 'array-key' : 'never';
+            $type = $this->gowide ? 'mixed' : 'never';
         } else if ($next == 'value-of') {
             // Value-of.
             $this->parse_token('value-of');
             $this->parse_token('<');
-            $this->parse_any_type();
+            $iterable = $this->parse_any_type();
+            if (!(static::compare_types('iterable', $iterable) || static::compare_types('object', $iterable))) {
+                throw new \Exception("Error parsing type, can't get value of non-iterable.");
+            }
             $this->parse_token('>');
             $type = $this->gowide ? 'mixed' : 'never';
         } else if ((ctype_alpha($next[0]) || $next[0] == '_' || $next[0] == '\\')

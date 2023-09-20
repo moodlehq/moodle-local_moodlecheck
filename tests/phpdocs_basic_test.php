@@ -91,6 +91,21 @@ class phpdocs_basic_test extends \advanced_testcase {
                 'Type1&Type2|Type3',
             ],
 
+            'Array key' => [
+                'int|string',
+                'array-key',
+            ],
+
+            'Number' => [
+                'int|float',
+                'number',
+            ],
+
+            'Scalar' => [
+                'bool|int|float|string',
+                'scalar',
+            ],
+
         ];
     }
 }

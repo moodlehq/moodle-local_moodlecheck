@@ -17,8 +17,8 @@
 /**
  * A collection of valid types for testing
  *
- * These should pass all relevant code checks.
- * Having just valid code in here means it can be checked with another checker, such as PHPStan,
+ * This file should have no errors when checked with either PHPStan or Psalm.
+ * Having just valid code in here means it can be easily checked with other checkers,
  * to verify we are actually checking against correct examples.
  *
  * @package   local_moodlecheck
@@ -28,8 +28,6 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
 
 /**
  * A parent class
@@ -136,10 +134,10 @@ class types_valid extends types_valid_parent {
     /**
      * Integer types
      * @param int|integer $int
-     * @param positive-int|negative-int|non-positive-int|non-negative-int|non-zero-int $intrange1
+     * @param positive-int|negative-int|non-positive-int|non-negative-int $intrange1
      * @param int<0, 100>|int<min, 100>|int<50, max>|int<-100, max> $intrange2
      * @param 234|-234 $literal1
-     * @param int-mask<1, 2, 4>|int-mask-of<1|2|4> $intmask1
+     * @param int-mask<1, 2, 4> $intmask1
      */
     public function integer_types(int $int, int $intrange1, int $intrange2,
         int $literal1, int $intmask1): void {
@@ -147,18 +145,17 @@ class types_valid extends types_valid_parent {
 
     /**
      * Integer types complex
-     * @param int<types_valid::INT_ONE, types_valid::INT_TWO> $intrange3
      * @param 1_000|-1_000 $literal2
-     * @param int-mask<types_valid::INT_*>|int-mask<key-of<types_valid::ARRAY_CONST>> $intmask2
+     * @param int-mask<types_valid::INT_ONE, types_valid::INT_TWO> $intmask2
      * @param int-mask-of<types_valid::INT_*>|int-mask-of<key-of<types_valid::ARRAY_CONST>> $intmask3
      */
-    public function integer_types_complex(int $intrange3, int $literal2, int $intmask2, int $intmask3): void {
+    public function integer_types_complex(int $literal2, int $intmask2, int $intmask3): void {
     }
 
     /**
      * Float types
      * @param float|double $float
-     * @param 1.0|-1.0|.1|-.1 $literal
+     * @param 1.0|-1.0 $literal
      */
     public function float_types(float $float, float $literal): void {
     }
@@ -166,7 +163,7 @@ class types_valid extends types_valid_parent {
     /**
      * String types
      * @param string $string
-     * @param class-string|class-string<types_valid>|class-string<object> $classstring1
+     * @param class-string|class-string<types_valid> $classstring1
      * @param callable-string|numeric-string|non-empty-string|non-falsy-string|truthy-string|literal-string $other
      * @param 'foo'|'bar' $literal
      */
@@ -253,7 +250,7 @@ class types_valid extends types_valid_parent {
     /**
      * Callable types
      * @param callable|callable(int, int): string|callable(int, int=): string $callable1
-     * @param callable(int $foo, string $bar): void|callable(string &$bar): mixed $callable2
+     * @param callable(int $foo, string $bar): void $callable2
      * @param callable(float ...$floats): (int|null)|callable(float...): (int|null) $callable3
      * @param \Closure|\Closure(int, int): string $closure
      * @param callable-string $callablestring
@@ -369,11 +366,9 @@ class types_valid extends types_valid_parent {
      * @param int|int[] $unionarray
      * @param (types_valid&object{additionalproperty: string}) $intersectionbracket1
      * @param types_valid&(object{additionalproperty: string}) $intersectionbracket2
-     * @param array&object{additionalproperty: string}[] $intersectionarray
      * @param (int)[] $bracketarray1
      * @param (int[]) $bracketarray2
      * @param int|(types_valid&object{additionalproperty: string}) $dnf
-     * @param array-key&(int|string) $nondnf
      */
     public function structure_combos(
         $multipleunion,
@@ -388,11 +383,9 @@ class types_valid extends types_valid_parent {
         $unionarray,
         object $intersectionbracket1,
         object $intersectionbracket2,
-        array $intersectionarray,
         array $bracketarray1,
         array $bracketarray2,
-        $dnf,
-        $nondnf
+        $dnf
     ): void {
     }
 

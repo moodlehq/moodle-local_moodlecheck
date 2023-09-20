@@ -19,7 +19,7 @@
 /**
  * A collection of invalid types for testing
  *
- * All these should fail type checking.
+ * Every type annotation should give an error either when checked with PHPStan or Psalm.
  * Having just invalid types in here means the number of errors should match the number of type annotations.
  *
  * @package   local_moodlecheck
@@ -29,8 +29,6 @@
  */
 
 defined('MOODLE_INTERNAL') || die();
-
-global $CFG;
 
 /**
  * A collection of invalid types for testing
@@ -50,7 +48,7 @@ class types_invalid {
     }
 
     /**
-     * Expecting variable name, saw other
+     * Expecting variable name, saw other (passes Psalm)
      * @param int int
      */
     public function expecting_var_saw_other(int $x): void {
@@ -63,17 +61,35 @@ class types_invalid {
     /** @var $varname Expecting type, saw other */
     public $expectingtypesawother;
 
-    // Unterminated string.
+    // Unterminated string (passes Psalm).
     /** @var " */
     public $unterminatedstring;
 
-    // Unterminated string with escaped quote.
+    // Unterminated string with escaped quote (passes Psalm).
     /** @var "\"*/
     public $unterminatedstringwithescapedquote;
 
-    // String has escape with no following character.
+    // String has escape with no following character (passes Psalm).
     /** @var "\*/
     public $stringhasescapewithnofollowingchar;
+
+    /** @var array-key&(int|string) Non-DNF type (passes PHPStan) */
+    public $nondnftype;
+
+    /** @var int&string Invalid intersection */
+    public $invalidintersection;
+
+    /** @var int<0.0, 1> Invalid int min */
+    public $invalidintmin;
+
+    /** @var int<0, 1.0> Invalid int max */
+    public $invalidintmax;
+
+    /** @var int-mask<1.0, 2.0> Invalid int mask 1 */
+    public $invalidintmask1;
+
+    /** @var int-mask-of<string> Invalid int mask 2 */
+    public $invalidintmask2;
 
     // Expecting class for class-string, saw end.
     /** @var class-string< */
@@ -85,11 +101,20 @@ class types_invalid {
     /** @var list<int, string> List key */
     public $listkey;
 
+    /** @var array<object, object> Invalid array key (passes Psalm) */
+    public $invalidarraykey;
+
     /** @var non-empty-array{'a': int} Non-empty-array shape */
     public $nonemptyarrayshape;
 
-    /** @var object{0.0: int} Invalid object key */
+    /** @var object{0.0: int} Invalid object key (passes Psalm) */
     public $invalidobjectkey;
+
+    /** @var key-of<int> Can't get key of non-iterable */
+    public $cantgetkeyofnoniterable;
+
+    /** @var value-of<int> Can't get value of non-iterable */
+    public $cantgetvalueofnoniterable;
 
     /**
      * Class name has trailing slash
