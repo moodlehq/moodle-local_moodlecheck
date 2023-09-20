@@ -64,7 +64,7 @@ class phpdocs_basic_test extends \advanced_testcase {
             ],
 
             'Unioned simple case' => [
-                'stdClass|object', 'Stdclass|object',
+                'stdClass|object', 'object',
             ],
 
             'Unioned fully-qualfied case' => [
@@ -82,28 +82,23 @@ class phpdocs_basic_test extends \advanced_testcase {
             ],
 
             'Intersection type' => [
-                'Type2&Type1',
-                'Type1&Type2',
+                'Type2&Type1', 'Type1&Type2',
             ],
 
             'DNF type' => [
-                'Type3|(Type2&Type1)',
-                'Type1&Type2|Type3',
+                'Type3|(Type2&Type1)', 'Type1&Type2|Type3',
             ],
 
             'Array key' => [
-                'int|string',
-                'array-key',
+                'int|string', 'array-key',
             ],
 
             'Number' => [
-                'int|float',
-                'number',
+                'int|float', 'number',
             ],
 
             'Scalar' => [
-                'bool|int|float|string',
-                'scalar',
+                'bool|int|float|string', 'scalar',
             ],
 
         ];
