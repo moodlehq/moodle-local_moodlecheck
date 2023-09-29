@@ -482,9 +482,9 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
             }
 
             if ($errorlevel > 0) {
-                $error = array(
+                $error = [
                     'line' => $function->phpdocs->get_line_number($file, '@param'),
-                    'function' => $function->fullname);
+                    'function' => $function->fullname,];
                 if ($errorlevel < 2) {
                     $error['severity'] = 'warning';
                 }
@@ -540,9 +540,9 @@ function local_moodlecheck_variableshasvar(local_moodlecheck_file $file) {
             }
 
             if ($errorlevel > 0) {
-                $error = array(
+                $error = [
                     'line' => $variable->phpdocs->get_line_number($file, '@var'),
-                    'variable' => $variable->fullname);
+                    'variable' => $variable->fullname,];
                 if ($errorlevel < 2) {
                     $error['severity'] = 'warning';
                 }

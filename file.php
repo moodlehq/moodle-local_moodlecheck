@@ -503,7 +503,7 @@ class local_moodlecheck_file {
                         }
                         list($type, $variable, $default, $nullable) = $typeparser->parse_type_and_var($text, 3, true);
 
-                        $function->arguments[] = array($type, $variable, $nullable);
+                        $function->arguments[] = [$type, $variable, $nullable];
                     }
 
                     // Get return type.
