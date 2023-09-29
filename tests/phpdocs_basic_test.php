@@ -93,10 +93,6 @@ class phpdocs_basic_test extends \advanced_testcase {
                 'int|string', 'array-key',
             ],
 
-            'Number' => [
-                'int|float', 'number',
-            ],
-
             'Scalar' => [
                 'bool|int|float|string', 'scalar',
             ],

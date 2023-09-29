@@ -39,6 +39,7 @@ class local_moodlecheck_file {
     protected $errors = null;
     protected $tokens = null;
     protected $tokenscount = 0;
+    protected $usealiases = null;
     protected $classes = null;
     protected $interfaces = null;
     protected $traits = null;
@@ -48,6 +49,7 @@ class local_moodlecheck_file {
     protected $variables = null;
     protected $defines = null;
     protected $constants = null;
+    protected $typeparser = null;
 
     /**
      * Creates an object from path to the file
@@ -64,6 +66,7 @@ class local_moodlecheck_file {
     protected function clear_memory() {
         $this->tokens = null;
         $this->tokenscount = 0;
+        $this->usealiases = null;
         $this->classes = null;
         $this->interfaces = null;
         $this->traits = null;
@@ -73,6 +76,7 @@ class local_moodlecheck_file {
         $this->variables = null;
         $this->defines = null;
         $this->constants = null;
+        $this->typeparser = null;
     }
 
     /**
@@ -190,6 +194,55 @@ class local_moodlecheck_file {
     }
 
     /**
+     * Returns all use aliases
+     *
+     * @return array<non-empty-string, non-empty-string> aliases are keys, class names are values
+     */
+    public function get_use_aliases() {
+        if ($this->usealiases) {
+            return $this->usealiases;
+        }
+        $tokens = &$this->get_tokens();
+        $usealiases = [];
+        $after = null;
+        $classname = null;
+        $alias = null;
+        for ($tid = 0; $tid < $this->tokenscount; $tid++) {
+            if ($tokens[$tid][0] == T_USE) {
+                $after = T_USE;
+                $classname = null;
+                $alias = null;
+            } else if ($after == T_USE && $tokens[$tid][0] == T_STRING) {
+                $classname = $tokens[$tid][1];
+                if (strrpos($classname, '\\') !== false) {
+                    $classname = substr($classname, strrpos($classname, '\\') + 1);
+                }
+            } else if ($after == T_USE && $tokens[$tid][0] == T_AS) {
+                $after = T_AS;
+            } else if ($after == T_AS && $tokens[$tid][0] == T_STRING) {
+                $alias = $tokens[$tid][1];
+            } else if (($after == T_USE || $after == T_AS) && in_array($tokens[$tid][1], [',', ';'])) {
+                if ($after == T_AS && $classname && $alias) {
+                    $usealiases[strtolower($alias)] = $classname;
+                }
+                if ($tokens[$tid][1] == ',') {
+                    $after = T_USE;
+                } else {
+                    $after = null;
+                }
+                $classname = null;
+                $alias = null;
+            } else if (!in_array($tokens[$tid][0], [T_WHITESPACE, T_COMMENT, T_NS_SEPARATOR])) {
+                $after = null;
+                $classname = null;
+                $alias = null;
+            }
+        }
+        $this->usealiases = $usealiases;
+        return $usealiases;
+    }
+
+    /**
      * Returns all artifacts (classes, interfaces, traits) found in file
      *
      * Returns 3 arrays (classes, interfaces and traits) of objects where each element represents an artifact:
@@ -200,7 +253,9 @@ class local_moodlecheck_file {
      * ->phpdocs : phpdocs for this artifact (instance of local_moodlecheck_phpdocs or false if not found)
      * ->boundaries : array with ids of first and last token for this artifact.
      * ->hasextends : boolean indicating whether this artifact has an `extends` clause
+     * ->extends : name of base class
      * ->hasimplements : boolean indicating whether this artifact has an `implements` clause
+     * ->implements : array of names of implemented interfaces
      *
      * @return array with 3 elements (classes, interfaces & traits), each being an array.
      */
@@ -267,30 +322,58 @@ class local_moodlecheck_file {
                     $artifact->tagpair = $this->find_tag_pair($tid, '{', '}');
 
                     $artifact->hasextends = false;
+                    $artifact->extends = null;
                     $artifact->hasimplements = false;
+                    $artifact->implements = [];
 
                     if ($artifact->tagpair) {
+                        $after = null;
+                        $implements = null;
                         // Iterate over the remaining tokens in the class definition (until opening {).
                         foreach (array_slice($this->tokens, $tid, $artifact->tagpair[0] - $tid) as $token) {
+                            if ($after == T_IMPLEMENTS && $implements
+                                    && !in_array($token[0], [T_WHITESPACE, T_COMMENT, T_NS_SEPARATOR, T_STRING])) {
+                                $artifact->implements[] = $implements;
+                                $implements = null;
+                            }
                             if ($token[0] == T_EXTENDS) {
                                 $artifact->hasextends = true;
-                            }
-                            if ($token[0] == T_IMPLEMENTS) {
+                                $after = T_EXTENDS;
+                            } else if ($after == T_EXTENDS && $token[0] == T_STRING) {
+                                $extends = $token[1];
+                                if (strrpos($extends, '\\') !== false) {
+                                    $extends = substr($extends, strrpos($extends, '\\') + 1);
+                                }
+                                $artifact->extends = $extends;
+                            } else if ($token[0] == T_IMPLEMENTS) {
                                 $artifact->hasimplements = true;
+                                $after = T_IMPLEMENTS;
+                                $implements = null;
+                            } else if ($after == T_IMPLEMENTS && $token[0] == T_STRING) {
+                                $implements = $token[1];
+                                if (strrpos($implements, '\\') !== false) {
+                                    $implements = substr($implements, strrpos($implements, '\\') + 1);
+                                }
+                            } else if (!in_array($token[0], [T_WHITESPACE, T_COMMENT, T_NS_SEPARATOR, T_STRING])
+                                    && $token[1] !== ',') {
+                                $after = null;
                             }
+                        }
+                        if ($after == T_IMPLEMENTS && $implements) {
+                            $artifact->implements[] = $implements;
                         }
                     }
 
                     $artifact->boundaries = $this->find_object_boundaries($artifact);
                     switch ($artifact->type) {
                         case T_CLASS:
-                            $this->classes[] = $artifact;
+                            $this->classes[strtolower($artifact->name)] = $artifact;
                             break;
                         case T_INTERFACE:
-                            $this->interfaces[] = $artifact;
+                            $this->interfaces[strtolower($artifact->name)] = $artifact;
                             break;
                         case T_TRAIT:
-                            $this->traits[] = $artifact;
+                            $this->traits[strtolower($artifact->name)] = $artifact;
                             break;
                     }
                 }
@@ -324,6 +407,18 @@ class local_moodlecheck_file {
     }
 
     /**
+     * Return type parser
+     *
+     * @return \local_moodlecheck\type_parser
+     */
+    public function get_type_parser() {
+        if (!$this->typeparser) {
+            $this->typeparser = new \local_moodlecheck\type_parser($this->get_use_aliases(), $this->get_artifacts_flat());
+        }
+        return $this->typeparser;
+    }
+
+    /**
      * Returns all functions (including class methods) found in file
      *
      * Returns array of objects where each element represents a function:
@@ -344,7 +439,7 @@ class local_moodlecheck_file {
      */
     public function &get_functions() {
         if ($this->functions === null) {
-            $typeparser = new \local_moodlecheck\type_parser();
+            $typeparser = $this->get_type_parser();
             $this->functions = array();
             $tokens = &$this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
@@ -410,6 +505,25 @@ class local_moodlecheck_file {
 
                         $function->arguments[] = array($type, $variable, $nullable);
                     }
+
+                    // Get return type.
+                    $returnpair = $this->find_tag_pair($argumentspair[1] + 1, ':', '{', ['{', ';']);
+                    if ($returnpair !== false && $returnpair[1] - $returnpair[0] > 1) {
+                        $rettokens =
+                            array_slice($tokens, $returnpair[0] + 1, $returnpair[1] - $returnpair[0] - 1);
+                    } else {
+                        $rettokens = [];
+                    }
+                    $text = '';
+                    for ($j = 0; $j < count($rettokens); $j++) {
+                        if ($rettokens[$j][0] != T_COMMENT) {
+                            $text .= $rettokens[$j][1];
+                        }
+                    }
+                    list($type, $varname, $default, $nullable) = $typeparser->parse_type_and_var($text, 0, true);
+
+                    $function->return = $type;
+
                     $function->boundaries = $this->find_object_boundaries($function);
                     $this->functions[] = $function;
                 }
@@ -429,11 +543,13 @@ class local_moodlecheck_file {
      * $variable->fullname : name of the variable with class name (i.e. classname::$varname)
      * $variable->accessmodifiers : tokens like static, public, protected, abstract, etc.
      * $variable->boundaries : array with ids of first and last token for this variable
+     * $variable->type : type of variable
      *
      * @return array
      */
     public function &get_variables() {
         if ($this->variables === null) {
+            $typeparser = $this->get_type_parser();
             $this->variables = array();
             $this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
@@ -446,6 +562,20 @@ class local_moodlecheck_file {
                     $variable->fullname = $class->name . '::' . $variable->name;
 
                     $beforetype = $this->skip_preceding_type($tid);
+
+                    if ($beforetype > 0) {
+                        $text = '';
+                        for ($typetid = $beforetype + 1; $typetid <= $tid; $typetid++) {
+                            if ($this->tokens[$typetid][0] != T_COMMENT) {
+                                $text .= $this->tokens[$typetid][1];
+                            }
+                        }
+                        list($type, $varname, $default, $nullable) = $typeparser->parse_type_and_var($text, 1, true);
+                        $variable->type = $type;
+                    } else {
+                        $variable->type = null;
+                    }
+
                     $variable->accessmodifiers = $this->find_access_modifiers($beforetype);
                     $variable->phpdocs = $this->find_preceeding_phpdoc($beforetype);
 
@@ -590,10 +720,9 @@ class local_moodlecheck_file {
      */
     public function is_inside_class($tid) {
         $classes = &$this->get_classes();
-        $classescnt = count($classes);
-        for ($clid = 0; $clid < $classescnt; $clid++) {
-            if ($classes[$clid]->boundaries[0] <= $tid && $classes[$clid]->boundaries[1] >= $tid) {
-                return $classes[$clid];
+        foreach ($classes as $class) {
+            if ($class->boundaries[0] <= $tid && $class->boundaries[1] >= $tid) {
+                return $class;
             }
         }
         return false;
@@ -943,7 +1072,7 @@ class local_moodlecheck_file {
             $this->get_tokens();
             for ($id = 0; $id < $this->tokenscount; $id++) {
                 if (($this->tokens[$id][0] == T_DOC_COMMENT || $this->tokens[$id][0] === T_COMMENT)) {
-                    $this->allphpdocs[$id] = new local_moodlecheck_phpdocs($this->tokens[$id], $id);
+                    $this->allphpdocs[$id] = new local_moodlecheck_phpdocs($this, $this->tokens[$id], $id);
                 }
             }
         }
@@ -1169,6 +1298,8 @@ class local_moodlecheck_phpdocs {
         'link',
         'see'
     );
+    /** @var local_moodlecheck_file the containing file */
+    protected $file;
     /** @var array stores the original token for this phpdocs */
     protected $originaltoken = null;
     /** @var int stores id the original token for this phpdocs */
@@ -1188,10 +1319,12 @@ class local_moodlecheck_phpdocs {
     /**
      * Constructor. Creates an object and parses it
      *
+     * @param local_moodlecheck_file $file the containing file
      * @param array $token corresponding token parsed from file
      * @param int $tid id of token in the file
      */
-    public function __construct($token, $tid) {
+    public function __construct($file, $token, $tid) {
+        $this->file = $file;
         $this->originaltoken = $token;
         $this->originaltid = $tid;
         if (preg_match('|^///|', $token[1])) {
@@ -1336,7 +1469,7 @@ class local_moodlecheck_phpdocs {
      * @return array
      */
     public function get_params(string $tag, int $getwhat) {
-        $typeparser = new \local_moodlecheck\type_parser();
+        $typeparser = $this->file->get_type_parser();
         $params = array();
 
         foreach ($this->get_tags($tag) as $token) {

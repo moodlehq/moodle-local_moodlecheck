@@ -20,8 +20,7 @@ namespace local_moodlecheck;
  * Type parser
  *
  * Checks that PHPDoc types are well formed, and returns a simplified version if so, or null otherwise.
- * Global constants and the Collection|Type[] construct aren't supported,
- * because this would require looking up type and global definitions.
+ * Global constants, templates, and the Collection|Type[] construct, aren't supported.
  *
  * @package     local_moodlecheck
  * @copyright   2023 Te Pūkenga – New Zealand Institute of Skills and Technology
@@ -30,20 +29,133 @@ namespace local_moodlecheck;
  */
 class type_parser {
 
+    /** @var array<non-empty-string, non-empty-string[]> predefined and SPL classes */
+    protected $library = [
+        // Predefined general.
+        'Arrayaccess' => [],
+        'Backedenum' => ['Unitenum'],
+        'Closure' => ['callable'],
+        'Directory' => [],
+        'Fiber' => [],
+        'Php_user_filter' => [],
+        'Sensitiveparametervalue' => [],
+        'Serializable' => [],
+        'Stdclass' => [],
+        'Stringable' => [],
+        'Unitenum' => [],
+        'Weakreference' => [],
+        // Predefined iterables.
+        'Generator' => ['Iterator'],
+        'Internaliterator' => ['Iterator'],
+        'Iterator' => ['Traversable'],
+        'Iteratoraggregate' => ['Traversable'],
+        'Traversable' => ['iterable'],
+        'Weakmap' => ['Arrayaccess', 'Countable', 'Iteratoraggregate'],
+        // Predefined throwables.
+        'Arithmeticerror' => ['Error'],
+        'Assertionerror' => ['Error'],
+        'Compileerror' => ['Error'],
+        'Divisionbyzeroerror' => ['Arithmeticerror'],
+        'Error' => ['Throwable'],
+        'Errorexception' => ['Exception'],
+        'Exception' => ['Throwable'],
+        'Parseerror' => ['Compileerror'],
+        'Throwable' => ['Stringable'],
+        'Typeerror' => ['Error'],
+        // SPL Data structures.
+        'Spldoublylinkedlist' => ['Iterator', 'Countable', 'Arrayaccess', 'Serializable'],
+        'Splstack' => ['Spldoublylinkedlist'],
+        'Splqueue' => ['Spldoublylinkedlist'],
+        'Splheap' => ['Iterator', 'Countable'],
+        'Splmaxheap' => ['Splheap'],
+        'Splminheap' => ['Splheap'],
+        'Splpriorityqueue' => ['Iterator', 'Countable'],
+        'Splfixedarray' => ['Iteratoraggregate', 'Arrayaccess', 'Countable', 'Jsonserializable'],
+        'Splobjectstorage' => ['Countable', 'Iterator', 'Serializable', 'Arrayaccess'],
+        // SPL iterators.
+        'Appenditerator' => ['Iteratoriterator'],
+        'Arrayiterator' => ['Seekableiterator', 'Arrayaccess', 'Serializable', 'Countable'],
+        'Cachingiterator' => ['Iteratoriterator', 'Arrayaccess', 'Countable', 'Stringable'],
+        'Callbackfilteriterator' => ['Filteriterator'],
+        'Directoryiterator' => ['Splfileinfo', 'Seekableiterator'],
+        'Emptyiterator' => ['Iterator'],
+        'Filesystemiterator' => ['Directoryiterator'],
+        'Filteriterator' => ['Iteratoriterator'],
+        'Globaliterator' => ['Filesystemiterator', 'Countable'],
+        'Infiniteiterator' => ['Iteratoriterator'],
+        'Iteratoriterator' => ['Outeriterator'],
+        'Limititerator' => ['Iteratoriterator'],
+        'Multipleiterator' => ['Iterator'],
+        'Norewinditerator' => ['Iteratoriterator'],
+        'Parentiterator' => ['Recursivefilteriterator'],
+        'Recursivearrayiterator' => ['Arrayiterator', 'Recursiveiterator'],
+        'Recursivecachingiterator' => ['Cachingiterator', 'Recursiveiterator'],
+        'Recursivecallbackfilteriterator' => ['Callbackfilteriterator', 'Recursiveiterator'],
+        'Recursivedirectoryiterator' => ['Filesystemiterator', 'Recursiveiterator'],
+        'Recursivefilteriterator' => ['Filteriterator', 'Recursiveiterator'],
+        'Recursiveiteratoriterator' => ['Outeriterator'],
+        'Recursiveregexiterator' => ['Regexiterator', 'Recursiveiterator'],
+        'Recursivetreeiterator' => ['Recursiveiteratoriterator'],
+        'Regexiterator' => ['Filteriterator'],
+        // SPL interfaces.
+        'Countable' => [],
+        'Outeriterator' => ['Iterator'],
+        'Recursiveiterator' => ['Iterator'],
+        'Seekableiterator' => ['Iterator'],
+        // SPL exceptions.
+        'Badfunctioncallexception' => ['Logicexception'],
+        'Badmethodcallexception' => ['Badfunctioncallexception'],
+        'Domainexception' => ['Logicexception'],
+        'Invalidargumentexception' => ['Logicexception'],
+        'Lengthexception' => ['Logicexception'],
+        'Logicexception' => ['Exception'],
+        'Outofboundsexception' => ['Runtimeexception'],
+        'Outofrangeexception' => ['Logicexception'],
+        'Overflowexception' => ['Runtimeexception'],
+        'Rangeexception' => ['Runtimeexception'],
+        'Runtimeexception' => ['Exception'],
+        'Underflowexception' => ['Runtimeexception'],
+        'Unexpectedvalueexception' => ['Runtimeexception'],
+        // SPL file handling.
+        'Splfileinfo' => ['Stringable'],
+        'Splfileobject' => ['Splfileinfo', 'Recursiveiterator', 'Seekableiterator'],
+        'Spltempfileobject' => ['Splfileobject'],
+        // SPL misc.
+        'Arrayobject' => ['Iteratoraggregate', 'Arrayaccess', 'Serializable', 'Countable'],
+        'Splobserver' => [],
+        'Splsubject' => [],
+    ];
+
+    /** @var array<non-empty-string, non-empty-string> use aliases, aliases are keys, class names are values */
+    protected $usealiases;
+
+    /** @var array<non-empty-string, object{extends: ?non-empty-string, implements: non-empty-string[]}> inheritance heirarchy */
+    protected $artifacts;
+
     /** @var string the text to be parsed */
-    protected $text;
+    protected $text = '';
 
     /** @var string the text to be parsed, with case retained */
-    protected $textwithcase;
+    protected $textwithcase = '';
 
     /** @var bool when we encounter an unknown type, should we go wide or narrow */
-    protected $gowide;
+    protected $gowide = false;
 
     /** @var object{startpos: non-negative-int, endpos: non-negative-int, text: ?non-empty-string}[] next tokens */
-    protected $nexts;
+    protected $nexts = [];
 
     /** @var ?non-empty-string the next token */
-    protected $next;
+    protected $next = null;
+
+    /**
+     * Constructor
+     * @param array<non-empty-string, non-empty-string> $usealiases aliases are keys, class names are values
+     * @param array<non-empty-string, object{extends: ?non-empty-string, implements: non-empty-string[]}> $artifacts inherit tree
+     */
+    public function __construct(array $usealiases = [], array $artifacts = []) {
+        $this->usealiases = $usealiases;
+        $this->artifacts = $artifacts;
+    }
 
     /**
      * Parse a type and possibly variable name
@@ -129,13 +241,37 @@ class type_parser {
     }
 
     /**
+     * Substitute owner and parent names
+     *
+     * @param non-empty-string $type the simplified type
+     * @param ?non-empty-string $ownername
+     * @param ?non-empty-string $parentname
+     * @return non-empty-string
+     */
+    public static function substitute_names(string $type, ?string $ownername, ?string $parentname): string {
+        if ($ownername) {
+            $ownername = ucfirst(strtolower($ownername));
+            $type = preg_replace('/\bself\b/', $ownername, $type);
+            assert($type != null);
+            $type = preg_replace('/\bstatic\b/', "static({$ownername})", $type);
+            assert($type != null);
+        }
+        if ($parentname) {
+            $parentname = ucfirst(strtolower($parentname));
+            $type = preg_replace('/\bparent\b/', $parentname, $type);
+            assert($type != null);
+        }
+        return $type;
+    }
+
+    /**
      * Compare types
      *
      * @param ?non-empty-string $widetype the type that should be wider, e.g. PHP type
      * @param ?non-empty-string $narrowtype the type that should be narrower, e.g. PHPDoc type
      * @return bool whether $narrowtype has the same or narrower scope as $widetype
      */
-    public static function compare_types(?string $widetype, ?string $narrowtype): bool {
+    public function compare_types(?string $widetype, ?string $narrowtype): bool {
         if ($narrowtype == null) {
             return false;
         } else if ($widetype == null || $widetype == 'mixed' || $narrowtype == 'never') {
@@ -154,7 +290,7 @@ class type_parser {
             $narrowadditions = [];
             foreach ($narrowsingles as $narrowsingle) {
                 assert($narrowsingle != '');
-                $supertypes = static::super_types($narrowsingle);
+                $supertypes = $this->super_types($narrowsingle);
                 $narrowadditions = array_merge($narrowadditions, $supertypes);
             }
             $narrowsingles = array_merge($narrowsingles, $narrowadditions);
@@ -195,26 +331,56 @@ class type_parser {
      * @param non-empty-string $basetype
      * @return non-empty-string[] super types
      */
-    protected static function super_types(string $basetype): array {
-        if ($basetype == 'int') {
-            $supertypes = ['array-key', 'number', 'scaler'];
-        } else if ($basetype == 'string') {
+    protected function super_types(string $basetype): array {
+        if (in_array($basetype, ['int', 'string'])) {
             $supertypes = ['array-key', 'scaler'];
         } else if ($basetype == 'callable-string') {
             $supertypes = ['callable', 'string', 'array-key', 'scalar'];
-        } else if ($basetype == 'float') {
-            $supertypes = ['number', 'scalar'];
-        } else if (in_array($basetype, ['array-key', 'number', 'bool'])) {
+        } else if (in_array($basetype, ['array-key', 'float', 'bool'])) {
             $supertypes = ['scalar'];
         } else if ($basetype == 'array') {
             $supertypes = ['iterable'];
-        } else if ($basetype == 'Traversable') {
-            $supertypes = ['iterable', 'object'];
-        } else if ($basetype == 'Closure') {
-            $supertypes = ['callable', 'object'];
-        } else if (in_array($basetype, ['self', 'parent', 'static'])
-                || ctype_upper($basetype[0]) || $basetype[0] == '_') {
+        } else if ($basetype == 'static') {
+            $supertypes = ['self', 'parent', 'object'];
+        } else if ($basetype == 'self') {
+            $supertypes = ['parent', 'object'];
+        } else if ($basetype == 'parent') {
             $supertypes = ['object'];
+        } else if (strpos($basetype, 'static(') === 0 || ctype_upper($basetype[0]) || $basetype[0] == '_') {
+            if (strpos($basetype, 'static(') === 0) {
+                $supertypes = ['static', 'self', 'parent', 'object'];
+                $supertypequeue = [substr($basetype, 7, -1)];
+                $ignore = false;
+            } else {
+                $supertypes = ['object'];
+                $supertypequeue = [$basetype];
+                $ignore = true;
+            }
+            while ($supertype = array_shift($supertypequeue)) {
+                if (in_array($supertype, $supertypes)) {
+                    $ignore = false;
+                    continue;
+                }
+                if (!$ignore) {
+                    $supertypes[] = $supertype;
+                }
+                if ($librarysupers = $this->library[$supertype] ?? null) {
+                    $supertypequeue = array_merge($supertypequeue, $librarysupers);
+                } else if ($supertypeobj = $this->artifacts[strtolower($supertype)] ?? null) {
+                    if ($supertypeobj->extends) {
+                        $supertypequeue[] = ucfirst(strtolower($supertypeobj->extends));
+                    }
+                    if (count($supertypeobj->implements) > 0) {
+                        foreach ($supertypeobj->implements as $implements) {
+                            $supertypequeue[] = ucfirst(strtolower($implements));
+                        }
+                    }
+                } else if (!$ignore) {
+                    $supertypes = array_merge($supertypes, $this->super_types($supertype));
+                }
+                $ignore = false;
+            }
+            $supertypes = array_unique($supertypes);
         } else {
             $supertypes = [];
         }
@@ -296,7 +462,7 @@ class type_parser {
 
             // Store token.
             $next = substr($this->text, $startpos, $endpos - $startpos);
-            assert ($next !== false);
+            assert($next !== false);
             if ($stringunterminated) {
                 // If we have an unterminated string, we've reached the end of usable tokens.
                 $next = '';
@@ -397,8 +563,8 @@ class type_parser {
                     // Tidy and store intersection list.
                     if (count($intersectiontypes) > 1) {
                         foreach ($intersectiontypes as $intersectiontype) {
-                            assert ($intersectiontype != '');
-                            $supertypes = static::super_types($intersectiontype);
+                            assert($intersectiontype != '');
+                            $supertypes = $this->super_types($intersectiontype);
                             if (!(in_array($intersectiontype, ['object', 'iterable', 'callable'])
                                     || in_array('object', $supertypes))) {
                                 throw new \Exception("Error parsing type, intersection can only be used with objects.");
@@ -433,13 +599,10 @@ class type_parser {
 
         // Tidy and return union list.
         if (count($uniontypes) > 1) {
-            if ((in_array('int', $uniontypes) || in_array('number', $uniontypes)) && in_array('string', $uniontypes)) {
+            if (in_array('int', $uniontypes) && in_array('string', $uniontypes)) {
                 $uniontypes[] = 'array-key';
             }
-            if ((in_array('int', $uniontypes) || in_array('array-key', $uniontypes)) && in_array('float', $uniontypes)) {
-                $uniontypes[] = 'number';
-            }
-            if (in_array('bool', $uniontypes) && in_array('number', $uniontypes) && in_array('array-key', $uniontypes)) {
+            if (in_array('bool', $uniontypes) && in_array('float', $uniontypes) && in_array('array-key', $uniontypes)) {
                 $uniontypes[] = 'scalar';
             }
             if (in_array('Traversable', $uniontypes) && in_array('array', $uniontypes)) {
@@ -456,10 +619,10 @@ class type_parser {
                 unset($uniontypes[$neverpos]);
             }
             foreach ($uniontypes as $uniontype) {
-                assert ($uniontype != '');
+                assert($uniontype != '');
                 foreach ($uniontypes as $key => $uniontype2) {
                     assert($uniontype2 != '');
-                    if ($uniontype2 != $uniontype && static::compare_types($uniontype, $uniontype2)) {
+                    if ($uniontype2 != $uniontype && $this->compare_types($uniontype, $uniontype2)) {
                         unset($uniontypes[$key]);
                     }
                 }
@@ -538,7 +701,7 @@ class type_parser {
                 $this->parse_token('<');
                 do {
                     $mask = $this->parse_basic_type();
-                    if (!static::compare_types('int', $mask)) {
+                    if (!$this->compare_types('int', $mask)) {
                         throw new \Exception("Error parsing type, invalid int mask.");
                     }
                     $haveseperator = $this->next == ',';
@@ -551,7 +714,7 @@ class type_parser {
                 // Integer mask of.
                 $this->parse_token('<');
                 $mask = $this->parse_basic_type();
-                if (!static::compare_types('int', $mask)) {
+                if (!$this->compare_types('int', $mask)) {
                     throw new \Exception("Error parsing type, invalid int mask.");
                 }
                 $this->parse_token('>');
@@ -570,7 +733,7 @@ class type_parser {
             if ($strtype == 'class-string' && $this->next == '<') {
                 $this->parse_token('<');
                 $stringtype = $this->parse_any_type();
-                if (!static::compare_types('object', $stringtype)) {
+                if (!$this->compare_types('object', $stringtype)) {
                     throw new \Exception("Error parsing type, class-string type isn't class.");
                 }
                 $this->parse_token('>');
@@ -592,7 +755,7 @@ class type_parser {
                         throw new \Exception("Error parsing type, lists cannot have keys specified.");
                     }
                     $key = $firsttype;
-                    if (!static::compare_types('array-key', $key)) {
+                    if (!$this->compare_types('array-key', $key)) {
                         throw new \Exception("Error parsing type, invalid array key.");
                     }
                     $this->parse_token(',');
@@ -741,10 +904,6 @@ class type_parser {
             // Array-key (int|string).
             $this->parse_token('array-key');
             $type = 'array-key';
-        } else if ($next == 'number') {
-            // Number (int|float).
-            $this->parse_token('number');
-            $type = 'number';
         } else if ($next == 'scalar') {
             // Scalar can be (bool|int|float|string).
             $this->parse_token('scalar');
@@ -754,7 +913,7 @@ class type_parser {
             $this->parse_token('key-of');
             $this->parse_token('<');
             $iterable = $this->parse_any_type();
-            if (!(static::compare_types('iterable', $iterable) || static::compare_types('object', $iterable))) {
+            if (!($this->compare_types('iterable', $iterable) || $this->compare_types('object', $iterable))) {
                 throw new \Exception("Error parsing type, can't get key of non-iterable.");
             }
             $this->parse_token('>');
@@ -764,7 +923,7 @@ class type_parser {
             $this->parse_token('value-of');
             $this->parse_token('<');
             $iterable = $this->parse_any_type();
-            if (!(static::compare_types('iterable', $iterable) || static::compare_types('object', $iterable))) {
+            if (!($this->compare_types('iterable', $iterable) || $this->compare_types('object', $iterable))) {
                 throw new \Exception("Error parsing type, can't get value of non-iterable.");
             }
             $this->parse_token('>');
@@ -779,6 +938,9 @@ class type_parser {
                 if ($type == '') {
                     throw new \Exception("Error parsing type, class name has trailing slash.");
                 }
+            }
+            if (array_key_exists($type, $this->usealiases)) {
+                $type = strtolower($this->usealiases[$type]);
             }
             $type = ucfirst($type);
             assert($type != '');
@@ -802,7 +964,7 @@ class type_parser {
 
         // Suffix.
         // We can't embed this in the class name section, because it could apply to relative classes.
-        if ($this->next == '::' && (in_array('object', static::super_types($type)))) {
+        if ($this->next == '::' && (in_array('object', $this->super_types($type)))) {
             // Class constant.
             $this->parse_token('::');
             $nextchar = ($this->next == null) ? null : $this->next[0];

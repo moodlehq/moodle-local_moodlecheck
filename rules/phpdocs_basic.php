@@ -420,17 +420,24 @@ function local_moodlecheck_functiondescription(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
+    $typeparser = $file->get_type_parser();
     $errors = array();
 
     foreach ($file->get_functions() as $function) {
         if ($function->phpdocs !== false) {
+            $ownername = $function->owner ? $function->owner->name : null;
+            $parentname = $function->owner && $function->owner->extends ? $function->owner->extends : null;
+            $errorlevel = 0;
+
             $documentedarguments = $function->phpdocs->get_params('param', 2);
-            $match = (count($documentedarguments) == count($function->arguments));
-            for ($i = 0; $match && $i < count($documentedarguments); $i++) {
+            if (count($documentedarguments) != count($function->arguments)) {
+                $errorlevel = 2;
+            }
+            for ($i = 0; $errorlevel < 2 && $i < count($documentedarguments); $i++) {
                 if (count($documentedarguments[$i]) < 2 || $documentedarguments[$i][0] == null
                         || $documentedarguments[$i][1] == null) {
                     // Must be at least type and parameter name.
-                    $match = false;
+                    $errorlevel = 2;
                 } else {
                     $expectedtype = $function->arguments[$i][0];
                     $expectedparam = (string)$function->arguments[$i][1];
@@ -438,22 +445,50 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                     $documentedtype = $documentedarguments[$i][0];
                     $documentedparam = $documentedarguments[$i][1];
 
-                    $match = ($expectedparam === $documentedparam)
-                            && \local_moodlecheck\type_parser::compare_types($expectedtype, $documentedtype)
-                            // Code smell check follows.
-                            && (!$expectednullable || strpos("|{$documentedtype}|", "|void|") !== false);
+                    if ($expectedparam !== $documentedparam) {
+                        $errorlevel = 2;
+                    } else if ($expectedtype != null) {
+                        $expectedtype = $typeparser->substitute_names($expectedtype, $ownername, $parentname);
+                        $documentedtype = $typeparser->substitute_names($documentedtype, $ownername, $parentname);
+                        if (!$typeparser->compare_types($expectedtype, $documentedtype)) {
+                            $errorlevel = 2;
+                        } else if ($expectednullable && strpos("|{$documentedtype}|", '|void|') === false) {
+                            $errorlevel = 1;
+                        }
+                    }
                 }
             }
+
             $documentedreturns = $function->phpdocs->get_params('return', 0);
-            for ($i = 0; $match && $i < count($documentedreturns); $i++) {
-                if (empty($documentedreturns[$i][0])) {
-                    $match = false;
+            if (count($documentedreturns) > 1) {
+                $errorlevel = 2;
+            } else if (count($documentedreturns) == 1) {
+                if (empty($documentedreturns[0][0])) {
+                    $errorlevel = 2;
+                } else if ($function->return != null) {
+                    $expectedtype = $function->return;
+                    $documentedtype = $documentedreturns[0][0];
+                    $expectedtype = $typeparser->substitute_names($expectedtype, $ownername, $parentname);
+                    $documentedtype = $typeparser->substitute_names($documentedtype, $ownername, $parentname);
+                    if (!$typeparser->compare_types($expectedtype, $documentedtype)) {
+                        $errorlevel = 2;
+                    } else if ($errorlevel < 2
+                            && strpos("|{$expectedtype}|", '|void|') !== false
+                            && strpos("|{$documentedtype}|", '|void|') === false
+                            && $documentedtype != 'never') {
+                        $errorlevel = 1;
+                    }
                 }
             }
-            if (!$match) {
-                $errors[] = array(
+
+            if ($errorlevel > 0) {
+                $error = array(
                     'line' => $function->phpdocs->get_line_number($file, '@param'),
                     'function' => $function->fullname);
+                if ($errorlevel < 2) {
+                    $error['severity'] = 'warning';
+                }
+                $errors[] = $error;
             }
         }
     }
@@ -479,14 +514,39 @@ function local_moodlecheck_normalise_function_type(string $typelist): ?string {
  * @return array of found errors
  */
 function local_moodlecheck_variableshasvar(local_moodlecheck_file $file) {
+    $typeparser = $file->get_type_parser();
     $errors = array();
     foreach ($file->get_variables() as $variable) {
         if ($variable->phpdocs !== false) {
+            $ownername = $variable->class ? $variable->class->name : null;
+            $parentname = $variable->class && $variable->class->extends ? $variable->class->extends : null;
+            $errorlevel = 0;
+
             $documentedvars = $variable->phpdocs->get_params('var', 0);
-            if (!count($documentedvars) || $documentedvars[0][0] == null) {
-                $errors[] = array(
+            if (count($documentedvars) != 1 || $documentedvars[0][0] == null) {
+                $errorlevel = 2;
+            } else if ($variable->type != null) {
+                $expectedtype = $variable->type;
+                $documentedtype = $documentedvars[0][0];
+                $expectedtype = $typeparser->substitute_names($expectedtype, $ownername, $parentname);
+                $documentedtype = $typeparser->substitute_names($documentedtype, $ownername, $parentname);
+                if (!$typeparser->compare_types($expectedtype, $documentedtype)) {
+                    $errorlevel = 2;
+                } else if ($errorlevel < 2
+                        && strpos("|{$expectedtype}|", '|void|') !== false
+                        && strpos("|{$documentedtype}|", '|void|') === false) {
+                    $errorlevel = 1;
+                }
+            }
+
+            if ($errorlevel > 0) {
+                $error = array(
                     'line' => $variable->phpdocs->get_line_number($file, '@var'),
                     'variable' => $variable->fullname);
+                if ($errorlevel < 2) {
+                    $error['severity'] = 'warning';
+                }
+                $errors[] = $error;
             }
         }
     }

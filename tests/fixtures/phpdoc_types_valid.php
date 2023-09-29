@@ -109,7 +109,7 @@ class types_valid extends types_valid_parent {
      * @return never
      */
     public function non_native_types($parameterisedarray, $resource, $static, $parameterisediterable,
-            $arraykey, $scalar, $mixed): void {
+            $arraykey, $scalar, $mixed) {
         throw new \Exception();
     }
 
@@ -222,21 +222,21 @@ class types_valid extends types_valid_parent {
      * Never type
      * @return never|never-return|never-returns|no-return
      */
-    public function never_type(): void {
+    public function never_type() {
         throw new \Exception();
     }
 
     /**
      * Void type
+     * @param null $standalonenull
      * @param ?int $explicitnullable
      * @param ?int $implicitnullable
-     * @param null $standalonenull
      * @return void
      */
     public function void_type(
+        $standalonenull,
         ?int $explicitnullable,
-        int $implicitnullable=null,
-        $standalonenull
+        int $implicitnullable=null
     ): void {
     }
 
@@ -285,7 +285,7 @@ class types_valid extends types_valid_parent {
     }
 
     /**
-     * Key and valud of complex
+     * Key and value of complex
      * @param key-of<types_valid::ARRAY_CONST|array<int, string>> $keyof2
      * @param value-of<types_valid::ARRAY_CONST|array<int, string>> $valueof2
      */
@@ -386,6 +386,47 @@ class types_valid extends types_valid_parent {
         array $bracketarray1,
         array $bracketarray2,
         $dnf
+    ): void {
+    }
+
+    /**
+     * Inheritance
+     * @param types_valid $basic
+     * @param self|static|$this $relative1
+     * @param types_valid $relative2
+     */
+    public function inheritance(
+        types_valid_parent $basic,
+        parent $relative1,
+        parent $relative2
+    ): void {
+    }
+
+    /**
+     * Built-in classes
+     * @param Traversable<string>|Iterator|Generator|IteratorAggregate $traversable
+     * @param Iterator|Generator $iterator
+     * @param Throwable|Exception|Error $throwable
+     * @param Exception|ErrorException $exception
+     * @param Error|ArithmeticError|AssertionError|ParseError|TypeError $error
+     * @param ArithmeticError|DivisionByZeroError $arithmeticerror
+     * @param CompileError|ParseError $compileerror
+     */
+    public function builtin_classes(
+        Traversable $traversable, Iterator $iterator,
+        Throwable $throwable, Exception $exception, Error $error,
+        ArithmeticError $arithmeticerror, CompileError $compileerror
+    ): void {
+    }
+
+    /**
+     * SPL classes
+     * @param Iterator|SeekableIterator<int, string>|ArrayIterator $iterator
+     * @param SeekableIterator<int, string>|ArrayIterator $seekableiterator
+     * @param Countable|ArrayIterator $countable
+     */
+    public function spl_classes(
+        Iterator $iterator, SeekableIterator $seekableiterator, Countable $countable
     ): void {
     }
 
