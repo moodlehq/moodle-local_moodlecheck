@@ -212,14 +212,20 @@ class local_moodlecheck_file {
                 $after = T_USE;
                 $classname = null;
                 $alias = null;
-            } else if ($after == T_USE && $tokens[$tid][0] == T_STRING) {
+            } else if ($after == T_USE
+                    && ($tokens[$tid][0] == T_STRING
+                        || PHP_VERSION_ID >= 80000
+                            && in_array($tokens[$tid][0], [T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED, T_NAME_RELATIVE]))) {
                 $classname = $tokens[$tid][1];
                 if (strrpos($classname, '\\') !== false) {
                     $classname = substr($classname, strrpos($classname, '\\') + 1);
                 }
             } else if ($after == T_USE && $tokens[$tid][0] == T_AS) {
                 $after = T_AS;
-            } else if ($after == T_AS && $tokens[$tid][0] == T_STRING) {
+            } else if ($after == T_AS
+                    && ($tokens[$tid][0] == T_STRING
+                        || PHP_VERSION_ID >= 80000
+                            && in_array($tokens[$tid][0], [T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED, T_NAME_RELATIVE]))) {
                 $alias = $tokens[$tid][1];
             } else if (($after == T_USE || $after == T_AS) && in_array($tokens[$tid][1], [',', ';'])) {
                 if ($after == T_AS && $classname && $alias) {
@@ -332,14 +338,19 @@ class local_moodlecheck_file {
                         // Iterate over the remaining tokens in the class definition (until opening {).
                         foreach (array_slice($this->tokens, $tid, $artifact->tagpair[0] - $tid) as $token) {
                             if ($after == T_IMPLEMENTS && $implements
-                                    && !in_array($token[0], [T_WHITESPACE, T_COMMENT, T_NS_SEPARATOR, T_STRING])) {
+                                    && !in_array($token[0], [T_WHITESPACE, T_COMMENT, T_NS_SEPARATOR, T_STRING])
+                                    && !(PHP_VERSION_ID >= 80000
+                                        && in_array($token[0], [T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED, T_NAME_RELATIVE]))) {
                                 $artifact->implements[] = $implements;
                                 $implements = null;
                             }
                             if ($token[0] == T_EXTENDS) {
                                 $artifact->hasextends = true;
                                 $after = T_EXTENDS;
-                            } else if ($after == T_EXTENDS && $token[0] == T_STRING) {
+                            } else if ($after == T_EXTENDS
+                                    && ($token[0] == T_STRING
+                                        || PHP_VERSION_ID >= 80000
+                                            && in_array($token[0], [T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED, T_NAME_RELATIVE]))) {
                                 $extends = $token[1];
                                 if (strrpos($extends, '\\') !== false) {
                                     $extends = substr($extends, strrpos($extends, '\\') + 1);
@@ -349,12 +360,17 @@ class local_moodlecheck_file {
                                 $artifact->hasimplements = true;
                                 $after = T_IMPLEMENTS;
                                 $implements = null;
-                            } else if ($after == T_IMPLEMENTS && $token[0] == T_STRING) {
+                            } else if ($after == T_IMPLEMENTS
+                                    && ($token[0] == T_STRING
+                                        || PHP_VERSION_ID >= 80000
+                                            && in_array($token[0], [T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED, T_NAME_RELATIVE]))) {
                                 $implements = $token[1];
                                 if (strrpos($implements, '\\') !== false) {
                                     $implements = substr($implements, strrpos($implements, '\\') + 1);
                                 }
                             } else if (!in_array($token[0], [T_WHITESPACE, T_COMMENT, T_NS_SEPARATOR, T_STRING])
+                                    && !(PHP_VERSION_ID >= 80000
+                                        && in_array($token[0], [T_NAME_FULLY_QUALIFIED, T_NAME_QUALIFIED, T_NAME_RELATIVE]))
                                     && $token[1] !== ',') {
                                 $after = null;
                             }

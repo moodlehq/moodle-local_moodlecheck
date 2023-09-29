@@ -468,7 +468,7 @@ class type_parser {
                 $next = '';
             }
             $this->nexts[] = (object)['startpos' => $startpos, 'endpos' => $endpos,
-                'text' => ($next !== '') ? $next : null,];
+                'text' => ($next !== '') ? $next : null, ];
         }
 
         // Return the needed token.
@@ -675,7 +675,7 @@ class type_parser {
             $type = 'bool';
         } else if (in_array($next, ['int', 'integer', 'positive-int', 'negative-int',
                                     'non-positive-int', 'non-negative-int',
-                                    'int-mask', 'int-mask-of',])
+                                    'int-mask', 'int-mask-of', ])
                 || (ctype_digit($nextchar) || $nextchar == '-') && strpos($next, '.') === false) {
             // Int.
             $inttype = $this->parse_token();
@@ -726,7 +726,7 @@ class type_parser {
             $this->parse_token();
             $type = 'float';
         } else if (in_array($next, ['string', 'class-string', 'numeric-string', 'literal-string',
-                                    'non-empty-string', 'non-falsy-string', 'truthy-string',])
+                                    'non-empty-string', 'non-falsy-string', 'truthy-string', ])
                     || $nextchar == '"' || $nextchar == '\'') {
             // String.
             $strtype = $this->parse_token();
