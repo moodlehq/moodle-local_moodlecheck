@@ -58,9 +58,9 @@ local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('l
 function local_moodlecheck_noemptysecondline(local_moodlecheck_file $file) {
     $tokens = &$file->get_tokens();
     if ($tokens[0][0] == T_OPEN_TAG && !$file->is_whitespace_token(1) && $file->is_multiline_token(0) == 1) {
-        return array();
+        return [];
     }
-    return array(array('line' => 2));
+    return [['line' => 2]];
 }
 
 /**
@@ -73,19 +73,19 @@ function local_moodlecheck_filephpdocpresent(local_moodlecheck_file $file) {
     // This rule doesn't apply if the file is 1-artifact file (see #66).
     $artifacts = $file->get_artifacts();
     if (count($artifacts[T_CLASS]) + count($artifacts[T_INTERFACE]) + count($artifacts[T_TRAIT]) === 1) {
-        return array();
+        return [];
     }
     if ($file->find_file_phpdocs() === false) {
         $tokens = &$file->get_tokens();
         for ($i = 0; $i < 90; $i++) {
-            if (isset($tokens[$i]) && !in_array($tokens[$i][0], array(T_OPEN_TAG, T_WHITESPACE, T_COMMENT))) {
-                return array(array('line' => $file->get_line_number($i)));
+            if (isset($tokens[$i]) && !in_array($tokens[$i][0], [T_OPEN_TAG, T_WHITESPACE, T_COMMENT])) {
+                return [['line' => $file->get_line_number($i)]];
             }
         }
         // For some reason we cound not find the line number.
-        return array(array('line' => ''));
+        return [['line' => '']];
     }
-    return array();
+    return [];
 }
 
 /**
@@ -95,10 +95,10 @@ function local_moodlecheck_filephpdocpresent(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_classesdocumented(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_classes() as $class) {
         if ($class->phpdocs === false) {
-            $errors[] = array('class' => $class->name, 'line' => $file->get_line_number($class->boundaries[0]));
+            $errors[] = ['class' => $class->name, 'line' => $file->get_line_number($class->boundaries[0])];
         }
     }
     return $errors;
@@ -115,7 +115,7 @@ function local_moodlecheck_classesdocumented(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
     $isphpunitfile = preg_match('#/tests/.+_test\.php$#', $file->get_filepath());
-    $errors = array();
+    $errors = [];
     foreach ($file->get_functions() as $function) {
         if ($function->phpdocs === false) {
             // Exception is made for plain phpunit test methods MDLSITE-3282, MDLSITE-3856.
@@ -128,7 +128,7 @@ function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
             if (!($isphpunitfile && $istestmethod)) {
                 $error = [
                     'function' => $function->fullname,
-                    'line' => $file->get_line_number($function->boundaries[0])
+                    'line' => $file->get_line_number($function->boundaries[0]),
                 ];
 
                 if ($isinsubclass) {
@@ -149,10 +149,10 @@ function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_variablesdocumented(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_variables() as $variable) {
         if ($variable->phpdocs === false) {
-            $errors[] = array('variable' => $variable->fullname, 'line' => $file->get_line_number($variable->tid));
+            $errors[] = ['variable' => $variable->fullname, 'line' => $file->get_line_number($variable->tid)];
         }
     }
     return $errors;
@@ -165,10 +165,10 @@ function local_moodlecheck_variablesdocumented(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_constsdocumented(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_constants() as $object) {
         if ($object->phpdocs === false) {
-            $errors[] = array('object' => $object->fullname, 'line' => $file->get_line_number($object->tid));
+            $errors[] = ['object' => $object->fullname, 'line' => $file->get_line_number($object->tid)];
         }
     }
     return $errors;
@@ -181,10 +181,10 @@ function local_moodlecheck_constsdocumented(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_definesdocumented(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_defines() as $object) {
         if ($object->phpdocs === false) {
-            $errors[] = array('object' => $object->fullname, 'line' => $file->get_line_number($object->tid));
+            $errors[] = ['object' => $object->fullname, 'line' => $file->get_line_number($object->tid)];
         }
     }
     return $errors;
@@ -197,10 +197,10 @@ function local_moodlecheck_definesdocumented(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_noinlinephpdocs(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         if ($phpdocs->is_inline()) {
-            $errors[] = array('line' => $phpdocs->get_line_number($file));
+            $errors[] = ['line' => $phpdocs->get_line_number($file)];
         }
     }
     return $errors;
@@ -213,14 +213,14 @@ function local_moodlecheck_noinlinephpdocs(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_phpdocsinvalidtag(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         foreach ($phpdocs->get_tags() as $tag) {
             $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
             if (!in_array($tag, local_moodlecheck_phpdocs::$validtags)) {
-                $errors[] = array(
+                $errors[] = [
                     'line' => $phpdocs->get_line_number($file, '@' . $tag),
-                    'tag' => '@' . $tag);
+                    'tag' => '@' . $tag, ];
             }
         }
     }
@@ -234,15 +234,15 @@ function local_moodlecheck_phpdocsinvalidtag(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_phpdocsnotrecommendedtag(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         foreach ($phpdocs->get_tags() as $tag) {
             $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
             if (in_array($tag, local_moodlecheck_phpdocs::$validtags) &&
                     !in_array($tag, local_moodlecheck_phpdocs::$recommendedtags)) {
-                $errors[] = array(
+                $errors[] = [
                     'line' => $phpdocs->get_line_number($file, '@' . $tag),
-                    'tag' => '@' . $tag);
+                    'tag' => '@' . $tag, ];
             }
         }
     }
@@ -256,7 +256,7 @@ function local_moodlecheck_phpdocsnotrecommendedtag(local_moodlecheck_file $file
  * @return array of found errors
  */
 function local_moodlecheck_phpdocsinvalidpathtag(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         foreach ($phpdocs->get_tags() as $tag) {
             $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
@@ -265,9 +265,9 @@ function local_moodlecheck_phpdocsinvalidpathtag(local_moodlecheck_file $file) {
                     isset(local_moodlecheck_phpdocs::$pathrestrictedtags[$tag])) {
                 // Verify file path matches some of the valid paths for the tag.
                 if (!preg_filter(local_moodlecheck_phpdocs::$pathrestrictedtags[$tag], '$0', $file->get_filepath())) {
-                    $errors[] = array(
+                    $errors[] = [
                         'line' => $phpdocs->get_line_number($file, '@' . $tag),
-                        'tag' => '@' . $tag);
+                        'tag' => '@' . $tag, ];
                 }
             }
         }
@@ -282,14 +282,14 @@ function local_moodlecheck_phpdocsinvalidpathtag(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_phpdocsinvalidinlinetag(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         if ($inlinetags = $phpdocs->get_inline_tags(false)) {
             foreach ($inlinetags as $inlinetag) {
                 if (!in_array($inlinetag, local_moodlecheck_phpdocs::$inlinetags)) {
-                    $errors[] = array(
+                    $errors[] = [
                         'line' => $phpdocs->get_line_number($file, '@' . $inlinetag),
-                        'tag' => '@' . $inlinetag);
+                        'tag' => '@' . $inlinetag, ];
                 }
             }
         }
@@ -303,7 +303,7 @@ function local_moodlecheck_phpdocsinvalidinlinetag(local_moodlecheck_file $file)
  * @return array of found errors
  */
 function local_moodlecheck_phpdocsuncurlyinlinetag(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         if ($inlinetags = $phpdocs->get_inline_tags(false)) {
             $curlyinlinetags = $phpdocs->get_inline_tags(true);
@@ -318,9 +318,9 @@ function local_moodlecheck_phpdocsuncurlyinlinetag(local_moodlecheck_file $file)
             }
             foreach ($inlinetags as $inlinetag) {
                 if (in_array($inlinetag, local_moodlecheck_phpdocs::$inlinetags)) {
-                    $errors[] = array(
+                    $errors[] = [
                         'line' => $phpdocs->get_line_number($file, ' @' . $inlinetag),
-                        'tag' => '@' . $inlinetag);
+                        'tag' => '@' . $inlinetag, ];
                 }
             }
         }
@@ -337,7 +337,7 @@ function local_moodlecheck_phpdocsuncurlyinlinetag(local_moodlecheck_file $file)
  * @return array of found errors
  */
 function local_moodlecheck_phpdoccontentsinlinetag(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         if ($curlyinlinetags = $phpdocs->get_inline_tags(true, true)) {
             foreach ($curlyinlinetags as $curlyinlinetag) {
@@ -348,16 +348,16 @@ function local_moodlecheck_phpdoccontentsinlinetag(local_moodlecheck_file $file)
                         case 'link':
                             // Must be a correct URL with optional description.
                             if (!filter_var($uriorfqsen, FILTER_VALIDATE_URL)) {
-                                $errors[] = array(
+                                $errors[] = [
                                     'line' => $phpdocs->get_line_number($file, ' {@' . $curlyinlinetag),
-                                    'tag' => '{@' . $curlyinlinetag . '}');
+                                    'tag' => '{@' . $curlyinlinetag . '}', ];
                             }
                             break;
                         case 'see': // Must be 1-word (with some chars allowed - FQSEN only.
                             if (str_word_count($uriorfqsen, 0, '\()-_:>$012345789') !== 1) {
-                                $errors[] = array(
+                                $errors[] = [
                                     'line' => $phpdocs->get_line_number($file, ' {@' . $curlyinlinetag),
-                                    'tag' => '{@' . $curlyinlinetag . '}');
+                                    'tag' => '{@' . $curlyinlinetag . '}', ];
                             }
                             break;
                     }
@@ -375,20 +375,20 @@ function local_moodlecheck_phpdoccontentsinlinetag(local_moodlecheck_file $file)
  * @return array of found errors
  */
 function local_moodlecheck_phpdocsfistline(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
 
     if (($phpdocs = $file->find_file_phpdocs()) && !$file->find_file_phpdocs()->get_shortdescription()) {
-        $errors[] = array(
+        $errors[] = [
             'line' => $phpdocs->get_line_number($file),
-            'object' => 'file'
-        );
+            'object' => 'file',
+        ];
     }
     foreach ($file->get_classes() as $class) {
         if ($class->phpdocs && !$class->phpdocs->get_shortdescription()) {
-            $errors[] = array(
+            $errors[] = [
                 'line' => $class->phpdocs->get_line_number($file),
-                'object' => 'class '.$class->name
-            );
+                'object' => 'class '.$class->name,
+            ];
         }
     }
     return $errors;
@@ -401,13 +401,13 @@ function local_moodlecheck_phpdocsfistline(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_functiondescription(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_functions() as $function) {
         if ($function->phpdocs !== false && !strlen($function->phpdocs->get_description())) {
-            $errors[] = array(
+            $errors[] = [
                 'line' => $function->phpdocs->get_line_number($file),
-                'object' => $function->name
-            );
+                'object' => $function->name,
+            ];
         }
     }
     return $errors;
@@ -420,7 +420,7 @@ function local_moodlecheck_functiondescription(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
 
     foreach ($file->get_functions() as $function) {
         if ($function->phpdocs !== false) {
@@ -469,9 +469,9 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
                 }
             }
             if (!$match) {
-                $errors[] = array(
+                $errors[] = [
                     'line' => $function->phpdocs->get_line_number($file, '@param'),
-                    'function' => $function->fullname);
+                    'function' => $function->fullname, ];
             }
         }
     }
@@ -521,14 +521,14 @@ function local_moodlecheck_normalise_function_type(string $typelist): string {
  * @return array of found errors
  */
 function local_moodlecheck_variableshasvar(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_variables() as $variable) {
         if ($variable->phpdocs !== false) {
             $documentedvars = $variable->phpdocs->get_params('var', 2);
             if (!count($documentedvars) || $documentedvars[0][0] == 'type') {
-                $errors[] = array(
+                $errors[] = [
                     'line' => $variable->phpdocs->get_line_number($file, '@var'),
-                    'variable' => $variable->fullname);
+                    'variable' => $variable->fullname, ];
             }
         }
     }
@@ -542,12 +542,12 @@ function local_moodlecheck_variableshasvar(local_moodlecheck_file $file) {
  * @return array of found errors
  */
 function local_moodlecheck_definedoccorrect(local_moodlecheck_file $file) {
-    $errors = array();
+    $errors = [];
     foreach ($file->get_defines() as $object) {
         if ($object->phpdocs !== false) {
             if (!preg_match('/^\s*'.$object->name.'\s+-\s+(.*)/', $object->phpdocs->get_description(), $matches) ||
                     !strlen(trim($matches[1]))) {
-                $errors[] = array('line' => $object->phpdocs->get_line_number($file), 'object' => $object->fullname);
+                $errors[] = ['line' => $object->phpdocs->get_line_number($file), 'object' => $object->fullname];
             }
         }
     }
@@ -563,9 +563,9 @@ function local_moodlecheck_definedoccorrect(local_moodlecheck_file $file) {
 function local_moodlecheck_filehascopyright(local_moodlecheck_file $file) {
     $phpdocs = $file->find_file_phpdocs();
     if ($phpdocs && !count($phpdocs->get_tags('copyright', true))) {
-        return array(array('line' => $phpdocs->get_line_number($file, '@copyright')));
+        return [['line' => $phpdocs->get_line_number($file, '@copyright')]];
     }
-    return array();
+    return [];
 }
 
 /**
@@ -577,7 +577,7 @@ function local_moodlecheck_filehascopyright(local_moodlecheck_file $file) {
 function local_moodlecheck_filehaslicense(local_moodlecheck_file $file) {
     $phpdocs = $file->find_file_phpdocs();
     if ($phpdocs && !count($phpdocs->get_tags('license', true))) {
-        return array(array('line' => $phpdocs->get_line_number($file, '@license')));
+        return [['line' => $phpdocs->get_line_number($file, '@license')]];
     }
-    return array();
+    return [];
 }

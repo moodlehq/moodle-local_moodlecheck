@@ -30,14 +30,14 @@ require_once($CFG->dirroot. '/local/moodlecheck/locallib.php');
 
 // Now get cli options.
 list($options, $unrecognized) = cli_get_params(
-        array('help' => false, 'path' => '', 'format' => 'xml', 'exclude' => '', 'rules' => 'all', 'componentsfile' => ''),
-        array('h' => 'help', 'p' => 'path', 'f' => 'format', 'e' => 'exclude', 'r' => 'rules', 'c' => 'componentsfile')
+        ['help' => false, 'path' => '', 'format' => 'xml', 'exclude' => '', 'rules' => 'all', 'componentsfile' => ''],
+        ['h' => 'help', 'p' => 'path', 'f' => 'format', 'e' => 'exclude', 'r' => 'rules', 'c' => 'componentsfile']
     );
 
 $rules = preg_split('/\s*[\n,;]\s*/', trim($options['rules']), -1, PREG_SPLIT_NO_EMPTY);
 $paths = preg_split('/\s*[\n,;]\s*/', trim($options['path']), -1, PREG_SPLIT_NO_EMPTY);
 $exclude = preg_split('/\s*[\n,;]\s*/', trim($options['exclude']), -1, PREG_SPLIT_NO_EMPTY);
-if (!in_array($options['format'], array('xml', 'html', 'text'))) {
+if (!in_array($options['format'], ['xml', 'html', 'text'])) {
     unset($options['format']);
 }
 

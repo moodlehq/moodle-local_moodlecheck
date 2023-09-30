@@ -45,7 +45,7 @@ $ignore = optional_param('ignorepath', '', PARAM_NOTAGS);
 $checkall = optional_param('checkall', 'all', PARAM_NOTAGS);
 $rules = optional_param_array('rule', [], PARAM_NOTAGS);
 
-$pageparams = array();
+$pageparams = [];
 if ($pathlist) {
     $pageparams['path'] = $pathlist;
 }
