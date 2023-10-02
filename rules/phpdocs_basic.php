@@ -515,7 +515,7 @@ function local_moodlecheck_normalise_function_type(string $typelist): ?string {
  */
 function local_moodlecheck_variableshasvar(local_moodlecheck_file $file) {
     $typeparser = $file->get_type_parser();
-    $errors = array();
+    $errors = [];
     foreach ($file->get_variables() as $variable) {
         if ($variable->phpdocs !== false) {
             $ownername = $variable->class ? $variable->class->name : null;
