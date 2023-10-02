@@ -461,7 +461,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @return  array
      */
-    public function anonymous_class_provider(): array {
+    public static function anonymous_class_provider(): array {
         $rootpath  = 'local/moodlecheck/tests/fixtures/anonymous';
         return [
             'return new class {' => [
@@ -536,7 +536,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @return array
      */
-    public function empty_nophp_files_provider(): array {
+    public static function empty_nophp_files_provider(): array {
         return [
             'empty' => ['local/moodlecheck/tests/fixtures/empty.php'],
             'nophp' => ['local/moodlecheck/tests/fixtures/nophp.php'],

@@ -38,9 +38,9 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
         $path->validate();
         if ($path->is_dir()) {
             if ($format == 'html') {
-                $output .= html_writer::start_tag('li', array('class' => 'directory'));
-                $output .= html_writer::tag('span', $path->get_path(), array('class' => 'dirname'));
-                $output .= html_writer::start_tag('ul', array('class' => 'directory'));
+                $output .= html_writer::start_tag('li', ['class' => 'directory']);
+                $output .= html_writer::tag('span', $path->get_path(), ['class' => 'dirname']);
+                $output .= html_writer::start_tag('ul', ['class' => 'directory']);
             } else if ($format == 'xml' && $path->is_rootpath()) {
                 // Insert XML preamble and root element.
                 $output .= '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL .
@@ -75,11 +75,11 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
         $errors = $file->validate();
         $this->errorcount += count($errors);
         if ($format == 'html') {
-            $output .= html_writer::start_tag('li', array('class' => 'file'));
-            $output .= html_writer::tag('span', $filename, array('class' => 'filename'));
-            $output .= html_writer::start_tag('ul', array('class' => 'file'));
+            $output .= html_writer::start_tag('li', ['class' => 'file']);
+            $output .= html_writer::tag('span', $filename, ['class' => 'filename']);
+            $output .= html_writer::start_tag('ul', ['class' => 'file']);
         } else if ($format == 'xml') {
-            $output .= html_writer::start_tag('file', array('name' => $filename)). "\n";
+            $output .= html_writer::start_tag('file', ['name' => $filename]). "\n";
         } else if ($format == 'text') {
             $output .= $filename. "\n";
         }
@@ -94,7 +94,7 @@ class local_moodlecheck_renderer extends plugin_renderer_base {
                 $error['message'] = get_string('linenum', 'local_moodlecheck', $error['line']) . $error['message'];
             }
             if ($format == 'html') {
-                $output .= html_writer::tag('li', $error['message'], array('class' => 'errorline'));
+                $output .= html_writer::tag('li', $error['message'], ['class' => 'errorline']);
             } else {
                 $error['message'] = strip_tags($error['message']);
                 if ($format == 'text') {
