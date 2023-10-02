@@ -119,7 +119,7 @@ class local_moodlecheck_file {
         if ($this->errors !== null) {
             return $this->errors;
         }
-        $this->errors = array();
+        $this->errors = [];
         if (!$this->needs_validation()) {
             return $this->errors;
         }
@@ -127,12 +127,12 @@ class local_moodlecheck_file {
         if (!$this->get_tokens() ||
                 count($this->get_tokens()) === 1 ||
                 (isset($this->get_tokens()[0][0]) && $this->get_tokens()[0][0] !== T_OPEN_TAG)) {
-            $this->errors[] = array(
+            $this->errors[] = [
                 'line' => 1,
                 'severity' => 'error',
                 'message' => get_string('error_emptynophpfile', 'local_moodlecheck'),
-                'source' => '&#x00d8;'
-            );
+                'source' => '&#x00d8;',
+            ];
             return $this->errors;
         }
         foreach (local_moodlecheck_registry::get_enabled_rules() as $code => $rule) {
@@ -171,7 +171,7 @@ class local_moodlecheck_file {
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
                 if (is_string($this->tokens[$tid])) {
                     // Simple 1-character token.
-                    $this->tokens[$tid] = array(-1, $this->tokens[$tid]);
+                    $this->tokens[$tid] = [-1, $this->tokens[$tid]];
                 }
                 // And now, for the purpose of this project we don't need strings with variables inside to be parsed
                 // so when we find string in double quotes that is split into several tokens and combine all content in one token.
@@ -181,12 +181,12 @@ class local_moodlecheck_file {
                         $this->tokens[$tid][0] = T_STRING;
                     } else {
                         $this->tokens[$inquotes][1] .= $this->tokens[$tid][1];
-                        $this->tokens[$tid] = array(T_WHITESPACE, '');
+                        $this->tokens[$tid] = [T_WHITESPACE, ''];
                         $inquotes = -1;
                     }
                 } else if ($inquotes > -1) {
                     $this->tokens[$inquotes][1] .= $this->tokens[$tid][1];
-                    $this->tokens[$tid] = array(T_WHITESPACE, '');
+                    $this->tokens[$tid] = [T_WHITESPACE, ''];
                 }
             }
         }
@@ -266,12 +266,12 @@ class local_moodlecheck_file {
      * @return array with 3 elements (classes, interfaces & traits), each being an array.
      */
     public function get_artifacts() {
-        $types = array(T_CLASS, T_INTERFACE, T_TRAIT); // We are interested on these.
+        $types = [T_CLASS, T_INTERFACE, T_TRAIT]; // We are interested on these.
         $artifacts = array_combine($types, $types);
         if ($this->classes === null) {
-            $this->classes = array();
-            $this->interfaces = array();
-            $this->traits = array();
+            $this->classes = [];
+            $this->interfaces = [];
+            $this->traits = [];
             $tokens = &$this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
                 if (isset($artifacts[$this->tokens[$tid][0]])) {
@@ -395,7 +395,7 @@ class local_moodlecheck_file {
                 }
             }
         }
-        return array(T_CLASS => $this->classes, T_INTERFACE => $this->interfaces, T_TRAIT => $this->traits);
+        return [T_CLASS => $this->classes, T_INTERFACE => $this->interfaces, T_TRAIT => $this->traits];
     }
 
     /**
@@ -448,7 +448,7 @@ class local_moodlecheck_file {
      * $function->accessmodifiers : tokens like static, public, protected, abstract, etc.
      * $function->tagpair : array of two elements: id of token { for the function and id of token } (false if not found)
      * $function->argumentstoken : array of tokens found inside function arguments
-     * $function->arguments : array of function arguments where each element is array(typename, variablename)
+     * $function->arguments : array of function arguments where each element is [typename, variablename]
      * $function->boundaries : array with ids of first and last token for this function
      *
      * @return array
@@ -456,7 +456,7 @@ class local_moodlecheck_file {
     public function &get_functions() {
         if ($this->functions === null) {
             $typeparser = $this->get_type_parser();
-            $this->functions = array();
+            $this->functions = [];
             $tokens = &$this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
                 if ($this->tokens[$tid][0] == T_USE) {
@@ -468,7 +468,7 @@ class local_moodlecheck_file {
                 if ($this->tokens[$tid][0] == T_FUNCTION) {
                     $function = new stdClass();
                     $function->tid = $tid;
-                    $function->fullname = $function->name = $this->next_nonspace_token($tid, false, array('&'));
+                    $function->fullname = $function->name = $this->next_nonspace_token($tid, false, ['&']);
 
                     // Skip anonymous functions.
                     if ($function->name == '(') {
@@ -487,14 +487,14 @@ class local_moodlecheck_file {
                         $function->tagpair = false;
                     }
 
-                    $argumentspair = $this->find_tag_pair($tid, '(', ')', array('{', ';'));
+                    $argumentspair = $this->find_tag_pair($tid, '(', ')', ['{', ';']);
                     if ($argumentspair !== false && $argumentspair[1] - $argumentspair[0] > 1) {
                         $function->argumentstokens = $this->break_tokens_by(
                             array_slice($tokens, $argumentspair[0] + 1, $argumentspair[1] - $argumentspair[0] - 1) );
                     } else {
-                        $function->argumentstokens = array();
+                        $function->argumentstokens = [];
                     }
-                    $function->arguments = array();
+                    $function->arguments = [];
                     foreach ($function->argumentstokens as $argtokens) {
                         // If the token is completely empty then it's not an argument. This happens, for example, with
                         // trailing commas in parameters, allowed since PHP 8.0 and break_tokens_by() returns it that way.
@@ -566,7 +566,7 @@ class local_moodlecheck_file {
     public function &get_variables() {
         if ($this->variables === null) {
             $typeparser = $this->get_type_parser();
-            $this->variables = array();
+            $this->variables = [];
             $this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
                 if ($this->tokens[$tid][0] == T_VARIABLE && ($class = $this->is_inside_class($tid)) &&
@@ -618,7 +618,7 @@ class local_moodlecheck_file {
      */
     public function &get_constants() {
         if ($this->constants === null) {
-            $this->constants = array();
+            $this->constants = [];
             $this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
                 if ($this->tokens[$tid][0] == T_USE) {
@@ -659,7 +659,7 @@ class local_moodlecheck_file {
      */
     public function &get_defines() {
         if ($this->defines === null) {
-            $this->defines = array();
+            $this->defines = [];
             $this->get_tokens();
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
                 if ($this->tokens[$tid][0] == T_STRING && $this->tokens[$tid][1] == 'define' &&
@@ -692,7 +692,7 @@ class local_moodlecheck_file {
      * @return array
      */
     public function find_object_boundaries($obj) {
-        $boundaries = array($obj->tid, $obj->tid);
+        $boundaries = [$obj->tid, $obj->tid];
         $tokens = &$this->get_tokens();
         if (!empty($obj->tagpair)) {
             $boundaries[1] = $obj->tagpair[1];
@@ -711,15 +711,15 @@ class local_moodlecheck_file {
             // Walk back until we meet one of the characters that means that we are outside of the object.
             for ($i = $boundaries[0] - 1; $i >= 0; $i--) {
                 $token = $tokens[$i];
-                if (in_array($token[0], array(T_OPEN_TAG, T_OPEN_TAG_WITH_ECHO, T_CLOSE_TAG))) {
+                if (in_array($token[0], [T_OPEN_TAG, T_OPEN_TAG_WITH_ECHO, T_CLOSE_TAG])) {
                     break;
-                } else if (in_array($token[1], array('{', '}', '(', ';', ',', '['))) {
+                } else if (in_array($token[1], ['{', '}', '(', ';', ',', '['])) {
                     break;
                 }
             }
             // Walk forward to the next meaningful token skipping all spaces and comments.
             for ($i = $i + 1; $i < $boundaries[0]; $i++) {
-                if (!in_array($tokens[$i][0], array(T_WHITESPACE, T_COMMENT, T_DOC_COMMENT))) {
+                if (!in_array($tokens[$i][0], [T_WHITESPACE, T_COMMENT, T_DOC_COMMENT])) {
                     break;
                 }
             }
@@ -809,7 +809,7 @@ class local_moodlecheck_file {
      * @param array $alsoignore
      * @return int|false
      */
-    public function next_nonspace_token($tid, $returnid = false, $alsoignore = array()) {
+    public function next_nonspace_token($tid, $returnid = false, $alsoignore = []) {
         $this->get_tokens();
         for ($i = $tid + 1; $i < $this->tokenscount; $i++) {
             if (!$this->is_whitespace_token($i) && !in_array($this->tokens[$i][1], $alsoignore)) {
@@ -833,7 +833,7 @@ class local_moodlecheck_file {
      * @param array $alsoignore
      * @return int|false
      */
-    public function previous_nonspace_token($tid, $returnid = false, $alsoignore = array()) {
+    public function previous_nonspace_token($tid, $returnid = false, $alsoignore = []) {
         $this->get_tokens();
         for ($i = $tid - 1; $i > 0; $i--) {
             if (!$this->is_whitespace_token($i) && !in_array($this->tokens[$i][1], $alsoignore)) {
@@ -873,7 +873,7 @@ class local_moodlecheck_file {
      */
     public function find_access_modifiers($tid) {
         $tokens = &$this->get_tokens();
-        $modifiers = array();
+        $modifiers = [];
         for ($i = $tid - 1; $i >= 0; $i--) {
             if ($this->is_whitespace_token($i)) {
                 // Skip.
@@ -910,7 +910,7 @@ class local_moodlecheck_file {
             } else if (in_array($tokens[$i][0], $modifiers)) {
                 // Just skip.
                 continue;
-            } else if (in_array($tokens[$i][1], array('{', '}', ';'))) {
+            } else if (in_array($tokens[$i][1], ['{', '}', ';'])) {
                 // This means that no phpdocs exists.
                 return false;
             } else if ($tokens[$i][0] == T_COMMENT) {
@@ -966,7 +966,7 @@ class local_moodlecheck_file {
      * @param array $breakifmeet array of symbols that are not allowed not preceed the $opensymbol
      * @return array|false array of ids of two corresponding tokens or false if not found
      */
-    public function find_tag_pair($startid, $opensymbol, $closesymbol, $breakifmeet = array()) {
+    public function find_tag_pair($startid, $opensymbol, $closesymbol, $breakifmeet = []) {
         $openid = false;
         $counter = 0;
         // Also break if we find closesymbol before opensymbol.
@@ -977,7 +977,7 @@ class local_moodlecheck_file {
             } else if ($openid !== false && $this->tokens[$i][1] == $closesymbol) {
                 $counter--;
                 if ($counter == 0) {
-                    return array($openid, $i);
+                    return [$openid, $i];
                 }
             } else if ($this->tokens[$i][1] == $opensymbol) {
                 if ($openid === false) {
@@ -999,7 +999,7 @@ class local_moodlecheck_file {
      * @param array $breakifmeet array of symbols that are not allowed not preceed the $opensymbol
      * @return array|false array of ids of two corresponding tokens or false if not found
      */
-    public function find_tag_pair_inlist(&$tokens, $startid, $opensymbol, $closesymbol, $breakifmeet = array()) {
+    public function find_tag_pair_inlist(&$tokens, $startid, $opensymbol, $closesymbol, $breakifmeet = []) {
         $openid = false;
         $counter = 0;
         // Also break if we find closesymbol before opensymbol.
@@ -1011,7 +1011,7 @@ class local_moodlecheck_file {
             } else if ($openid !== false && $tokens[$i][1] == $closesymbol) {
                 $counter--;
                 if ($counter == 0) {
-                    return array($openid, $i);
+                    return [$openid, $i];
                 }
             } else if ($tokens[$i][1] == $opensymbol) {
                 if ($openid === false) {
@@ -1033,7 +1033,7 @@ class local_moodlecheck_file {
         if ($this->filephpdocs === null) {
             $found = false;
             for ($tid = 0; $tid < $this->tokenscount; $tid++) {
-                if (in_array($tokens[$tid][0], array(T_OPEN_TAG, T_WHITESPACE, T_COMMENT))) {
+                if (in_array($tokens[$tid][0], [T_OPEN_TAG, T_WHITESPACE, T_COMMENT])) {
                     // All allowed before the file-level phpdocs.
                     $found = false;
                 } else if ($tokens[$tid][0] == T_DOC_COMMENT) {
@@ -1053,13 +1053,13 @@ class local_moodlecheck_file {
                         // At least one empty line follows, it's all right.
                         $found = $tid;
                     } else if (in_array($nexttoken[0],
-                            array(T_DOC_COMMENT, T_COMMENT, T_REQUIRE_ONCE, T_REQUIRE, T_IF, T_INCLUDE_ONCE, T_INCLUDE))) {
+                            [T_DOC_COMMENT, T_COMMENT, T_REQUIRE_ONCE, T_REQUIRE, T_IF, T_INCLUDE_ONCE, T_INCLUDE])) {
                         // Something non-documentable following, ok.
                         $found = $tid;
                     } else if ($nexttoken[0] == T_STRING && $nexttoken[1] == 'defined') {
                         // Something non-documentable following.
                         $found = $tid;
-                    } else if (in_array($nexttoken[0], array(T_CLASS, T_ABSTRACT, T_INTERFACE, T_FUNCTION))) {
+                    } else if (in_array($nexttoken[0], [T_CLASS, T_ABSTRACT, T_INTERFACE, T_FUNCTION])) {
                         // This is the doc comment to the following class/function.
                         $found = false;
                     }
@@ -1084,7 +1084,7 @@ class local_moodlecheck_file {
      */
     public function &get_all_phpdocs() {
         if ($this->allphpdocs === null) {
-            $this->allphpdocs = array();
+            $this->allphpdocs = [];
             $this->get_tokens();
             for ($id = 0; $id < $this->tokenscount; $id++) {
                 if (($this->tokens[$id][0] == T_DOC_COMMENT || $this->tokens[$id][0] === T_COMMENT)) {
@@ -1121,14 +1121,14 @@ class local_moodlecheck_file {
      * @return array of arrays of tokens
      */
     public function break_tokens_by($tokens, $separator = ',') {
-        $rv = array();
+        $rv = [];
         if (!count($tokens)) {
             return $rv;
         }
-        $rv[] = array();
+        $rv[] = [];
         for ($i = 0; $i < count($tokens); $i++) {
             if ($tokens[$i][1] == $separator) {
-                $rv[] = array();
+                $rv[] = [];
             } else {
                 $nextpair = false;
                 if ($tokens[$i][1] == '(') {
@@ -1189,7 +1189,7 @@ class local_moodlecheck_phpdocs {
     /** @var array static property storing the list of valid,
      * well known, phpdocs tags, always accepted.
      * @link http://manual.phpdoc.org/HTMLSmartyConverter/HandS/ */
-    public static $validtags = array(
+    public static $validtags = [
         // Behat tags.
         'Given',
         'Then',
@@ -1242,12 +1242,12 @@ class local_moodlecheck_phpdocs {
         'tutorial',
         'uses',
         'var',
-        'version'
-    );
+        'version',
+    ];
     /** @var array static property storing the list of recommended
      * phpdoc tags to use within Moodle phpdocs.
      * @link http://docs.moodle.org/dev/Coding_style */
-    public static $recommendedtags = array(
+    public static $recommendedtags = [
         // Behat tags.
         'Given',
         'Then',
@@ -1286,34 +1286,34 @@ class local_moodlecheck_phpdocs {
         'throws',
         'todo',
         'uses',
-        'var'
-    );
+        'var',
+    ];
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used under certain directories. keys are tags, values are
      * arrays of allowed paths (regexp patterns).
      */
-    public static $pathrestrictedtags = array(
-        'Given' => array('#.*/tests/behat/.*#'),
-        'Then' => array('#.*/tests/behat/.*#'),
-        'When' => array('#.*/tests/behat/.*#'),
-        'covers' => array('#.*/tests/.*_test.php#'),
-        'coversDefaultClass' => array('#.*/tests/.*_test.php#'),
-        'coversNothing' => array('#.*/tests/.*_test.php#'),
-        'dataProvider' => array('#.*/tests/.*_test.php#'),
-        'depends' => array('#.*/tests/.*_test.php#'),
-        'group' => array('#.*/tests/.*_test.php#'),
-        'requires' => array('#.*/tests/.*_test.php#'),
-        'runTestsInSeparateProcesses' => array('#.*/tests/.*_test.php#'),
-        'runInSeparateProcess' => array('#.*/tests/.*_test.php#'),
-        'testWith' => array('#.*/tests/.*_test.php#'),
-        // Commented out: 'uses' => array('#.*/tests/.*_test.php#'), can also be out from tests (Coding style dixit).
-    );
+    public static $pathrestrictedtags = [
+        'Given' => ['#.*/tests/behat/.*#'],
+        'Then' => ['#.*/tests/behat/.*#'],
+        'When' => ['#.*/tests/behat/.*#'],
+        'covers' => ['#.*/tests/.*_test.php#'],
+        'coversDefaultClass' => ['#.*/tests/.*_test.php#'],
+        'coversNothing' => ['#.*/tests/.*_test.php#'],
+        'dataProvider' => ['#.*/tests/.*_test.php#'],
+        'depends' => ['#.*/tests/.*_test.php#'],
+        'group' => ['#.*/tests/.*_test.php#'],
+        'requires' => ['#.*/tests/.*_test.php#'],
+        'runTestsInSeparateProcesses' => ['#.*/tests/.*_test.php#'],
+        'runInSeparateProcess' => ['#.*/tests/.*_test.php#'],
+        'testWith' => ['#.*/tests/.*_test.php#'],
+        // Commented out: 'uses' => ['#.*/tests/.*_test.php#'], can also be out from tests (Coding style dixit).
+    ];
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */
-    public static $inlinetags = array(
+    public static $inlinetags = [
         'link',
-        'see'
-    );
+        'see',
+    ];
     /** @var local_moodlecheck_file the containing file */
     protected $file;
     /** @var array stores the original token for this phpdocs */
@@ -1346,12 +1346,12 @@ class local_moodlecheck_phpdocs {
         if (preg_match('|^///|', $token[1])) {
             $this->trimmedtext = substr($token[1], 3);
         } else {
-            $this->trimmedtext = preg_replace(array('|^\s*/\*+|', '|\*+/\s*$|'), '', $token[1]);
+            $this->trimmedtext = preg_replace(['|^\s*/\*+|', '|\*+/\s*$|'], '', $token[1]);
             $this->trimmedtext = preg_replace('|\n[ \t]*\*|', "\n", $this->trimmedtext);
         }
         $lines = preg_split('/\n/', $this->trimmedtext);
 
-        $this->tokens = array();
+        $this->tokens = [];
         $this->description = '';
         $istokenline = false;
         for ($i = 0; $i < count($lines); $i++) {
@@ -1394,7 +1394,7 @@ class local_moodlecheck_phpdocs {
         if ($tag === null) {
             return $this->tokens;
         } else {
-            $rv = array();
+            $rv = [];
             foreach ($this->tokens as $token) {
                 if (preg_match('/^\s*\@'.$tag.'\s([^\0]*)$/', $token.' ', $matches) && (!$nonempty || strlen(trim($matches[1])))) {
                     $rv[] = trim($matches[1]);
@@ -1478,7 +1478,7 @@ class local_moodlecheck_phpdocs {
     /**
      * Returns list of parsed param tokens found in phpdocs
      *
-     * Each element is array(typename, variablename, variabledescription)
+     * Each element is [typename, variablename, variabledescription]
      *
      * @param string $tag tag name to look for. Usually 'param' but may be 'var' for variables
      * @param 0|1|2|3 $getwhat what to get 0=type only 1=also var 2=also modifiers (& ...) 3=also default
@@ -1486,7 +1486,7 @@ class local_moodlecheck_phpdocs {
      */
     public function get_params(string $tag, int $getwhat) {
         $typeparser = $this->file->get_type_parser();
-        $params = array();
+        $params = [];
 
         foreach ($this->get_tags($tag) as $token) {
             list($type, $variable, $description) = $typeparser->parse_type_and_var($token, $getwhat, false);
@@ -1539,7 +1539,7 @@ class local_moodlecheck_phpdocs {
      * @return array inline tags found in the phpdoc, with contents if specified.
      */
     public function get_inline_tags($withcurly = true, $withcontent = false) {
-        $inlinetags = array();
+        $inlinetags = [];
         // Trim the non-inline phpdocs tags.
         $text = preg_replace('|^\s*@?|m', '', $this->trimmedtext);
         if ($withcurly) {

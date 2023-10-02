@@ -98,14 +98,14 @@ class local_moodlecheck_rule {
     public function validatefile(local_moodlecheck_file $file) {
         $callback = $this->callback;
         $reterrors = $callback($file);
-        $ruleerrors = array();
+        $ruleerrors = [];
         foreach ($reterrors as $args) {
-            $ruleerrors[] = array(
+            $ruleerrors[] = [
                 'line' => $args['line'],
                 'severity' => $args["severity"] ?? $this->severity,
                 'message' => $this->get_error_message($args),
-                'source' => $this->code
-            );
+                'source' => $this->code,
+            ];
         }
         return $ruleerrors;
     }
@@ -119,8 +119,8 @@ class local_moodlecheck_rule {
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class local_moodlecheck_registry {
-    protected static $rules = array();
-    protected static $enabledrules = array();
+    protected static $rules = [];
+    protected static $enabledrules = [];
 
     public static function add_rule($code) {
         $rule = new local_moodlecheck_rule($code);
@@ -200,7 +200,7 @@ class local_moodlecheck_path {
         if (is_file($this->get_fullpath())) {
             $this->file = new local_moodlecheck_file($this->get_fullpath());
         } else if (is_dir($this->get_fullpath())) {
-            $this->subpaths = array();
+            $this->subpaths = [];
             if ($dh = opendir($this->get_fullpath())) {
                 while (($file = readdir($dh)) !== false) {
                     if ($file != '.' && $file != '..' && $file != '.git'  && $file != '.hg' && !$this->is_ignored($file)) {
@@ -255,12 +255,12 @@ class local_moodlecheck_path {
     }
 
     public static function get_components($componentsfile = null) {
-        static $components = array();
+        static $components = [];
         if (!empty($components)) {
             return $components;
         }
         if (empty($componentsfile)) {
-            return array();
+            return [];
         }
         if (file_exists($componentsfile) && is_readable($componentsfile)) {
             $fh = fopen($componentsfile, 'r');
@@ -295,24 +295,24 @@ class local_moodlecheck_form extends moodleform {
         $mform = $this->_form;
 
         $mform->addElement('textarea', 'path', get_string('path', 'local_moodlecheck'),
-            array('rows' => 8, 'cols' => 120));
+            ['rows' => 8, 'cols' => 120]);
         $mform->addHelpButton('path', 'path', 'local_moodlecheck');
 
         $mform->addElement('header', 'selectivecheck', get_string('options'));
         $mform->setExpanded('selectivecheck', false);
 
         $mform->addElement('textarea', 'ignorepath', get_string('ignorepath', 'local_moodlecheck'),
-            array('rows' => 3, 'cols' => 120));
+            ['rows' => 3, 'cols' => 120]);
 
         $mform->addElement('radio', 'checkall', '', get_string('checkallrules', 'local_moodlecheck'), 'all');
         $mform->addElement('radio', 'checkall', '', get_string('checkselectedrules', 'local_moodlecheck'), 'selected');
         $mform->setDefault('checkall', 'all');
 
-        $group = array();
+        $group = [];
         foreach (local_moodlecheck_registry::get_registered_rules() as $code => $rule) {
             $group[] =& $mform->createElement('checkbox', "rule[$code]", ' ', $rule->get_name());
         }
-        $mform->addGroup($group, 'checkboxgroup', '', array('<br>'), false);
+        $mform->addGroup($group, 'checkboxgroup', '', ['<br>'], false);
         foreach (local_moodlecheck_registry::get_registered_rules() as $code => $rule) {
             $group[] =& $mform->createElement('checkbox', "rule[$code]", ' ', $rule->get_name());
             $mform->setDefault("rule[$code]", 0);
