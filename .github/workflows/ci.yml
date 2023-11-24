@@ -28,12 +28,12 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # Highest php versions supported by each branch (with master always being tested twice).
+          # Highest php versions supported by each branch (with main always being tested twice).
           - php: 8.2
-            moodle-branch: master
+            moodle-branch: main
             database: pgsql
           - php: 8.2
-            moodle-branch: master
+            moodle-branch: main
             database: pgsql
           - php: 8.2
             moodle-branch: MOODLE_403_STABLE
@@ -74,12 +74,12 @@ jobs:
             database: pgsql
             plugin-ci: ^3
 
-          # Lowest php versions supported by each branch (with master always being tested twice).
+          # Lowest php versions supported by each branch (with main always being tested twice).
           - php: 8.1
-            moodle-branch: master
+            moodle-branch: main
             database: pgsql
           - php: 8.1
-            moodle-branch: master
+            moodle-branch: main
             database: pgsql
           - php: 8.0
             moodle-branch: MOODLE_403_STABLE
