@@ -111,7 +111,7 @@ jobs:
             plugin-ci: ^3
     steps:
       - name: Check out repository code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           path: plugin
 
