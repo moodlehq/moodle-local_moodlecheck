@@ -220,6 +220,33 @@ final class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
+     * Verify that constructor property promotion supports readonly properties.
+     *
+     * @covers ::local_moodlecheck_functionarguments
+     * @requires PHP >= 8.1
+     */
+    public function test_phpdoc_constructor_property_promotion_readonly(): void {
+        global $PAGE;
+        $output = $PAGE->get_renderer('local_moodlecheck');
+        $path = new local_moodlecheck_path(
+            'local/moodlecheck/tests/fixtures/phpdoc_constructor_property_promotion_readonly.php',
+            null
+        );
+        $result = $output->display_path($path, 'xml');
+
+        // Convert results to XML Objext.
+        $xmlresult = new \DOMDocument();
+        $xmlresult->loadXML($result);
+
+        // Let's verify we have received a xml with file top element and 8 children.
+        $xpath = new \DOMXpath($xmlresult);
+        $found = $xpath->query("//file/error");
+
+        $this->assertCount(0, $found);
+        $this->assertStringNotContainsString('constructor_property_promotion::__construct has incomplete parameters list', $result);
+    }
+
+    /**
      * Verify that constructor property promotion is supported.
      *
      * @covers ::local_moodlecheck_functionarguments
