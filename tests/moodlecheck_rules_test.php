@@ -713,7 +713,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers \local_moodlecheck\type_parser
      */
-    public function test_phpdoc_types_valid() {
+    public function test_phpdoc_types_valid(): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
         $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_types_valid.php', null);
@@ -735,7 +735,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers \local_moodlecheck\type_parser
      */
-    public function test_phpdoc_types_invalid() {
+    public function test_phpdoc_types_invalid(): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
         $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_types_invalid.php', null);

@@ -1237,7 +1237,7 @@ class local_moodlecheck_phpdocs {
         'static',
         'staticvar',
         'subpackage',
-        // 'template',
+        // Maybe add: 'template',
         'throws',
         'todo',
         'tutorial',
@@ -1284,7 +1284,7 @@ class local_moodlecheck_phpdocs {
         'see',
         'since',
         'subpackage',
-        // 'template',
+        // Maybe add: 'template',
         'throws',
         'todo',
         'uses',
@@ -1498,12 +1498,12 @@ class local_moodlecheck_phpdocs {
                 }
                 $type = 'mixed';
                 if (substr($token, $ofstart, 2) == 'of') {
-                    list($type) = $typeparser->parse_type_and_var(null, substr($token, $ofstart+2), 0, false);
+                    list($type) = $typeparser->parse_type_and_var(null, substr($token, $ofstart + 2), 0, false);
                 }
                 $templates[strtolower(substr($token, 0, $nameend))] = $type;
             }
         }
-        
+
         return $templates;
     }
 

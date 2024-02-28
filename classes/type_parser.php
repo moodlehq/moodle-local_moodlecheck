@@ -152,11 +152,11 @@ class type_parser {
 
     /**
      * Constructor
-     * @param \local_moodlecheck_file $file
+     * @param ?\local_moodlecheck_file $file
      */
-    public function __construct(\local_moodlecheck_file $file) {
-        $this->usealiases = $file->get_use_aliases();
-        $this->artifacts = $file->get_artifacts_flat();
+    public function __construct(\local_moodlecheck_file $file = null) {
+        $this->usealiases = $file ? $file->get_use_aliases() : [];
+        $this->artifacts = $file ? $file->get_artifacts_flat() : [];
     }
 
     /**
