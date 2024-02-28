@@ -503,7 +503,7 @@ function local_moodlecheck_functionarguments(local_moodlecheck_file $file) {
  */
 function local_moodlecheck_normalise_function_type(string $typelist): ?string {
     $typeparser = new \local_moodlecheck\type_parser();
-    list($type, $variable, $remainder) = $typeparser->parse_type_and_var($typelist, 0, true);
+    list($type, $variable, $remainder) = $typeparser->parse_type_and_var(null, $typelist, 0, true);
     return $type;
 }
 

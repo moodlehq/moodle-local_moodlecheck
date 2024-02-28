@@ -429,7 +429,7 @@ class local_moodlecheck_file {
      */
     public function get_type_parser() {
         if (!$this->typeparser) {
-            $this->typeparser = new \local_moodlecheck\type_parser($this->get_use_aliases(), $this->get_artifacts_flat());
+            $this->typeparser = new \local_moodlecheck\type_parser($this);
         }
         return $this->typeparser;
     }
@@ -517,13 +517,13 @@ class local_moodlecheck_file {
                                 $text .= $argtokens[$j][1];
                             }
                         }
-                        list($type, $variable, $default, $nullable) = $typeparser->parse_type_and_var($text, 3, true);
+                        list($type, $variable, $default, $nullable) = $typeparser->parse_type_and_var(null, $text, 3, true);
 
                         $function->arguments[] = [$type, $variable, $nullable];
                     }
 
                     // Get return type.
-                    $returnpair = $this->find_tag_pair($argumentspair[1] + 1, ':', '{', ['{', ';']);
+                    $returnpair = $this->find_tag_pair($argumentspair ? $argumentspair[1] + 1 : $tid + 1, ':', '{', ['{', ';']);
                     if ($returnpair !== false && $returnpair[1] - $returnpair[0] > 1) {
                         $rettokens =
                             array_slice($tokens, $returnpair[0] + 1, $returnpair[1] - $returnpair[0] - 1);
@@ -536,7 +536,7 @@ class local_moodlecheck_file {
                             $text .= $rettokens[$j][1];
                         }
                     }
-                    list($type, $varname, $default, $nullable) = $typeparser->parse_type_and_var($text, 0, true);
+                    list($type, $varname, $default, $nullable) = $typeparser->parse_type_and_var(null, $text, 0, true);
 
                     $function->return = $type;
 
@@ -586,7 +586,7 @@ class local_moodlecheck_file {
                                 $text .= $this->tokens[$typetid][1];
                             }
                         }
-                        list($type, $varname, $default, $nullable) = $typeparser->parse_type_and_var($text, 1, true);
+                        list($type, $varname, $default, $nullable) = $typeparser->parse_type_and_var(null, $text, 1, true);
                         $variable->type = $type;
                     } else {
                         $variable->type = null;
@@ -1237,6 +1237,7 @@ class local_moodlecheck_phpdocs {
         'static',
         'staticvar',
         'subpackage',
+        // 'template',
         'throws',
         'todo',
         'tutorial',
@@ -1283,6 +1284,7 @@ class local_moodlecheck_phpdocs {
         'see',
         'since',
         'subpackage',
+        // 'template',
         'throws',
         'todo',
         'uses',
@@ -1376,6 +1378,10 @@ class local_moodlecheck_phpdocs {
             $this->tokens[$i] = trim($token);
         }
         $this->description = trim($this->description);
+    }
+
+    public function get_artifact() {
+        return $this->file->is_inside_artifact($this->originaltid);
     }
 
     /**
@@ -1475,6 +1481,32 @@ class local_moodlecheck_phpdocs {
         }
     }
 
+    public function get_templates() {
+        $typeparser = $this->file->get_type_parser();
+        $templates = [];
+
+        foreach ($this->get_tags('template') as $token) {
+            $token = trim($token);
+            $nameend = 0;
+            while ($nameend < strlen($token) && (ctype_alnum($token[$nameend]) || $token[$nameend] == '_')) {
+                $nameend++;
+            }
+            if ($nameend > 0) {
+                $ofstart = $nameend;
+                while ($ofstart < strlen($token) && ctype_space($token[$ofstart])) {
+                    $ofstart++;
+                }
+                $type = 'mixed';
+                if (substr($token, $ofstart, 2) == 'of') {
+                    list($type) = $typeparser->parse_type_and_var(null, substr($token, $ofstart+2), 0, false);
+                }
+                $templates[strtolower(substr($token, 0, $nameend))] = $type;
+            }
+        }
+        
+        return $templates;
+    }
+
     /**
      * Returns list of parsed param tokens found in phpdocs
      *
@@ -1489,7 +1521,8 @@ class local_moodlecheck_phpdocs {
         $params = [];
 
         foreach ($this->get_tags($tag) as $token) {
-            list($type, $variable, $description) = $typeparser->parse_type_and_var($token, $getwhat, false);
+            list($type, $variable, $description) =
+                $typeparser->parse_type_and_var($this, $token, $getwhat, false);
             $param = [];
             $param[] = $type;
             if ($getwhat >= 1) {

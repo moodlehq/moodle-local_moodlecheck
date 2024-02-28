@@ -141,6 +141,9 @@ class type_parser {
     /** @var bool when we encounter an unknown type, should we go wide or narrow */
     protected $gowide = false;
 
+    /** @var  array<string, string> type templates */
+    protected $templates = [];
+
     /** @var object{startpos: non-negative-int, endpos: non-negative-int, text: ?non-empty-string}[] next tokens */
     protected $nexts = [];
 
@@ -149,26 +152,34 @@ class type_parser {
 
     /**
      * Constructor
-     * @param array<non-empty-string, non-empty-string> $usealiases aliases are keys, class names are values
-     * @param array<non-empty-string, object{extends: ?non-empty-string, implements: non-empty-string[]}> $artifacts inherit tree
+     * @param \local_moodlecheck_file $file
      */
-    public function __construct(array $usealiases = [], array $artifacts = []) {
-        $this->usealiases = $usealiases;
-        $this->artifacts = $artifacts;
+    public function __construct(\local_moodlecheck_file $file) {
+        $this->usealiases = $file->get_use_aliases();
+        $this->artifacts = $file->get_artifacts_flat();
     }
 
     /**
      * Parse a type and possibly variable name
      *
+     * @param ?\local_moodlecheck_phpdocs $phpdocs
      * @param string $text the text to parse
      * @param 0|1|2|3 $getwhat what to get 0=type only 1=also var 2=also modifiers (& ...) 3=also default
      * @param bool $gowide if we can't determine the type, should we assume wide (for native type) or narrow (for PHPDoc)?
      * @return array{?non-empty-string, ?non-empty-string, string, bool} the simplified type, variable, remaining text,
      *                                                                   and whether the type is explicitly nullable
      */
-    public function parse_type_and_var(string $text, int $getwhat, bool $gowide): array {
+    public function parse_type_and_var(?\local_moodlecheck_phpdocs $phpdocs,
+            string $text, int $getwhat, bool $gowide): array {
 
         // Initialise variables.
+        if ($phpdocs) {
+            $artifact = $phpdocs->get_artifact();
+            $artifacttemplates = ($artifact && $artifact->phpdocs) ? $artifact->phpdocs->get_templates() : [];
+            $this->templates = array_merge($artifacttemplates, $phpdocs->get_templates());
+        } else {
+            $this->templates = [];
+        }
         $this->text = strtolower($text);
         $this->textwithcase = $text;
         $this->gowide = $gowide;
@@ -944,7 +955,9 @@ class type_parser {
             }
             $type = ucfirst($type);
             assert($type != '');
-            if ($this->next == '<') {
+            if ($this->templates[strtolower($type)] ?? null) {
+                $type = $this->templates[strtolower($type)];
+            } else if ($this->next == '<') {
                 // Collection / Traversable.
                 $this->parse_token('<');
                 $firsttype = $this->parse_any_type();
@@ -978,7 +991,6 @@ class type_parser {
             $type = $this->gowide ? 'mixed' : 'never';
         }
 
-        assert(strpos($type, '|') === false && strpos($type, '&') === false);
         return $type;
     }
 
