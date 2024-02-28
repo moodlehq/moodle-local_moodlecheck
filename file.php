@@ -1237,7 +1237,7 @@ class local_moodlecheck_phpdocs {
         'static',
         'staticvar',
         'subpackage',
-        // Maybe add: 'template',
+        // Maybe add: 'template', .
         'throws',
         'todo',
         'tutorial',
@@ -1284,7 +1284,7 @@ class local_moodlecheck_phpdocs {
         'see',
         'since',
         'subpackage',
-        // Maybe add: 'template',
+        // Maybe add: 'template', .
         'throws',
         'todo',
         'uses',
