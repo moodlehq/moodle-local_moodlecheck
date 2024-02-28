@@ -28,19 +28,18 @@ use local_moodlecheck_registry;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class moodlecheck_rules_test extends \advanced_testcase {
-
     public function setUp(): void {
         global $CFG;
         parent::setUp();
         // Add the moodlecheck machinery.
         require_once($CFG->dirroot . '/local/moodlecheck/locallib.php');
         // Load all files from rules directory.
-        if ($dh = opendir($CFG->dirroot. '/local/moodlecheck/rules')) {
+        if ($dh = opendir($CFG->dirroot . '/local/moodlecheck/rules')) {
             while (($file = readdir($dh)) !== false) {
                 if ($file != '.' && $file != '..') {
                     $pathinfo = pathinfo($file);
                     if (isset($pathinfo['extension']) && $pathinfo['extension'] == 'php') {
-                        require_once($CFG->dirroot. '/local/moodlecheck/rules/'. $file);
+                        require_once($CFG->dirroot . '/local/moodlecheck/rules/' . $file);
                     }
                 }
             }
@@ -56,7 +55,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      * @covers \local_moodlecheck_file::get_classes
      * @covers \local_moodlecheck_file::previous_nonspace_token
      */
-    public function test_constantclass() {
+    public function test_constantclass(): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
         $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/constantclass.php ', null);
@@ -85,7 +84,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers ::local_moodlecheck_filephpdocpresent
      */
-    public function test_file_block_required() {
+    public function test_file_block_required(): void {
         global $PAGE;
 
         $output = $PAGE->get_renderer('local_moodlecheck');
@@ -127,7 +126,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      * @covers ::local_moodlecheck_filehascopyright
      * @covers ::local_moodlecheck_filehaslicense
      */
-    public function test_classtags() {
+    public function test_classtags(): void {
         global $PAGE;
 
         $output = $PAGE->get_renderer('local_moodlecheck');
@@ -144,7 +143,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers \local_moodlecheck_file::get_tokens
      */
-    public function test_get_tokens() {
+    public function test_get_tokens(): void {
         global $PAGE;
 
         $output = $PAGE->get_renderer('local_moodlecheck');
@@ -159,7 +158,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers ::local_moodlecheck_functionarguments
      */
-    public function test_phpdoc_tags_general() {
+    public function test_phpdoc_tags_general(): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
         $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_general.php ', null);
@@ -204,7 +203,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers ::local_moodlecheck_functionarguments
      */
-    public function test_phpdoc_constructor_property_promotion() {
+    public function test_phpdoc_constructor_property_promotion(): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
         $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_constructor_property_promotion.php ', null);
@@ -229,7 +228,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers ::local_moodlecheck_functionarguments
      */
-    public function test_phpdoc_union_types() {
+    public function test_phpdoc_union_types(): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
 
@@ -250,7 +249,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringNotContainsString(
             'constructor_property_promotion::__construct has incomplete parameters list',
             $result
-         );
+        );
         $this->assertStringNotContainsString(
             'Phpdocs for function union_types::method_oneline has incomplete parameters list',
             $result
@@ -280,7 +279,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      * @covers ::local_moodlecheck_phpdocsnotrecommendedtag
      * @covers ::local_moodlecheck_phpdocsinvalidpathtag
      */
-    public function test_phpdoc_tags_tests() {
+    public function test_phpdoc_tags_tests(): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
         $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_test.php ', null);
@@ -312,7 +311,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers ::local_moodlecheck_phpdocsinvalidtag
      */
-    public function test_phpdoc_phpunit_coverage_ignored_for_file() {
+    public function test_phpdoc_phpunit_coverage_ignored_for_file(): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
         $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_phpunit_coverage_ignored.php ', null);
@@ -340,7 +339,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      * @covers ::local_moodlecheck_phpdocsuncurlyinlinetag
      * @covers ::local_moodlecheck_phpdoccontentsinlinetag
      */
-    public function test_phpdoc_tags_inline() {
+    public function test_phpdoc_tags_inline(): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
         $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_inline.php ', null);
@@ -377,7 +376,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers ::local_moodlecheck_packagespecified
      */
-    public function test_phpdoc_tags_packagespecified() {
+    public function test_phpdoc_tags_packagespecified(): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
         $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_packagespecified.php', null);
@@ -407,7 +406,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers ::local_moodlecheck_get_categories
      */
-    public function test_local_moodlecheck_get_categories() {
+    public function test_local_moodlecheck_get_categories(): void {
 
         set_user_preference('local_moodlecheck_categoriestime', 0);
         set_user_preference('local_moodlecheck_categoriesvalue', '');
@@ -442,7 +441,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers \local_moodlecheck_file::get_artifacts
      */
-    public function test_phpdoc_anonymous_class_docblock(string $path, bool $expectclassesdocumentedfail) {
+    public function test_phpdoc_anonymous_class_docblock(string $path, bool $expectclassesdocumentedfail): void {
         global $PAGE;
 
         $output = $PAGE->get_renderer('local_moodlecheck');
@@ -511,7 +510,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers \local_moodlecheck_file::validate
      */
-    public function test_empty_nophp_files($file) {
+    public function test_empty_nophp_files($file): void {
         global $PAGE;
         $output = $PAGE->get_renderer('local_moodlecheck');
         $path = new local_moodlecheck_path($file, null);
@@ -548,7 +547,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers ::local_moodlecheck_functionarguments
      */
-    public function test_functionsdocumented_method_multiline() {
+    public function test_functionsdocumented_method_multiline(): void {
         $file = __DIR__ . "/fixtures/phpdoc_method_multiline.php";
 
         global $PAGE;
@@ -572,7 +571,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers ::local_moodlecheck_functionsdocumented
      */
-    public function test_functionsdocumented_method_overrides() {
+    public function test_functionsdocumented_method_overrides(): void {
         $file = __DIR__ . "/fixtures/phpdoc_method_overrides.php";
 
         global $PAGE;
@@ -602,7 +601,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      * @covers ::local_moodlecheck_functionsdocumented
      * @covers ::local_moodlecheck_constsdocumented
      */
-    public function test_functionsdocumented_constsdocumented_ignore_uses() {
+    public function test_functionsdocumented_constsdocumented_ignore_uses(): void {
         $file = __DIR__ . "/fixtures/uses.php";
 
         global $PAGE;
@@ -626,7 +625,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      * @covers ::local_moodlecheck_variablesdocumented
      * @covers \local_moodlecheck_file::get_variables
      */
-    public function test_variables_and_constants_documented() {
+    public function test_variables_and_constants_documented(): void {
         $file = __DIR__ . "/fixtures/phpdoc_properties.php";
 
         global $PAGE;
@@ -676,7 +675,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers \local_moodlecheck_renderer
      */
-    public function test_text_format_errors_and_warnings() {
+    public function test_text_format_errors_and_warnings(): void {
         $file = __DIR__ . "/fixtures/error_and_warning.php";
 
         global $PAGE;
@@ -695,7 +694,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers \local_moodlecheck_renderer
      */
-    public function test_html_format_errors_and_warnings() {
+    public function test_html_format_errors_and_warnings(): void {
         $file = __DIR__ . "/fixtures/error_and_warning.php";
 
         global $PAGE;
