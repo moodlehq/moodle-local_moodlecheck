@@ -3,6 +3,13 @@ Moodle PHPdoc Checker
 
 [![Moodlecheck CI](https://github.com/moodlehq/moodle-local_moodlecheck/actions/workflows/ci.yml/badge.svg)](https://github.com/moodlehq/moodle-local_moodlecheck/actions/workflows/ci.yml)
 
+Important note:
+---------------
+This plugin is becoming deprecated and, soon, [moodle-cs](https://github.com/moodlehq/moodle-cs) will get
+the baton about all the PHPDoc checks. The switch is planned to be implemented progressively. For more
+details, see the [announcement](https://moodle.org/mod/forum/discuss.php?d=455786) and the
+[tracking issue](https://github.com/moodlehq/moodle-cs/issues/30).
+
 Installation:
 -------------
 
