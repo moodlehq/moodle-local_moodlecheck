@@ -70,11 +70,9 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $found = $xpath->query("//file/error");
 
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(2, $found->length);
+        $this->assertSame(0, $found->length);
 
         // Also verify that contents do not include any problem with line 42 / classesdocumented. Use simple string matching here.
-        $this->assertStringContainsString('line="20"', $result);
-        $this->assertStringContainsString('packagevalid', $result);
         $this->assertStringNotContainsString('line="42"', $result);
         $this->assertStringNotContainsString('classesdocumented', $result);
     }
@@ -172,10 +170,9 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(19, $found->length);
+        $this->assertSame(17, $found->length);
 
         // Also verify various bits by content.
-        $this->assertStringContainsString('packagevalid', $result);
         $this->assertStringContainsString('incomplete_param_annotation has incomplete parameters list', $result);
         $this->assertStringContainsString('missing_param_defintion has incomplete parameters list', $result);
         $this->assertStringContainsString('missing_param_annotation has incomplete parameters list', $result);
@@ -218,8 +215,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $found = $xpath->query("//file/error");
 
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(1, $found->length);
-        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertSame(0, $found->length);
         $this->assertStringNotContainsString('constructor_property_promotion::__construct has incomplete parameters list', $result);
     }
 
@@ -244,8 +240,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $found = $xpath->query("//file/error");
 
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(1, $found->length);
-        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertSame(0, $found->length);
         $this->assertStringNotContainsString(
             'constructor_property_promotion::__construct has incomplete parameters list',
             $result
@@ -293,10 +288,9 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(5, $found->length);
+        $this->assertSame(3, $found->length);
 
         // Also verify various bits by content.
-        $this->assertStringContainsString('packagevalid', $result);
         $this->assertStringContainsString('Invalid phpdocs tag @small', $result);
         $this->assertStringContainsString('Invalid phpdocs tag @zzzing', $result);
         $this->assertStringContainsString('Invalid phpdocs tag @inheritdoc', $result);
@@ -326,10 +320,7 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $found = $xpath->query("//file/error");
 
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(1, $found->length);
-
-        // Also verify various bits by content.
-        $this->assertStringContainsString('packagevalid', $result);
+        $this->assertSame(0, $found->length);
     }
 
     /**
@@ -353,10 +344,9 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(8, $found->length);
+        $this->assertSame(6, $found->length);
 
         // Also verify various bits by content.
-        $this->assertStringContainsString('packagevalid', $result);
         $this->assertStringContainsString('Invalid inline phpdocs tag @param found', $result);
         $this->assertStringContainsString('Invalid inline phpdocs tag @throws found', $result);
         $this->assertStringContainsString('Inline phpdocs tag {@link tags need to have a valid URL} with incorrect', $result);
@@ -369,36 +359,6 @@ class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringNotContainsString('{@link https://moodle.org}', $result);
         $this->assertStringNotContainsString('{@see has_capability}', $result);
         $this->assertStringNotContainsString('ba8by}', $result);
-    }
-
-    /**
-     * Verify the package tag is required for class/trait/interface/global scope functions.
-     *
-     * @covers ::local_moodlecheck_packagespecified
-     */
-    public function test_phpdoc_tags_packagespecified(): void {
-        global $PAGE;
-        $output = $PAGE->get_renderer('local_moodlecheck');
-        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_packagespecified.php', null);
-        $result = $output->display_path($path, 'xml');
-
-        // Convert results to XML Object.
-        $xmlresult = new \DOMDocument();
-        $xmlresult->loadXML($result);
-
-        // Let's verify we have received a xml with file top element and 4 children.
-        $xpath = new \DOMXpath($xmlresult);
-        $found = $xpath->query('//file/error[@source="packagespecified"]');
-        // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(4, $found->length);
-
-        // Also verify various bits by content.
-        $this->assertStringContainsString('Package is not specified for class missingclass', $result);
-        $this->assertStringContainsString('Package is not specified for interface missinginterface', $result);
-        $this->assertStringContainsString('Package is not specified for trait missingtrait', $result);
-        $this->assertStringContainsString('Package is not specified for function missingfunction', $result);
-        $this->assertStringNotContainsString('packaged', $result);
-        $this->assertStringNotContainsString('somemethod', $result);
     }
 
     /**

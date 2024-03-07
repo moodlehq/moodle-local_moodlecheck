@@ -90,12 +90,6 @@ $string['rule_variableshasvar'] = 'Phpdocs for variables contain @var with varia
 $string['error_definedoccorrect'] = 'Phpdocs for define statement must start with constant name and dash: <b>{$a->object}</b>';
 $string['rule_definedoccorrect'] = 'Check syntax for define statement';
 
-$string['error_packagespecified'] = 'Package is not specified for <b>{$a->object}</b>. It is also not specified in file-level phpdocs';
-$string['rule_packagespecified'] = 'All functions (which are not methods) and classes have package specified or inherited';
-
-$string['rule_packagevalid'] = 'Package tag is valid';
-$string['error_packagevalid'] = 'Package <b>{$a->package}</b> is not valid';
-
 $string['rule_categoryvalid'] = 'Category tag is valid';
 $string['error_categoryvalid'] = 'Category <b>{$a->category}</b> is not valid';
 
