@@ -24,8 +24,7 @@ namespace local_moodlecheck;
  * @copyright  2023 Andrew Lyons <andrew@nicols.co.uk>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class phpdocs_basic_test extends \advanced_testcase {
-
+final class phpdocs_basic_test extends \advanced_testcase {
     public static function setUpBeforeClass(): void {
         global $CFG;
         require_once($CFG->dirroot . '/local/moodlecheck/locallib.php');
