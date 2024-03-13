@@ -27,7 +27,7 @@ use local_moodlecheck_registry;
  * @copyright  2018 onwards Eloy Lafuente (stronk7) {@link http://stronk7.com}
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class moodlecheck_rules_test extends \advanced_testcase {
+final class moodlecheck_rules_test extends \advanced_testcase {
     public function setUp(): void {
         global $CFG;
         parent::setUp();
