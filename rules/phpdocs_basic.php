@@ -24,8 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-local_moodlecheck_registry::add_rule('noemptysecondline')->set_callback('local_moodlecheck_noemptysecondline')
-    ->set_severity('warning');
 local_moodlecheck_registry::add_rule('filephpdocpresent')->set_callback('local_moodlecheck_filephpdocpresent');
 local_moodlecheck_registry::add_rule('classesdocumented')->set_callback('local_moodlecheck_classesdocumented');
 local_moodlecheck_registry::add_rule('functionsdocumented')->set_callback('local_moodlecheck_functionsdocumented');
@@ -48,20 +46,6 @@ local_moodlecheck_registry::add_rule('phpdocsinvalidpathtag')->set_callback('loc
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('local_moodlecheck_phpdoccontentsinlinetag');
-
-/**
- * Checks if the first line in the file has open tag and second line is not empty
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_noemptysecondline(local_moodlecheck_file $file) {
-    $tokens = &$file->get_tokens();
-    if ($tokens[0][0] == T_OPEN_TAG && !$file->is_whitespace_token(1) && $file->is_multiline_token(0) == 1) {
-        return [];
-    }
-    return [['line' => 2]];
-}
 
 /**
  * Checks if file-level phpdocs block is present

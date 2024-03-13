@@ -613,7 +613,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         $result = $output->display_path($path, 'text');
 
         $this->assertStringContainsString('tests/fixtures/error_and_warning.php', $result);
-        $this->assertStringContainsString('2: Empty line found after PHP open tag (warning)', $result);
         $this->assertStringContainsString('11: Class someclass is not documented (error)', $result);
         $this->assertStringContainsString('12: Function someclass::somefunc is not documented (warning)', $result);
     }
@@ -632,7 +631,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         $result = $output->display_path($path, 'html');
 
         $this->assertStringContainsString('tests/fixtures/error_and_warning.php</span>', $result);
-        $this->assertStringContainsString('<b>2</b>: Empty line found after PHP open tag (warning)', $result);
         $this->assertStringContainsString('<b>11</b>: Class <b>someclass</b> is not documented (error)', $result);
         $this->assertStringContainsString('<b>12</b>: Function <b>someclass::somefunc</b> is not documented (warning)', $result);
     }

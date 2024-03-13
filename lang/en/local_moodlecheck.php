@@ -37,9 +37,6 @@ $string['privacy:metadata'] = 'The Moodle PHPdoc check plugin does not store any
 
 $string['error_emptynophpfile'] = 'The file is empty or doesn\'t contain PHP code. Skipped.';
 
-$string['rule_noemptysecondline'] = 'Php open tag in the first line is not followed by empty line';
-$string['error_noemptysecondline'] = 'Empty line found after PHP open tag';
-
 $string['rule_filephpdocpresent'] = 'File-level phpdocs block is present';
 $string['error_filephpdocpresent'] = 'File-level phpdocs block is not found';
 
