@@ -37,8 +37,6 @@ $string['privacy:metadata'] = 'The Moodle PHPdoc check plugin does not store any
 
 $string['error_emptynophpfile'] = 'The file is empty or doesn\'t contain PHP code. Skipped.';
 
-$string['rule_variablesdocumented'] = 'All variables are documented';
-$string['error_variablesdocumented'] = 'Variable <b>{$a->variable}</b> is not documented';
 $string['rule_constsdocumented'] = 'All constants are documented';
 $string['error_constsdocumented'] = 'Constant <b>{$a->object}</b> is not documented';
 $string['rule_definesdocumented'] = 'All define statements are documented';
@@ -73,9 +71,6 @@ $string['rule_functiondescription'] = 'Functions have descriptions in phpdocs';
 
 $string['error_functionarguments'] = 'Phpdocs for function <b>{$a->function}</b> has incomplete parameters list';
 $string['rule_functionarguments'] = 'Phpdocs for functions properly define all parameters';
-
-$string['error_variableshasvar'] = 'Phpdocs for variable <b>{$a->variable}</b> does not contain @var or incorrect';
-$string['rule_variableshasvar'] = 'Phpdocs for variables contain @var with variable type and name';
 
 $string['error_definedoccorrect'] = 'Phpdocs for define statement must start with constant name and dash: <b>{$a->object}</b>';
 $string['rule_definedoccorrect'] = 'Check syntax for define statement';
