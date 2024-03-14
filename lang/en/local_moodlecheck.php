@@ -37,11 +37,6 @@ $string['privacy:metadata'] = 'The Moodle PHPdoc check plugin does not store any
 
 $string['error_emptynophpfile'] = 'The file is empty or doesn\'t contain PHP code. Skipped.';
 
-$string['rule_filephpdocpresent'] = 'File-level phpdocs block is present';
-$string['error_filephpdocpresent'] = 'File-level phpdocs block is not found';
-
-$string['rule_classesdocumented'] = 'All classes are documented';
-$string['error_classesdocumented'] = 'Class <b>{$a->class}</b> is not documented';
 $string['rule_functionsdocumented'] = 'All functions are documented';
 $string['error_functionsdocumented'] = 'Function <b>{$a->function}</b> is not documented';
 $string['rule_variablesdocumented'] = 'All variables are documented';

@@ -71,51 +71,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
 
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(0, $found->length);
-
-        // Also verify that contents do not include any problem with line 42 / classesdocumented. Use simple string matching here.
-        $this->assertStringNotContainsString('line="42"', $result);
-        $this->assertStringNotContainsString('classesdocumented', $result);
-    }
-
-    /**
-     * Assert that the file block is required for old files, and not for 1-artifact ones.
-     *
-     * @covers ::local_moodlecheck_filephpdocpresent
-     */
-    public function test_file_block_required(): void {
-        global $PAGE;
-
-        $output = $PAGE->get_renderer('local_moodlecheck');
-
-        // A file with multiple classes, require the file phpdoc block.
-        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_yes1.php', null);
-        $result = $output->display_path($path, 'xml');
-        $this->assertStringContainsString('File-level phpdocs block is not found', $result);
-
-        // A file without any class (library-like), require the file phpdoc block.
-        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_yes2.php', null);
-        $result = $output->display_path($path, 'xml');
-        $this->assertStringContainsString('File-level phpdocs block is not found', $result);
-
-        // A file with one interface and one trait, require the file phpdoc block.
-        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_yes3.php', null);
-        $result = $output->display_path($path, 'xml');
-        $this->assertStringContainsString('File-level phpdocs block is not found', $result);
-
-        // A file with only one class, do not require the file phpdoc block.
-        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_no1.php', null);
-        $result = $output->display_path($path, 'xml');
-        $this->assertStringNotContainsString('File-level phpdocs block is not found', $result);
-
-        // A file with only one interface, do not require the file phpdoc block.
-        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_no2.php', null);
-        $result = $output->display_path($path, 'xml');
-        $this->assertStringNotContainsString('File-level phpdocs block is not found', $result);
-
-        // A file with only one trait, do not require the file phpdoc block.
-        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_file_required_no3.php', null);
-        $result = $output->display_path($path, 'xml');
-        $this->assertStringNotContainsString('File-level phpdocs block is not found', $result);
     }
 
     /**
@@ -362,76 +317,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
-     * Verify that anonymous classes do not require phpdoc class blocks.
-     *
-     * @dataProvider anonymous_class_provider
-     * @param   string $path
-     * @param   bool $expectclassesdocumentedfail Whether the
-     *
-     * @covers \local_moodlecheck_file::get_artifacts
-     */
-    public function test_phpdoc_anonymous_class_docblock(string $path, bool $expectclassesdocumentedfail): void {
-        global $PAGE;
-
-        $output = $PAGE->get_renderer('local_moodlecheck');
-        $checkpath = new local_moodlecheck_path($path, null);
-        $result = $output->display_path($checkpath, 'xml');
-
-        if ($expectclassesdocumentedfail) {
-            $this->assertStringContainsString('classesdocumented', $result);
-        } else {
-            $this->assertStringNotContainsString('classesdocumented', $result);
-        }
-    }
-
-    /**
-     * Data provider for anonymous classes tests.
-     *
-     * @return  array
-     */
-    public static function anonymous_class_provider(): array {
-        $rootpath  = 'local/moodlecheck/tests/fixtures/anonymous';
-        return [
-            'return new class {' => [
-                "{$rootpath}/anonymous.php",
-                false,
-            ],
-            'return new class extends parentclass {' => [
-                "{$rootpath}/extends.php",
-                false,
-            ],
-            'return new class implements someinterface {' => [
-                "{$rootpath}/implements.php",
-                false,
-            ],
-            'return new class extends parentclass implements someinterface {' => [
-                "{$rootpath}/extendsandimplements.php",
-                false,
-            ],
-            'return new class (with params) {' => [
-                "{$rootpath}/anonymous_with_params.php",
-                false,
-            ],
-            'return new class (with params) extends parentclass {' => [
-                "{$rootpath}/extends_with_params.php",
-                false,
-            ],
-            'return new class (with params) implements someinterface {' => [
-                "{$rootpath}/implements_with_params.php",
-                false,
-            ],
-            '$value = new class {' => [
-                "{$rootpath}/assigned.php",
-                false,
-            ],
-            'class someclass extends parentclass {' => [
-                "{$rootpath}/named.php",
-                true,
-            ],
-        ];
-    }
-
-    /**
      * Verify that empty files and files without PHP aren't processed
      *
      * @dataProvider empty_nophp_files_provider
@@ -613,7 +498,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         $result = $output->display_path($path, 'text');
 
         $this->assertStringContainsString('tests/fixtures/error_and_warning.php', $result);
-        $this->assertStringContainsString('11: Class someclass is not documented (error)', $result);
         $this->assertStringContainsString('12: Function someclass::somefunc is not documented (warning)', $result);
     }
 
@@ -631,7 +515,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         $result = $output->display_path($path, 'html');
 
         $this->assertStringContainsString('tests/fixtures/error_and_warning.php</span>', $result);
-        $this->assertStringContainsString('<b>11</b>: Class <b>someclass</b> is not documented (error)', $result);
         $this->assertStringContainsString('<b>12</b>: Function <b>someclass::somefunc</b> is not documented (warning)', $result);
     }
 }

@@ -24,8 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-local_moodlecheck_registry::add_rule('filephpdocpresent')->set_callback('local_moodlecheck_filephpdocpresent');
-local_moodlecheck_registry::add_rule('classesdocumented')->set_callback('local_moodlecheck_classesdocumented');
 local_moodlecheck_registry::add_rule('functionsdocumented')->set_callback('local_moodlecheck_functionsdocumented');
 local_moodlecheck_registry::add_rule('variablesdocumented')->set_callback('local_moodlecheck_variablesdocumented');
 local_moodlecheck_registry::add_rule('constsdocumented')->set_callback('local_moodlecheck_constsdocumented');
@@ -46,47 +44,6 @@ local_moodlecheck_registry::add_rule('phpdocsinvalidpathtag')->set_callback('loc
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('local_moodlecheck_phpdoccontentsinlinetag');
-
-/**
- * Checks if file-level phpdocs block is present
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_filephpdocpresent(local_moodlecheck_file $file) {
-    // This rule doesn't apply if the file is 1-artifact file (see #66).
-    $artifacts = $file->get_artifacts();
-    if (count($artifacts[T_CLASS]) + count($artifacts[T_INTERFACE]) + count($artifacts[T_TRAIT]) === 1) {
-        return [];
-    }
-    if ($file->find_file_phpdocs() === false) {
-        $tokens = &$file->get_tokens();
-        for ($i = 0; $i < 90; $i++) {
-            if (isset($tokens[$i]) && !in_array($tokens[$i][0], [T_OPEN_TAG, T_WHITESPACE, T_COMMENT])) {
-                return [['line' => $file->get_line_number($i)]];
-            }
-        }
-        // For some reason we cound not find the line number.
-        return [['line' => '']];
-    }
-    return [];
-}
-
-/**
- * Checks if all classes have phpdocs blocks
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_classesdocumented(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_classes() as $class) {
-        if ($class->phpdocs === false) {
-            $errors[] = ['class' => $class->name, 'line' => $file->get_line_number($class->boundaries[0])];
-        }
-    }
-    return $errors;
-}
 
 /**
  * Checks if all functions have phpdocs blocks.
