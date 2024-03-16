@@ -24,7 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-local_moodlecheck_registry::add_rule('functionsdocumented')->set_callback('local_moodlecheck_functionsdocumented');
 local_moodlecheck_registry::add_rule('variablesdocumented')->set_callback('local_moodlecheck_variablesdocumented');
 local_moodlecheck_registry::add_rule('constsdocumented')->set_callback('local_moodlecheck_constsdocumented');
 local_moodlecheck_registry::add_rule('definesdocumented')->set_callback('local_moodlecheck_definesdocumented');
@@ -44,44 +43,6 @@ local_moodlecheck_registry::add_rule('phpdocsinvalidpathtag')->set_callback('loc
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('local_moodlecheck_phpdoccontentsinlinetag');
-
-/**
- * Checks if all functions have phpdocs blocks.
- *
- * For methods of a class which extends another or implements interfaces, a violation in only a warning, since the
- * method might be overriding a sufficiently documented method. In all other cases, it is an error.
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_functionsdocumented(local_moodlecheck_file $file) {
-    $isphpunitfile = preg_match('#/tests/.+_test\.php$#', $file->get_filepath());
-    $errors = [];
-    foreach ($file->get_functions() as $function) {
-        if ($function->phpdocs === false) {
-            // Exception is made for plain phpunit test methods MDLSITE-3282, MDLSITE-3856.
-            $istestmethod = (strpos($function->name, 'test_') === 0 ||
-                            stripos($function->name, 'setup') === 0 ||
-                            stripos($function->name, 'teardown') === 0);
-
-            $isinsubclass = $function->owner && ($function->owner->hasextends || $function->owner->hasimplements);
-
-            if (!($isphpunitfile && $istestmethod)) {
-                $error = [
-                    'function' => $function->fullname,
-                    'line' => $file->get_line_number($function->boundaries[0]),
-                ];
-
-                if ($isinsubclass) {
-                    $error["severity"] = "warning";
-                }
-
-                $errors[] = $error;
-            }
-        }
-    }
-    return $errors;
-}
 
 /**
  * Checks if all variables have phpdocs blocks
