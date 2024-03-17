@@ -1152,70 +1152,7 @@ class local_moodlecheck_phpdocs {
         'var',
         'version',
     ];
-    /** @var array static property storing the list of recommended
-     * phpdoc tags to use within Moodle phpdocs.
-     * @link http://docs.moodle.org/dev/Coding_style */
-    public static $recommendedtags = [
-        // Behat tags.
-        'Given',
-        'Then',
-        'When',
-        // PHPUnit tags.
-        'codeCoverageIgnore',
-        'codeCoverageIgnoreStart',
-        'codeCoverageIgnoreEnd',
-        'covers',
-        'coversDefaultClass',
-        'coversNothing',
-        'dataProvider',
-        'depends',
-        'group',
-        'requires',
-        'runTestsInSeparateProcesses',
-        'runInSeparateProcess',
-        'testWith',
-        'uses',
-        // PHPDoc tags.
-        'author',
-        'category',
-        'copyright',
-        'deprecated',
-        'license',
-        'link',
-        'package',
-        'param',
-        'property',
-        'property-read',
-        'property-write',
-        'return',
-        'see',
-        'since',
-        'subpackage',
-        'throws',
-        'todo',
-        'uses',
-        'var',
-    ];
-    /** @var array static property storing the list of phpdoc tags
-     * allowed to be used under certain directories. keys are tags, values are
-     * arrays of allowed paths (regexp patterns).
-     */
-    public static $pathrestrictedtags = [
-        'Given' => ['#.*/tests/behat/.*#'],
-        'Then' => ['#.*/tests/behat/.*#'],
-        'When' => ['#.*/tests/behat/.*#'],
-        'covers' => ['#.*/tests/.*_test.php#'],
-        'coversDefaultClass' => ['#.*/tests/.*_test.php#'],
-        'coversNothing' => ['#.*/tests/.*_test.php#'],
-        'dataProvider' => ['#.*/tests/.*_test.php#'],
-        'depends' => ['#.*/tests/.*_test.php#'],
-        'group' => ['#.*/tests/.*_test.php#'],
-        'requires' => ['#.*/tests/.*_test.php#'],
-        'runTestsInSeparateProcesses' => ['#.*/tests/.*_test.php#'],
-        'runInSeparateProcess' => ['#.*/tests/.*_test.php#'],
-        'testWith' => ['#.*/tests/.*_test.php#'],
-        // Commented out: 'uses' => ['#.*/tests/.*_test.php#'], can also be out from tests (Coding style dixit).
-    ];
+
     /** @var array static property storing the list of phpdoc tags
      * allowed to be used inline within Moodle phpdocs. */
     public static $inlinetags = [

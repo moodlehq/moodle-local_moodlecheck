@@ -125,7 +125,7 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         $xpath = new \DOMXpath($xmlresult);
         $found = $xpath->query("//file/error");
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(17, $found->length);
+        $this->assertSame(10, $found->length);
 
         // Also verify various bits by content.
         $this->assertStringContainsString('incomplete_param_annotation has incomplete parameters list', $result);
@@ -138,13 +138,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertStringContainsString('mismatch_param_types2 has incomplete parameters list', $result);
         $this->assertStringContainsString('mismatch_param_types3 has incomplete parameters list', $result);
         $this->assertStringContainsString('incomplete_return_annotation has incomplete parameters list', $result);
-        $this->assertStringContainsString('Invalid phpdocs tag @small', $result);
-        $this->assertStringContainsString('Invalid phpdocs tag @zzzing', $result);
-        $this->assertStringContainsString('Invalid phpdocs tag @inheritdoc', $result);
-        $this->assertStringContainsString('Incorrect path for phpdocs tag @covers', $result);
-        $this->assertStringContainsString('Incorrect path for phpdocs tag @dataProvider', $result);
-        $this->assertStringContainsString('Incorrect path for phpdocs tag @group', $result);
-        $this->assertStringContainsString('@codingStandardsIgnoreLine', $result);
         $this->assertStringNotContainsString('@deprecated', $result);
         $this->assertStringNotContainsString('correct_param_types', $result);
         $this->assertStringNotContainsString('correct_return_type', $result);
@@ -223,65 +216,8 @@ final class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
-     * Verify various phpdoc tags in tests directories.
-     *
-     * @covers ::local_moodlecheck_phpdocsinvalidtag
-     * @covers ::local_moodlecheck_phpdocsnotrecommendedtag
-     * @covers ::local_moodlecheck_phpdocsinvalidpathtag
-     */
-    public function test_phpdoc_tags_tests(): void {
-        global $PAGE;
-        $output = $PAGE->get_renderer('local_moodlecheck');
-        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_tags_test.php ', null);
-        $result = $output->display_path($path, 'xml');
-
-        // Convert results to XML Objext.
-        $xmlresult = new \DOMDocument();
-        $xmlresult->loadXML($result);
-
-        // Let's verify we have received a xml with file top element and 5 children.
-        $xpath = new \DOMXpath($xmlresult);
-        $found = $xpath->query("//file/error");
-        // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(3, $found->length);
-
-        // Also verify various bits by content.
-        $this->assertStringContainsString('Invalid phpdocs tag @small', $result);
-        $this->assertStringContainsString('Invalid phpdocs tag @zzzing', $result);
-        $this->assertStringContainsString('Invalid phpdocs tag @inheritdoc', $result);
-        $this->assertStringNotContainsString('Incorrect path for phpdocs tag @covers', $result);
-        $this->assertStringNotContainsString('Incorrect path for phpdocs tag @dataProvider', $result);
-        $this->assertStringNotContainsString('Incorrect path for phpdocs tag @group', $result);
-        $this->assertStringNotContainsString('@deprecated', $result);
-    }
-
-    /**
-     * Verify phpunit codeCoverageIgnore can be applied to an entire file.
-     *
-     * @covers ::local_moodlecheck_phpdocsinvalidtag
-     */
-    public function test_phpdoc_phpunit_coverage_ignored_for_file(): void {
-        global $PAGE;
-        $output = $PAGE->get_renderer('local_moodlecheck');
-        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/phpdoc_phpunit_coverage_ignored.php ', null);
-        $result = $output->display_path($path, 'xml');
-
-        // Convert results to XML Objext.
-        $xmlresult = new \DOMDocument();
-        $xmlresult->loadXML($result);
-
-        // Let's verify we have received a xml with file top element and 5 children.
-        $xpath = new \DOMXpath($xmlresult);
-        $found = $xpath->query("//file/error");
-
-        // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(0, $found->length);
-    }
-
-    /**
      * Verify various phpdoc tags can be used inline.
      *
-     * @covers ::local_moodlecheck_phpdocsinvalidinlinetag
      * @covers ::local_moodlecheck_phpdocsuncurlyinlinetag
      * @covers ::local_moodlecheck_phpdoccontentsinlinetag
      */
@@ -443,14 +379,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         // The PHPdocs of the other properties should be detected correctly.
         $this->assertStringContainsString('UNDOCUMENTED_CONSTANT1', $found->item(0)->getAttribute("message"));
         $this->assertStringContainsString('UNDOCUMENTED_CONSTANT2', $found->item(1)->getAttribute("message"));
-
-        // Verify that the @const tag is reported as invalid.
-
-        $found = $xpath->query('//file/error[@source="phpdocsinvalidtag"]');
-        // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(1, $found->length);
-
-        $this->assertStringContainsString('Invalid phpdocs tag @const used', $found->item(0)->getAttribute("message"));
     }
 
     /**
