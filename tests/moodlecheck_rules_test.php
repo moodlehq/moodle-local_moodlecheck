@@ -361,7 +361,7 @@ final class moodlecheck_rules_test extends \advanced_testcase {
      *
      * @covers ::local_moodlecheck_functionarguments
      */
-    public function test_functionsdocumented_method_multiline(): void {
+    public function test_j_method_multiline(): void {
         $file = __DIR__ . "/fixtures/phpdoc_method_multiline.php";
 
         global $PAGE;
@@ -379,43 +379,12 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         $this->assertSame(0, $found->length); // All examples in fixtures are ok.
     }
 
-
-    /**
-     * Verify that top-level methods without docs are errors but methods in subclasses without docs are warnings.
-     *
-     * @covers ::local_moodlecheck_functionsdocumented
-     */
-    public function test_functionsdocumented_method_overrides(): void {
-        $file = __DIR__ . "/fixtures/phpdoc_method_overrides.php";
-
-        global $PAGE;
-        $output = $PAGE->get_renderer('local_moodlecheck');
-        $path = new local_moodlecheck_path($file, null);
-        $result = $output->display_path($path, 'xml');
-
-        // Convert results to XML Object.
-        $xmlresult = new \DOMDocument();
-        $xmlresult->loadXML($result);
-
-        $xpath = new \DOMXpath($xmlresult);
-        $found = $xpath->query('//file/error[@source="functionsdocumented"]');
-        // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(4, $found->length);
-
-        $severities = array_map(function (\DOMElement $element) {
-            return $element->getAttribute("severity");
-        }, iterator_to_array($found));
-
-        $this->assertEquals(["error", "warning", "warning", "warning"], $severities);
-    }
-
     /**
      * Verify that "use function" statements are ignored.
      *
-     * @covers ::local_moodlecheck_functionsdocumented
      * @covers ::local_moodlecheck_constsdocumented
      */
-    public function test_functionsdocumented_constsdocumented_ignore_uses(): void {
+    public function test_constsdocumented_ignore_uses(): void {
         $file = __DIR__ . "/fixtures/uses.php";
 
         global $PAGE;
@@ -428,7 +397,7 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         $xmlresult->loadXML($result);
 
         $xpath = new \DOMXpath($xmlresult);
-        $found = $xpath->query('//file/error[@source="functionsdocumented" or @source="constsdocumented"]');
+        $found = $xpath->query('//file/error[@source="constsdocumented"]');
         // TODO: Change to DOMNodeList::count() when php71 support is gone.
         $this->assertSame(0, $found->length);
     }
@@ -498,7 +467,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         $result = $output->display_path($path, 'text');
 
         $this->assertStringContainsString('tests/fixtures/error_and_warning.php', $result);
-        $this->assertStringContainsString('12: Function someclass::somefunc is not documented (warning)', $result);
     }
 
     /**
@@ -515,6 +483,5 @@ final class moodlecheck_rules_test extends \advanced_testcase {
         $result = $output->display_path($path, 'html');
 
         $this->assertStringContainsString('tests/fixtures/error_and_warning.php</span>', $result);
-        $this->assertStringContainsString('<b>12</b>: Function <b>someclass::somefunc</b> is not documented (warning)', $result);
     }
 }

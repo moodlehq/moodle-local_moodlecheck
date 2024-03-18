@@ -37,8 +37,6 @@ $string['privacy:metadata'] = 'The Moodle PHPdoc check plugin does not store any
 
 $string['error_emptynophpfile'] = 'The file is empty or doesn\'t contain PHP code. Skipped.';
 
-$string['rule_functionsdocumented'] = 'All functions are documented';
-$string['error_functionsdocumented'] = 'Function <b>{$a->function}</b> is not documented';
 $string['rule_variablesdocumented'] = 'All variables are documented';
 $string['error_variablesdocumented'] = 'Variable <b>{$a->variable}</b> is not documented';
 $string['rule_constsdocumented'] = 'All constants are documented';
