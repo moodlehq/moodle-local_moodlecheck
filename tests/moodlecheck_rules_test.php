@@ -74,24 +74,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
-     * Assert that classes do not need to have any particular phpdocs tags.
-     *
-     * @covers ::local_moodlecheck_filehascopyright
-     * @covers ::local_moodlecheck_filehaslicense
-     */
-    public function test_classtags(): void {
-        global $PAGE;
-
-        $output = $PAGE->get_renderer('local_moodlecheck');
-        $path = new local_moodlecheck_path('local/moodlecheck/tests/fixtures/classtags.php ', null);
-
-        $result = $output->display_path($path, 'xml');
-
-        $this->assertStringNotContainsString('classeshavecopyright', $result);
-        $this->assertStringNotContainsString('classeshavelicense', $result);
-    }
-
-    /**
      * Ensure that token_get_all() does not return PHP Warnings.
      *
      * @covers \local_moodlecheck_file::get_tokens

@@ -82,9 +82,3 @@ $string['rule_definedoccorrect'] = 'Check syntax for define statement';
 
 $string['rule_categoryvalid'] = 'Category tag is valid';
 $string['error_categoryvalid'] = 'Category <b>{$a->category}</b> is not valid';
-
-$string['rule_filehascopyright'] = 'Files have @copyright tag';
-$string['error_filehascopyright'] = 'File-level phpdocs block does not have @copyright tag';
-
-$string['rule_filehaslicense'] = 'Files have @license tag';
-$string['error_filehaslicense'] = 'File-level phpdocs block does not have @license tag';
