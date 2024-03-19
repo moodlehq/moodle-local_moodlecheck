@@ -33,11 +33,6 @@ local_moodlecheck_registry::add_rule('functiondescription')->set_callback('local
 local_moodlecheck_registry::add_rule('functionarguments')->set_callback('local_moodlecheck_functionarguments');
 local_moodlecheck_registry::add_rule('variableshasvar')->set_callback('local_moodlecheck_variableshasvar');
 local_moodlecheck_registry::add_rule('definedoccorrect')->set_callback('local_moodlecheck_definedoccorrect');
-local_moodlecheck_registry::add_rule('phpdocsinvalidtag')->set_callback('local_moodlecheck_phpdocsinvalidtag');
-local_moodlecheck_registry::add_rule('phpdocsnotrecommendedtag')->set_callback('local_moodlecheck_phpdocsnotrecommendedtag')
-    ->set_severity('warning');
-local_moodlecheck_registry::add_rule('phpdocsinvalidpathtag')->set_callback('local_moodlecheck_phpdocsinvalidpathtag')
-    ->set_severity('warning');
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('local_moodlecheck_phpdoccontentsinlinetag');
@@ -101,75 +96,6 @@ function local_moodlecheck_noinlinephpdocs(local_moodlecheck_file $file) {
     foreach ($file->get_all_phpdocs() as $phpdocs) {
         if ($phpdocs->is_inline()) {
             $errors[] = ['line' => $phpdocs->get_line_number($file)];
-        }
-    }
-    return $errors;
-}
-
-/**
- * Check that all the phpdoc tags used are valid ones
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_phpdocsinvalidtag(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_all_phpdocs() as $phpdocs) {
-        foreach ($phpdocs->get_tags() as $tag) {
-            $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
-            if (!in_array($tag, local_moodlecheck_phpdocs::$validtags)) {
-                $errors[] = [
-                    'line' => $phpdocs->get_line_number($file, '@' . $tag),
-                    'tag' => '@' . $tag, ];
-            }
-        }
-    }
-    return $errors;
-}
-
-/**
- * Check that all the phpdoc tags used are recommended ones
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_phpdocsnotrecommendedtag(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_all_phpdocs() as $phpdocs) {
-        foreach ($phpdocs->get_tags() as $tag) {
-            $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
-            if (in_array($tag, local_moodlecheck_phpdocs::$validtags) &&
-                    !in_array($tag, local_moodlecheck_phpdocs::$recommendedtags)) {
-                $errors[] = [
-                    'line' => $phpdocs->get_line_number($file, '@' . $tag),
-                    'tag' => '@' . $tag, ];
-            }
-        }
-    }
-    return $errors;
-}
-
-/**
- * Check that all the path-restricted phpdoc tags used are in place
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_phpdocsinvalidpathtag(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_all_phpdocs() as $phpdocs) {
-        foreach ($phpdocs->get_tags() as $tag) {
-            $tag = preg_replace('|^@([^\s]*).*|s', '$1', $tag);
-            if (in_array($tag, local_moodlecheck_phpdocs::$validtags) &&
-                    in_array($tag, local_moodlecheck_phpdocs::$recommendedtags) &&
-                    isset(local_moodlecheck_phpdocs::$pathrestrictedtags[$tag])) {
-                // Verify file path matches some of the valid paths for the tag.
-                if (!preg_filter(local_moodlecheck_phpdocs::$pathrestrictedtags[$tag], '$0', $file->get_filepath())) {
-                    $errors[] = [
-                        'line' => $phpdocs->get_line_number($file, '@' . $tag),
-                        'tag' => '@' . $tag, ];
-                }
-            }
         }
     }
     return $errors;
