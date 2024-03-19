@@ -423,8 +423,16 @@ class local_moodlecheck_file {
                         $argtokens = array_values($argtokens);
 
                         for ($j = 0; $j < count($argtokens); $j++) {
+                            if (version_compare(PHP_VERSION, '8.1.0') >= 0) {
+                                // T_READONLY introduced in PHP 8.1.
+                                if ($argtokens[$j][0] === T_READONLY) {
+                                    continue;
+                                }
+                            }
                             switch ($argtokens[$j][0]) {
                                 // Skip any whitespace, or argument visibility.
+                                case T_COMMENT:
+                                case T_DOC_COMMENT:
                                 case T_WHITESPACE:
                                 case T_PUBLIC:
                                 case T_PROTECTED:
