@@ -24,34 +24,16 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-local_moodlecheck_registry::add_rule('variablesdocumented')->set_callback('local_moodlecheck_variablesdocumented');
 local_moodlecheck_registry::add_rule('constsdocumented')->set_callback('local_moodlecheck_constsdocumented');
 local_moodlecheck_registry::add_rule('definesdocumented')->set_callback('local_moodlecheck_definesdocumented');
 local_moodlecheck_registry::add_rule('noinlinephpdocs')->set_callback('local_moodlecheck_noinlinephpdocs');
 local_moodlecheck_registry::add_rule('phpdocsfistline')->set_callback('local_moodlecheck_phpdocsfistline');
 local_moodlecheck_registry::add_rule('functiondescription')->set_callback('local_moodlecheck_functiondescription');
 local_moodlecheck_registry::add_rule('functionarguments')->set_callback('local_moodlecheck_functionarguments');
-local_moodlecheck_registry::add_rule('variableshasvar')->set_callback('local_moodlecheck_variableshasvar');
 local_moodlecheck_registry::add_rule('definedoccorrect')->set_callback('local_moodlecheck_definedoccorrect');
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('local_moodlecheck_phpdoccontentsinlinetag');
-
-/**
- * Checks if all variables have phpdocs blocks
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_variablesdocumented(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_variables() as $variable) {
-        if ($variable->phpdocs === false) {
-            $errors[] = ['variable' => $variable->fullname, 'line' => $file->get_line_number($variable->tid)];
-        }
-    }
-    return $errors;
-}
 
 /**
  * Checks if all constants have phpdocs blocks
@@ -338,27 +320,6 @@ function local_moodlecheck_normalise_function_type(string $typelist): string {
     sort($types);
 
     return implode('|', $types);
-}
-
-/**
- * Checks that all variables have proper \var token in phpdoc block
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_variableshasvar(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_variables() as $variable) {
-        if ($variable->phpdocs !== false) {
-            $documentedvars = $variable->phpdocs->get_params('var', 2);
-            if (!count($documentedvars) || $documentedvars[0][0] == 'type') {
-                $errors[] = [
-                    'line' => $variable->phpdocs->get_line_number($file, '@var'),
-                    'variable' => $variable->fullname, ];
-            }
-        }
-    }
-    return $errors;
 }
 
 /**
