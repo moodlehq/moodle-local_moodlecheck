@@ -33,8 +33,6 @@ local_moodlecheck_registry::add_rule('functiondescription')->set_callback('local
 local_moodlecheck_registry::add_rule('functionarguments')->set_callback('local_moodlecheck_functionarguments');
 local_moodlecheck_registry::add_rule('variableshasvar')->set_callback('local_moodlecheck_variableshasvar');
 local_moodlecheck_registry::add_rule('definedoccorrect')->set_callback('local_moodlecheck_definedoccorrect');
-local_moodlecheck_registry::add_rule('filehascopyright')->set_callback('local_moodlecheck_filehascopyright');
-local_moodlecheck_registry::add_rule('filehaslicense')->set_callback('local_moodlecheck_filehaslicense');
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('local_moodlecheck_phpdoccontentsinlinetag');
@@ -380,32 +378,4 @@ function local_moodlecheck_definedoccorrect(local_moodlecheck_file $file) {
         }
     }
     return $errors;
-}
-
-/**
- * Makes sure that files have copyright tag
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_filehascopyright(local_moodlecheck_file $file) {
-    $phpdocs = $file->find_file_phpdocs();
-    if ($phpdocs && !count($phpdocs->get_tags('copyright', true))) {
-        return [['line' => $phpdocs->get_line_number($file, '@copyright')]];
-    }
-    return [];
-}
-
-/**
- * Makes sure that files have license tag
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_filehaslicense(local_moodlecheck_file $file) {
-    $phpdocs = $file->find_file_phpdocs();
-    if ($phpdocs && !count($phpdocs->get_tags('license', true))) {
-        return [['line' => $phpdocs->get_line_number($file, '@license')]];
-    }
-    return [];
 }
