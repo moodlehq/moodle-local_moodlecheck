@@ -48,15 +48,6 @@ $string['error_noinlinephpdocs'] = 'Found comment starting with three or more sl
 $string['error_phpdocsfistline'] = 'No one-line description found in phpdocs for <b>{$a->object}</b>';
 $string['rule_phpdocsfistline'] = 'File-level phpdocs block and class phpdocs should have one-line short description';
 
-$string['error_phpdocsinvalidtag'] = 'Invalid phpdocs tag <b>{$a->tag}</b> used';
-$string['rule_phpdocsinvalidtag'] = 'Used phpdocs tags are valid';
-
-$string['error_phpdocsnotrecommendedtag'] = 'Not recommended phpdocs tag <b>{$a->tag}</b> used';
-$string['rule_phpdocsnotrecommendedtag'] = 'Used phpdocs tags are recommended';
-
-$string['error_phpdocsinvalidpathtag'] = 'Incorrect path for phpdocs tag <b>{$a->tag}</b> detected';
-$string['rule_phpdocsinvalidpathtag'] = 'Used phpdocs tags have correct paths';
-
 $string['error_phpdocsinvalidinlinetag'] = 'Invalid inline phpdocs tag <b>{$a->tag}</b> found';
 $string['rule_phpdocsinvalidinlinetag'] = 'Inline phpdocs tags are valid';
 
@@ -77,9 +68,3 @@ $string['rule_definedoccorrect'] = 'Check syntax for define statement';
 
 $string['rule_categoryvalid'] = 'Category tag is valid';
 $string['error_categoryvalid'] = 'Category <b>{$a->category}</b> is not valid';
-
-$string['rule_filehascopyright'] = 'Files have @copyright tag';
-$string['error_filehascopyright'] = 'File-level phpdocs block does not have @copyright tag';
-
-$string['rule_filehaslicense'] = 'Files have @license tag';
-$string['error_filehaslicense'] = 'File-level phpdocs block does not have @license tag';
