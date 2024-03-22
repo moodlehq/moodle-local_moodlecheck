@@ -325,29 +325,6 @@ final class moodlecheck_rules_test extends \advanced_testcase {
     }
 
     /**
-     * Verify that "use function" statements are ignored.
-     *
-     * @covers ::local_moodlecheck_constsdocumented
-     */
-    public function test_constsdocumented_ignore_uses(): void {
-        $file = __DIR__ . "/fixtures/uses.php";
-
-        global $PAGE;
-        $output = $PAGE->get_renderer('local_moodlecheck');
-        $path = new local_moodlecheck_path($file, null);
-        $result = $output->display_path($path, 'xml');
-
-        // Convert results to XML Object.
-        $xmlresult = new \DOMDocument();
-        $xmlresult->loadXML($result);
-
-        $xpath = new \DOMXpath($xmlresult);
-        $found = $xpath->query('//file/error[@source="constsdocumented"]');
-        // TODO: Change to DOMNodeList::count() when php71 support is gone.
-        $this->assertSame(0, $found->length);
-    }
-
-    /**
      * Verify that the text format shown information about the severity of the problem (error vs warning)
      *
      * @covers \local_moodlecheck_renderer

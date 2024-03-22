@@ -24,7 +24,6 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-local_moodlecheck_registry::add_rule('constsdocumented')->set_callback('local_moodlecheck_constsdocumented');
 local_moodlecheck_registry::add_rule('definesdocumented')->set_callback('local_moodlecheck_definesdocumented');
 local_moodlecheck_registry::add_rule('noinlinephpdocs')->set_callback('local_moodlecheck_noinlinephpdocs');
 local_moodlecheck_registry::add_rule('phpdocsfistline')->set_callback('local_moodlecheck_phpdocsfistline');
@@ -34,22 +33,6 @@ local_moodlecheck_registry::add_rule('definedoccorrect')->set_callback('local_mo
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('local_moodlecheck_phpdoccontentsinlinetag');
-
-/**
- * Checks if all constants have phpdocs blocks
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_constsdocumented(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_constants() as $object) {
-        if ($object->phpdocs === false) {
-            $errors[] = ['object' => $object->fullname, 'line' => $file->get_line_number($object->tid)];
-        }
-    }
-    return $errors;
-}
 
 /**
  * Checks if all variables have phpdocs blocks
