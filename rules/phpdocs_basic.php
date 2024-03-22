@@ -24,29 +24,11 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-local_moodlecheck_registry::add_rule('definesdocumented')->set_callback('local_moodlecheck_definesdocumented');
 local_moodlecheck_registry::add_rule('noinlinephpdocs')->set_callback('local_moodlecheck_noinlinephpdocs');
 local_moodlecheck_registry::add_rule('functionarguments')->set_callback('local_moodlecheck_functionarguments');
-local_moodlecheck_registry::add_rule('definedoccorrect')->set_callback('local_moodlecheck_definedoccorrect');
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('local_moodlecheck_phpdoccontentsinlinetag');
-
-/**
- * Checks if all variables have phpdocs blocks
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_definesdocumented(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_defines() as $object) {
-        if ($object->phpdocs === false) {
-            $errors[] = ['object' => $object->fullname, 'line' => $file->get_line_number($object->tid)];
-        }
-    }
-    return $errors;
-}
 
 /**
  * Checks that no comment starts with three or more slashes
@@ -256,23 +238,4 @@ function local_moodlecheck_normalise_function_type(string $typelist): string {
     sort($types);
 
     return implode('|', $types);
-}
-
-/**
- * Checks that all define statement have constant name in phpdoc block
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_definedoccorrect(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_defines() as $object) {
-        if ($object->phpdocs !== false) {
-            if (!preg_match('/^\s*'.$object->name.'\s+-\s+(.*)/', $object->phpdocs->get_description(), $matches) ||
-                    !strlen(trim($matches[1]))) {
-                $errors[] = ['line' => $object->phpdocs->get_line_number($file), 'object' => $object->fullname];
-            }
-        }
-    }
-    return $errors;
 }

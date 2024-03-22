@@ -37,9 +37,6 @@ $string['privacy:metadata'] = 'The Moodle PHPdoc check plugin does not store any
 
 $string['error_emptynophpfile'] = 'The file is empty or doesn\'t contain PHP code. Skipped.';
 
-$string['rule_definesdocumented'] = 'All define statements are documented';
-$string['error_definesdocumented'] = 'Define statement for <b>{$a->object}</b> is not documented';
-
 $string['rule_noinlinephpdocs'] = 'There are no comments starting with three or more slashes';
 $string['error_noinlinephpdocs'] = 'Found comment starting with three or more slashes';
 
@@ -54,9 +51,6 @@ $string['rule_phpdoccontentsinlinetag'] = 'Inline phpdocs tags have correct cont
 
 $string['error_functionarguments'] = 'Phpdocs for function <b>{$a->function}</b> has incomplete parameters list';
 $string['rule_functionarguments'] = 'Phpdocs for functions properly define all parameters';
-
-$string['error_definedoccorrect'] = 'Phpdocs for define statement must start with constant name and dash: <b>{$a->object}</b>';
-$string['rule_definedoccorrect'] = 'Check syntax for define statement';
 
 $string['rule_categoryvalid'] = 'Category tag is valid';
 $string['error_categoryvalid'] = 'Category <b>{$a->category}</b> is not valid';
