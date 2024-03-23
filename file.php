@@ -1268,20 +1268,6 @@ class local_moodlecheck_phpdocs {
     }
 
     /**
-     * Returns short description found in phpdocs if found (first line followed by empty line)
-     *
-     * @return string
-     */
-    public function get_shortdescription() {
-        $lines = preg_split('/\n/', $this->description);
-        if (count($lines) == 1 || (count($lines) && !strlen(trim($lines[1])))) {
-            return $lines[0];
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Returns list of parsed param tokens found in phpdocs
      *
      * Each element is [typename, variablename, variabledescription]
