@@ -47,7 +47,6 @@ class local_moodlecheck_file {
     protected $allphpdocs = null;
     protected $variables = null;
     protected $defines = null;
-    protected $constants = null;
 
     /**
      * Creates an object from path to the file
@@ -72,7 +71,6 @@ class local_moodlecheck_file {
         $this->allphpdocs = null;
         $this->variables = null;
         $this->defines = null;
-        $this->constants = null;
     }
 
     /**
@@ -516,47 +514,6 @@ class local_moodlecheck_file {
             }
         }
         return $this->variables;
-    }
-
-    /**
-     * Returns all constants found in file
-     *
-     * Returns array of objects where each element represents a constant:
-     * $variable->tid : token id of the token with variable name
-     * $variable->name : name of the variable (starts with $)
-     * $variable->phpdocs : phpdocs for this variable (instance of local_moodlecheck_phpdocs or false if not found)
-     * $variable->class : containing class object
-     * $variable->fullname : name of the variable with class name (i.e. classname::$varname)
-     * $variable->boundaries : array with ids of first and last token for this constant
-     *
-     * @return array
-     */
-    public function &get_constants() {
-        if ($this->constants === null) {
-            $this->constants = [];
-            $this->get_tokens();
-            for ($tid = 0; $tid < $this->tokenscount; $tid++) {
-                if ($this->tokens[$tid][0] == T_USE) {
-                    // Skip the entire use statement, to avoid interpreting "use const" as a constant.
-                    $tid = $this->end_of_statement($tid);
-                    continue;
-                }
-
-                if ($this->tokens[$tid][0] == T_CONST && !$this->is_inside_function($tid)) {
-                    $variable = new stdClass;
-                    $variable->tid = $tid;
-                    $variable->fullname = $variable->name = $this->next_nonspace_token($tid, false);
-                    $variable->class = $this->is_inside_class($tid);
-                    if ($variable->class !== false) {
-                        $variable->fullname = $variable->class->name . '::' . $variable->name;
-                    }
-                    $variable->phpdocs = $this->find_preceeding_phpdoc($tid);
-                    $variable->boundaries = $this->find_object_boundaries($variable);
-                    $this->constants[] = $variable;
-                }
-            }
-        }
-        return $this->constants;
     }
 
     /**

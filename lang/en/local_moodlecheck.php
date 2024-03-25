@@ -37,8 +37,6 @@ $string['privacy:metadata'] = 'The Moodle PHPdoc check plugin does not store any
 
 $string['error_emptynophpfile'] = 'The file is empty or doesn\'t contain PHP code. Skipped.';
 
-$string['rule_constsdocumented'] = 'All constants are documented';
-$string['error_constsdocumented'] = 'Constant <b>{$a->object}</b> is not documented';
 $string['rule_definesdocumented'] = 'All define statements are documented';
 $string['error_definesdocumented'] = 'Define statement for <b>{$a->object}</b> is not documented';
 
