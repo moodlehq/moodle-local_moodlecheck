@@ -37,9 +37,6 @@ $string['privacy:metadata'] = 'The Moodle PHPdoc check plugin does not store any
 
 $string['error_emptynophpfile'] = 'The file is empty or doesn\'t contain PHP code. Skipped.';
 
-$string['rule_noinlinephpdocs'] = 'There are no comments starting with three or more slashes';
-$string['error_noinlinephpdocs'] = 'Found comment starting with three or more slashes';
-
 $string['error_phpdocsinvalidinlinetag'] = 'Invalid inline phpdocs tag <b>{$a->tag}</b> found';
 $string['rule_phpdocsinvalidinlinetag'] = 'Inline phpdocs tags are valid';
 
