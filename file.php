@@ -1202,15 +1202,6 @@ class local_moodlecheck_phpdocs {
     }
 
     /**
-     * Returns true if this is an inline phpdoc comment (starting with three slashes)
-     *
-     * @return bool
-     */
-    public function is_inline() {
-        return preg_match('|^\s*///|', $this->originaltoken[1]);
-    }
-
-    /**
      * Returns the original token storing this phpdocs
      *
      * @return array

@@ -24,27 +24,10 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-local_moodlecheck_registry::add_rule('noinlinephpdocs')->set_callback('local_moodlecheck_noinlinephpdocs');
 local_moodlecheck_registry::add_rule('functionarguments')->set_callback('local_moodlecheck_functionarguments');
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
 local_moodlecheck_registry::add_rule('phpdocsuncurlyinlinetag')->set_callback('local_moodlecheck_phpdocsuncurlyinlinetag');
 local_moodlecheck_registry::add_rule('phpdoccontentsinlinetag')->set_callback('local_moodlecheck_phpdoccontentsinlinetag');
-
-/**
- * Checks that no comment starts with three or more slashes
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_noinlinephpdocs(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_all_phpdocs() as $phpdocs) {
-        if ($phpdocs->is_inline()) {
-            $errors[] = ['line' => $phpdocs->get_line_number($file)];
-        }
-    }
-    return $errors;
-}
 
 /**
  * Check that all the inline phpdoc tags found are valid
