@@ -46,7 +46,6 @@ class local_moodlecheck_file {
     protected $filephpdocs = null;
     protected $allphpdocs = null;
     protected $variables = null;
-    protected $defines = null;
 
     /**
      * Creates an object from path to the file
@@ -70,7 +69,6 @@ class local_moodlecheck_file {
         $this->filephpdocs = null;
         $this->allphpdocs = null;
         $this->variables = null;
-        $this->defines = null;
     }
 
     /**
@@ -514,43 +512,6 @@ class local_moodlecheck_file {
             }
         }
         return $this->variables;
-    }
-
-    /**
-     * Returns all 'define' statements found in file
-     *
-     * Returns array of objects where each element represents a define statement:
-     * $variable->tid : token id of the token with variable name
-     * $variable->name : name of the variable (starts with $)
-     * $variable->phpdocs : phpdocs for this variable (instance of local_moodlecheck_phpdocs or false if not found)
-     * $variable->class : containing class object
-     * $variable->fullname : name of the variable with class name (i.e. classname::$varname)
-     * $variable->boundaries : array with ids of first and last token for this constant
-     *
-     * @return array
-     */
-    public function &get_defines() {
-        if ($this->defines === null) {
-            $this->defines = [];
-            $this->get_tokens();
-            for ($tid = 0; $tid < $this->tokenscount; $tid++) {
-                if ($this->tokens[$tid][0] == T_STRING && $this->tokens[$tid][1] == 'define' &&
-                        !$this->is_inside_function($tid) && !$this->is_inside_class($tid)) {
-                    $next1id = $this->next_nonspace_token($tid, true);
-                    $next1 = $this->next_nonspace_token($tid, false);
-                    $next2 = $this->next_nonspace_token($next1id, false);
-                    $variable = new stdClass;
-                    $variable->tid = $tid;
-                    if ($next1 == '(' && preg_match("/^(['\"])(.*)\\1$/", $next2, $matches)) {
-                        $variable->fullname = $variable->name = $matches[2];
-                    }
-                    $variable->phpdocs = $this->find_preceeding_phpdoc($tid);
-                    $variable->boundaries = $this->find_object_boundaries($variable);
-                    $defines[] = $variable;
-                }
-            }
-        }
-        return $this->defines;
     }
 
     /**
