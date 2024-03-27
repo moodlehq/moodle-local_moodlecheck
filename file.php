@@ -45,7 +45,6 @@ class local_moodlecheck_file {
     protected $functions = null;
     protected $filephpdocs = null;
     protected $allphpdocs = null;
-    protected $variables = null;
 
     /**
      * Creates an object from path to the file
@@ -68,7 +67,6 @@ class local_moodlecheck_file {
         $this->functions = null;
         $this->filephpdocs = null;
         $this->allphpdocs = null;
-        $this->variables = null;
     }
 
     /**
@@ -473,45 +471,6 @@ class local_moodlecheck_file {
             }
         }
         return $this->functions;
-    }
-
-    /**
-     * Returns all class properties (variables) found in file
-     *
-     * Returns array of objects where each element represents a variable:
-     * $variable->tid : token id of the token with variable name
-     * $variable->name : name of the variable (starts with $)
-     * $variable->phpdocs : phpdocs for this variable (instance of local_moodlecheck_phpdocs or false if not found)
-     * $variable->class : containing class object
-     * $variable->fullname : name of the variable with class name (i.e. classname::$varname)
-     * $variable->accessmodifiers : tokens like static, public, protected, abstract, etc.
-     * $variable->boundaries : array with ids of first and last token for this variable
-     *
-     * @return array
-     */
-    public function &get_variables() {
-        if ($this->variables === null) {
-            $this->variables = [];
-            $this->get_tokens();
-            for ($tid = 0; $tid < $this->tokenscount; $tid++) {
-                if ($this->tokens[$tid][0] == T_VARIABLE && ($class = $this->is_inside_class($tid)) &&
-                        !$this->is_inside_function($tid)) {
-                    $variable = new stdClass;
-                    $variable->tid = $tid;
-                    $variable->name = $this->tokens[$tid][1];
-                    $variable->class = $class;
-                    $variable->fullname = $class->name . '::' . $variable->name;
-
-                    $beforetype = $this->skip_preceding_type($tid);
-                    $variable->accessmodifiers = $this->find_access_modifiers($beforetype);
-                    $variable->phpdocs = $this->find_preceeding_phpdoc($beforetype);
-
-                    $variable->boundaries = $this->find_object_boundaries($variable);
-                    $this->variables[] = $variable;
-                }
-            }
-        }
-        return $this->variables;
     }
 
     /**
@@ -1092,11 +1051,6 @@ class local_moodlecheck_phpdocs {
     /** @var string text of phpdocs with trimmed start/end tags
      * as well as * in the beginning of the lines */
     protected $trimmedtext = null;
-    /** @var boolean whether the phpdocs contains text after the tokens
-     * (possible in phpdocs but not recommended in Moodle) */
-    protected $brokentext = false;
-    /** @var string the description found in phpdocs */
-    protected $description;
     /** @var array array of string where each string
      * represents found token (may be also multiline) */
     protected $tokens;
@@ -1119,7 +1073,6 @@ class local_moodlecheck_phpdocs {
         $lines = preg_split('/\n/', $this->trimmedtext);
 
         $this->tokens = [];
-        $this->description = '';
         $istokenline = false;
         for ($i = 0; $i < count($lines); $i++) {
             if (preg_match('|^\s*\@(\w+)|', $lines[$i])) {
@@ -1130,19 +1083,12 @@ class local_moodlecheck_phpdocs {
                 // Second/third line of token description.
                 $this->tokens[count($this->tokens) - 1] .= "\n". $lines[$i];
             } else {
-                // This is part of description.
-                if (strlen(trim($lines[$i])) && !empty($this->tokens)) {
-                    // Some text appeared AFTER tokens.
-                    $this->brokentext = true;
-                }
-                $this->description .= $lines[$i]."\n";
                 $istokenline = false;
             }
         }
         foreach ($this->tokens as $i => $token) {
             $this->tokens[$i] = trim($token);
         }
-        $this->description = trim($this->description);
     }
 
     /**
@@ -1181,24 +1127,6 @@ class local_moodlecheck_phpdocs {
      */
     public function get_tokens($tag = null, $nonempty = false) {
         return get_tags($tag, $nonempty);
-    }
-
-    /**
-     * Returns the description without tokens found in phpdocs
-     *
-     * @return string
-     */
-    public function get_description() {
-        return $this->description;
-    }
-
-    /**
-     * Returns true if part of the text is after any of the tokens
-     *
-     * @return bool
-     */
-    public function is_broken_description() {
-        return $this->brokentext;
     }
 
     /**
