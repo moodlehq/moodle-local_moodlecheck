@@ -26,8 +26,6 @@ defined('MOODLE_INTERNAL') || die;
 
 local_moodlecheck_registry::add_rule('definesdocumented')->set_callback('local_moodlecheck_definesdocumented');
 local_moodlecheck_registry::add_rule('noinlinephpdocs')->set_callback('local_moodlecheck_noinlinephpdocs');
-local_moodlecheck_registry::add_rule('phpdocsfistline')->set_callback('local_moodlecheck_phpdocsfistline');
-local_moodlecheck_registry::add_rule('functiondescription')->set_callback('local_moodlecheck_functiondescription');
 local_moodlecheck_registry::add_rule('functionarguments')->set_callback('local_moodlecheck_functionarguments');
 local_moodlecheck_registry::add_rule('definedoccorrect')->set_callback('local_moodlecheck_definedoccorrect');
 local_moodlecheck_registry::add_rule('phpdocsinvalidinlinetag')->set_callback('local_moodlecheck_phpdocsinvalidinlinetag');
@@ -154,51 +152,6 @@ function local_moodlecheck_phpdoccontentsinlinetag(local_moodlecheck_file $file)
                     }
                 }
             }
-        }
-    }
-    return $errors;
-}
-
-/**
- * Makes sure that file-level phpdocs and all classes have one-line short description
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_phpdocsfistline(local_moodlecheck_file $file) {
-    $errors = [];
-
-    if (($phpdocs = $file->find_file_phpdocs()) && !$file->find_file_phpdocs()->get_shortdescription()) {
-        $errors[] = [
-            'line' => $phpdocs->get_line_number($file),
-            'object' => 'file',
-        ];
-    }
-    foreach ($file->get_classes() as $class) {
-        if ($class->phpdocs && !$class->phpdocs->get_shortdescription()) {
-            $errors[] = [
-                'line' => $class->phpdocs->get_line_number($file),
-                'object' => 'class '.$class->name,
-            ];
-        }
-    }
-    return $errors;
-}
-
-/**
- * Makes sure that all functions have descriptions
- *
- * @param local_moodlecheck_file $file
- * @return array of found errors
- */
-function local_moodlecheck_functiondescription(local_moodlecheck_file $file) {
-    $errors = [];
-    foreach ($file->get_functions() as $function) {
-        if ($function->phpdocs !== false && !strlen($function->phpdocs->get_description())) {
-            $errors[] = [
-                'line' => $function->phpdocs->get_line_number($file),
-                'object' => $function->name,
-            ];
         }
     }
     return $errors;
