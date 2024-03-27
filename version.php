@@ -24,8 +24,8 @@
 
 defined('MOODLE_INTERNAL') || die;
 
-$plugin->version  = 2024032200;
-$plugin->release   = '1.3.1';
+$plugin->version  = 2024032700;
+$plugin->release   = '1.3.2';
 $plugin->maturity  = MATURITY_STABLE;
 $plugin->requires = 2018051700;
 $plugin->component = 'local_moodlecheck';
