@@ -22,6 +22,8 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// phpcs:disable moodle.Files.LangFilesOrdering
+
 $string['pluginname'] = 'Moodle PHPdoc check';
 $string['path'] = 'Path(s)';
 $string['ignorepath'] = 'Subpaths to ignore';

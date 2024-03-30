@@ -46,6 +46,11 @@ final class phpdocs_basic_test extends \advanced_testcase {
         );
     }
 
+    /**
+     * Data provider for test_local_moodlecheck_normalise_function_type.
+     *
+     * @return array
+     */
     public static function local_moodlecheck_normalise_function_type_provider(): array {
         return [
             'Simple case' => [

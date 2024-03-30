@@ -22,9 +22,12 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// phpcs:disable moodle.Commenting.VariableComment.Missing
+// phpcs:disable moodle.Commenting.MissingDocblock.Missing
+
 defined('MOODLE_INTERNAL') || die;
 require_once($CFG->libdir . '/formslib.php');
-require_once($CFG->dirroot. '/local/moodlecheck/file.php');
+require_once($CFG->dirroot . '/local/moodlecheck/file.php');
 
 /**
  * Handles one rule
