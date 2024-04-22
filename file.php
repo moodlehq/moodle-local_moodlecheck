@@ -22,6 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+// phpcs:disable moodle.Commenting.VariableComment.Missing
+// phpcs:disable moodle.Commenting.MissingDocblock.Missing
+// phpcs:disable moodle.Commenting.VariableComment.TagNotAllowed
+
 defined('MOODLE_INTERNAL') || die;
 
 /**
